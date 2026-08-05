@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>АС | Sales Engine (Full State Model)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #4F774A; --primary-hover: #3d5e39; --bg-color: #FDFBF7;
+            --surface: #ffffff; --surface-alt: #F5F2E9; --text-main: #2A362D;
+            --text-muted: #6b7a70; --border: #E8E3D5; --error-bg: #fff0f0;
+            --col-2025: #f4f2eb; --col-curr: #ffffff; --col-scen: #f8faf7;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg-color); color: var(--text-main); height: 100vh; 
+            display: flex; flex-direction: column; overflow: hidden; 
+            font-family: 'Nunito', sans-serif; -webkit-font-smoothing: antialiased;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #D5D0C5; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+        
+        header { 
+            background-color: var(--surface); padding: 16px 32px; border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+        }
+        
+        .logo-area { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; }
+        .logo-area span { color: var(--primary); }
+        
+        .scenario-controls { display: flex; gap: 12px; align-items: center; }
+        
+        .scenario-checkboxes {
+            display: flex; gap: 12px; background: var(--surface-alt); 
+            padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border);
+            align-items: center; max-width: 50vw; overflow-x: auto;
+        }
+        .scenario-checkboxes label {
+            display: flex; align-items: center; gap: 6px; font-size: 0.85rem; 
+            font-weight: 700; cursor: pointer; color: var(--text-main); user-select: none; white-space: nowrap;
+        }
+        .scenario-checkboxes input[type="checkbox"] { cursor: pointer; accent-color: var(--primary); }
+        
+        button { 
+            padding: 9px 16px; background-color: var(--surface); color: var(--primary); 
+            border: 1px solid var(--primary); border-radius: 8px; cursor: pointer; 
+            font-size: 0.9rem; font-weight: 700; font-family: 'Nunito', sans-serif; transition: all 0.2s ease; 
+        }
+        button:hover { background-color: var(--surface-alt); }
+        button.primary { background-color: var(--primary); color: #ffffff; border: none; box-shadow: 0 4px 10px rgba(79, 119, 74, 0.2); }
+        button.primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        button.export { background-color: #2A362D; color: #fff; border-color: #2A362D; }
+        button.export:hover { background-color: #1f2821; }
+
+        .workspace { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 280px; background-color: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 0; overflow-y: auto; flex-shrink: 0; }
+        
+        .nav-item { padding: 14px 24px; cursor: pointer; font-weight: 700; font-size: 1rem; color: var(--text-muted); transition: all 0.2s ease; border-left: 4px solid transparent; }
+        .nav-item:hover { color: var(--primary); background-color: var(--surface-alt); }
+        .nav-item.active { border-left-color: var(--primary); background-color: var(--surface-alt); color: var(--primary); }
+
+        .content { flex: 1; padding: 32px 40px; overflow-y: auto; background: var(--bg-color); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease forwards; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .accordion { margin-bottom: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .accordion-header { padding: 16px 24px; background: var(--surface-alt); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; }
+        .accordion-header:hover { background: #efebe0; }
+        .accordion-header h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--primary); margin: 0; }
+        
+        .table-container { width: 100%; overflow-x: auto; max-height: 60vh; background-color: var(--surface); }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th, td { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: right; min-width: 100px; padding: 8px; font-size: 0.95rem;}
+        th:last-child, td:last-child { border-right: none; }
+        th { background-color: var(--surface-alt); color: var(--text-main); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; position: sticky; top: 0; z-index: 10; text-align: center; }
+        tr:nth-child(2) th { top: 35px; z-index: 9; font-size: 0.75rem; color: var(--text-muted); } 
+        td:first-child, th:first-child { text-align: left; font-weight: 700; background-color: var(--surface-alt); position: sticky; left: 0; z-index: 15; box-shadow: 1px 0 0 var(--border); }
+        tr:nth-child(2) th:first-child { z-index: 14; }
+        .group-th { border-bottom: 2px solid var(--primary); }
+
+        /* Изоляция стилей ячеек */
+        td.readonly-cell { background-color: var(--col-scen); color: var(--text-muted); font-weight: 600; padding-right: 12px; }
+        td.readonly-2025 { background-color: var(--col-2025); }
+        td input { 
+            width: 100%; height: 32px; padding: 0 8px; background: var(--surface); border: 1px solid var(--border); 
+            border-radius: 4px; font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 700; 
+            color: var(--text-main); text-align: right; transition: all 0.2s;
+        }
+        td input:focus { border-color: var(--primary); box-shadow: inset 0 0 0 2px rgba(79, 119, 74, 0.2); outline: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">Агроном-сад <span>| Sales Engine</span></div>
+        <div class="scenario-controls">
+            
+            <div class="scenario-checkboxes" id="checkbox-container">
+                </div>
+
+            <button onclick="saveCurrentScenario()">Сохранить сценарий</button>
+            <button class="primary" onclick="document.getElementById('file-upload').click()" id="btn-load">Загрузить Excel</button>
+            <input type="file" id="file-upload" style="display: none;" accept=".xlsx, .xls, .csv">
+            <button class="export" onclick="exportToExcel()">Выгрузить в Excel</button>
+            <button class="primary" onclick="runCalculationEngine()">Запустить расчет</button>
+        </div>
+    </header>
+
+    <div class="workspace">
+        <div class="sidebar">
+            <div class="nav-item active" onclick="switchTab('tab-volumes', this)">1. Объем яблока</div>
+            <div class="nav-item" onclick="switchTab('tab-prices', this)">2. Цена реализации</div>
+            <div class="nav-item" onclick="switchTab('tab-mix', this)">3. Продуктовый микс</div>
+            <div class="nav-item" onclick="switchTab('tab-constraints', this)">4. Ограничения</div>
+            <div class="nav-item" onclick="switchTab('tab-expenses', this)">5. Расходные статьи</div>
+            <div class="nav-item" onclick="switchTab('tab-results', this)">6. План выручки</div>
+        </div>
+
+        <div class="content">
+            <div id="tab-volumes" class="tab-content active">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px;">Объем яблока</h2>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Валовый сбор, индустриальное яблоко и хранение</h3></div><div class="accordion-body table-container" id="tbl-volumes"></div></div>
+            </div>
+
+            <div id="tab-prices" class="tab-content">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px;">Цена реализации и модификаторы</h2>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Базовые цены по сортам (₽/кг)</h3></div><div class="accordion-body table-container" id="tbl-prices"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Премия по торговым сетям (%)</h3></div><div class="accordion-body table-container" id="tbl-networks"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Премия за тип упаковки (%)</h3></div><div class="accordion-body table-container" id="tbl-packs"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Скидка за класс яблока (%)</h3></div><div class="accordion-body table-container" id="tbl-classes"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Скидка за калибр (%)</h3></div><div class="accordion-body table-container" id="tbl-calibers"></div></div>
+            </div>
+
+            <div id="tab-mix" class="tab-content">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px;">Продуктово-канальный микс</h2>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Распределение по Классам (%)</h3></div><div class="accordion-body table-container" id="tbl-mix-classes"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Распределение по Калибрам (%)</h3></div><div class="accordion-body table-container" id="tbl-mix-calibers"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Распределение по Упаковке (%)</h3></div><div class="accordion-body table-container" id="tbl-mix-packs"></div></div>
+            </div>
+
+            <div id="tab-constraints" class="tab-content">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px;">Ограничения емкости и сроков</h2>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Емкость продаж по месяцам (в тоннах)</h3></div><div class="accordion-body table-container" id="tbl-cap"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Ограничения хранения (в месяцах)</h3></div><div class="accordion-body table-container" id="tbl-stor"></div></div>
+            </div>
+
+            <div id="tab-expenses" class="tab-content">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px;">Расходные статьи (G&A)</h2>
+                <div class="accordion"><div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')"><h3>Постоянные и переменные расходы (₽)</h3></div><div class="accordion-body table-container" id="tbl-expenses"></div></div>
+            </div>
+
+            <div id="tab-results" class="tab-content">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 20px;">Сводный план выручки</h2>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="this.parentElement.classList.toggle('collapsed')">
+                        <h3>Итоговая расчетная матрица</h3>
+                    </div>
+                    <div class="accordion-body table-container" style="max-height: 75vh;" id="tbl-results-container">
+                        <table id="tbl-results"><tbody><tr><td style="text-align: center; padding: 60px; color: var(--text-muted);">Нажмите "Запустить расчет" для генерации матрицы по сценариям.</td></tr></tbody></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. STATE MANAGEMENT (Хранилище данных и конфигурации) ---
+        let SORTS = ['Альва', 'Амброзия', 'Гала', 'Лигол', 'Спартан', 'Космик Крисп', 'Антоновка'];
+        const NETWORKS = ['ПЕРЕКРЕСТОК', 'ВКУСВИЛЛ', 'МАГНИТ', 'ЛЕНТА', 'АШАН'];
+        const CLASSES = ['I класс', 'II класс', 'III класс', 'IV класс']; 
+        const CALIBERS = ['>95 мм', '90-95 мм', '85-90 мм', '80-85 мм', '75-80 мм', '65-70 мм', '60-65 мм', '55+ мм'];
+        const PACKAGING = ['Вес', 'Лоток 4*1', 'FP 6*1', 'Пакет', 'Сетка'];
+        const MONTHS = ['Авг', 'Сен', 'Окт', 'Ноя', 'Дек', 'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'];
+        const EXPENSES = ['Аренда складов', 'Логистика', 'ФОТ Комм. отдела', 'Маркетинг', 'Прочие расходы'];
+
+        // Массив сценариев (Управляет колонками)
+        let scenarios = [
+            { id: 's2025', name: '2025', type: 'readonly', visible: true },
+            { id: 'scur', name: 'Текущее', type: 'input', visible: true },
+            { id: 's1', name: 'Сц. 1', type: 'readonly', visible: true },
+            { id: 's2', name: 'Сц. 2', type: 'readonly', visible: false }
+        ];
+
+        // Глобальное хранилище всех введенных значений (Ключ -> Значение)
+        let tableData = {};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCheckboxes();
+            generateAllTables();
+        });
+
+        function switchTab(tabId, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            el.classList.add('active');
+        }
+
+        // --- 2. УПРАВЛЕНИЕ СЦЕНАРИЯМИ (Рендер, Сохранение, Видимость) ---
+        function renderCheckboxes() {
+            let html = '<span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 4px;">Сценарии:</span>';
+            scenarios.forEach(scen => {
+                let disabled = scen.id === 'scur' ? 'disabled' : ''; // Текущее всегда активно
+                let checked = scen.visible ? 'checked' : '';
+                html += `<label><input type="checkbox" value="${scen.id}" onchange="toggleScenario(this)" ${checked} ${disabled}> ${scen.name}</label>`;
+            });
+            document.getElementById('checkbox-container').innerHTML = html;
+        }
+
+        function toggleScenario(cb) {
+            let scen = scenarios.find(s => s.id === cb.value);
+            if(scen) scen.visible = cb.checked;
+            updateVisibility();
+        }
+
+        function updateVisibility() {
+            let visibleCount = scenarios.filter(s => s.visible).length;
+            
+            // Меняем colspan заголовков
+            document.querySelectorAll('.group-th').forEach(el => el.setAttribute('colspan', visibleCount));
+            
+            // Скрываем/показываем колонки
+            scenarios.forEach(scen => {
+                let display = scen.visible ? '' : 'none';
+                document.querySelectorAll('.col-' + scen.id).forEach(el => el.style.display = display);
+            });
+        }
+
+        function saveCurrentScenario() {
+            let name = prompt("Введите название для нового сценария (сохраняет значения из колонки 'Текущее'):", "Мой сценарий");
+            if (!name) return;
+
+            let newId = 's_' + Date.now();
+            
+            // 1. Добавляем новый сценарий в конфиг
+            scenarios.push({ id: newId, name: name, type: 'readonly', visible: true });
+            
+            // 2. Копируем данные из Текущего ('scur') в новый ('newId')
+            for (let key in tableData) {
+                if (key.endsWith('_scur')) {
+                    let newKey = key.replace('_scur', '_' + newId);
+                    tableData[newKey] = tableData[key];
+                }
+            }
+            
+            // 3. Перестраиваем интерфейс
+            renderCheckboxes();
+            generateAllTables();
+            alert(`Сценарий «${name}» успешно сохранен и зафиксирован!`);
+        }
+
+        function saveToState(inputEl) {
+            let val = parseFloat(inputEl.value);
+            tableData[inputEl.getAttribute('data-key')] = isNaN(val) ? 0 : val;
+        }
+
+        // --- 3. ГЕНЕРАТОР ТАБЛИЦ (Умный рендеринг на базе State) ---
+        function getOrInitData(tableId, rIdx, cIdx, scenId, baseVal, isPercent) {
+            let key = `${tableId}_${rIdx}_${cIdx}_${scenId}`;
+            
+            // Если данные уже есть в State (после редактирования, загрузки или сохранения) - отдаем их
+            if (tableData[key] !== undefined) return tableData[key];
+            
+            // Инициализация дефолтных значений для MVP
+            let val = baseVal;
+            if (scenId === 's2025') val = isPercent ? baseVal : Math.round(baseVal * 0.9);
+            else if (scenId === 's1') val = isPercent ? baseVal : Math.round(baseVal * 1.05);
+            else if (scenId === 's2') val = isPercent ? baseVal : Math.round(baseVal * 1.10);
+            
+            tableData[key] = val; // Записываем в State
+            return val;
+        }
+
+        function buildInputs(tableId, rIdx, cIdx, baseVal, isPercent) {
+            let html = '';
+            scenarios.forEach(scen => {
+                let val = getOrInitData(tableId, rIdx, cIdx, scen.id, baseVal, isPercent);
+                let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
+                let display = scen.visible ? '' : 'style="display:none;"';
+                
+                if (scen.type === 'input') {
+                    let key = `${tableId}_${rIdx}_${cIdx}_${scen.id}`;
+                    html += `<td class="col-${scen.id}" ${display}><input type="number" data-key="${key}" value="${val}" onchange="saveToState(this)"></td>`;
+                } else {
+                    html += `<td class="${cellClass}" ${display}>${val}</td>`;
+                }
+            });
+            return html;
+        }
+
+        function buildTableMatrix(tableId, rowHeaders, colHeaders, dataGenerator, isPercent = false) {
+            let visibleCount = scenarios.filter(s => s.visible).length;
+            let subHeader = scenarios.map(s => `<th class="col-${s.id}" ${s.visible ? '' : 'style="display:none;"'}>${s.name}</th>`).join('');
+            
+            let thead = `<tr><th rowspan="2">Параметр</th>${colHeaders.map(c => `<th colspan="${visibleCount}" class="group-th">${c}</th>`).join('')}</tr><tr>${subHeader.repeat(colHeaders.length)}</tr>`;
+            
+            let tbody = rowHeaders.map((rowHeader, rIdx) => {
+                let rowData = colHeaders.map((colHeader, cIdx) => buildInputs(tableId, rIdx, cIdx, dataGenerator(rIdx, cIdx), isPercent)).join('');
+                return `<tr><td>${rowHeader}</td>${rowData}</tr>`;
+            }).join('');
+            
+            return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
+
+        function generateAllTables() {
+            document.getElementById('tbl-volumes').innerHTML = buildTableMatrix('vol', SORTS, ['Валовый (т)', 'Индустр. (%)', 'Товарное (%)', 'НЕ на хранение (%)', 'Потери хран. (%)'], (r, c) => [Math.floor(Math.random()*1500+500), 15, 85, 20, 5][c], true);
+            document.getElementById('tbl-prices').innerHTML = buildTableMatrix('prc', SORTS, ['Базовая цена (₽)'], () => 110);
+            document.getElementById('tbl-networks').innerHTML = buildTableMatrix('net', NETWORKS, ['Премия (%)'], () => Math.floor(Math.random()*15), true);
+            document.getElementById('tbl-packs').innerHTML = buildTableMatrix('pck', PACKAGING, ['Премия (%)'], (r) => r===0 ? 0 : 10, true);
+            document.getElementById('tbl-classes').innerHTML = buildTableMatrix('cls', CLASSES, ['Скидка (%)'], (r) => r * -15, true);
+            document.getElementById('tbl-calibers').innerHTML = buildTableMatrix('cal', CALIBERS, ['Скидка (%)'], (r) => r * -2, true);
+            
+            document.getElementById('tbl-mix-classes').innerHTML = buildTableMatrix('mc', SORTS, CLASSES, (r, c) => [50, 30, 15, 5][c], true);
+            document.getElementById('tbl-mix-calibers').innerHTML = buildTableMatrix('mcl', SORTS, CALIBERS, () => (100/CALIBERS.length).toFixed(1), true);
+            document.getElementById('tbl-mix-packs').innerHTML = buildTableMatrix('mp', SORTS, PACKAGING, (r, c) => [40, 20, 15, 15, 10][c], true);
+            
+            document.getElementById('tbl-cap').innerHTML = buildTableMatrix('cap', SORTS, MONTHS, () => Math.floor(Math.random()*200 + 200));
+            document.getElementById('tbl-stor').innerHTML = buildTableMatrix('str', SORTS, ['Макс. срок (мес)'], () => 6);
+            document.getElementById('tbl-expenses').innerHTML = buildTableMatrix('exp', EXPENSES, ['Сумма (₽)'], () => Math.floor(Math.random()*3000000 + 1000000));
+        }
+
+        // --- 4. EXCEL ИМПОРТ И ЭКСПОРТ (SheetJS) ---
+        document.getElementById('file-upload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                parseExcelData(workbook);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function parseExcelData(workbook) {
+            try {
+                // Пытаемся найти лист с объемами для извлечения сортов и базовых цифр
+                const sheet = workbook.Sheets[workbook.SheetNames.find(n => n.includes('Объем') || n.includes('1.')) || workbook.SheetNames[0]];
+                const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
+                
+                let newSorts = [];
+                let isCapturing = false;
+                
+                for(let i = 0; i < jsonData.length; i++) {
+                    const row = jsonData[i];
+                    if(!row || !row[0]) continue;
+                    let firstCell = String(row[0]).trim();
+                    
+                    if (firstCell === 'Итого' || firstCell === 'Альва') isCapturing = true;
+                    if (isCapturing && firstCell !== 'Итого' && firstCell.length < 30) {
+                        newSorts.push(firstCell);
+                        
+                        // Если в экселе есть цифры объемов правее сорта, записываем их напрямую в State для Текущего сценария!
+                        if(row[1]) tableData[`vol_${newSorts.length-1}_0_scur`] = parseFloat(row[1]) || 1000;
+                    }
+                }
+
+                if (newSorts.length > 0) SORTS = newSorts; 
+
+                generateAllTables();
+                alert(`Данные из Excel успешно импортированы!\nСортов обработано: ${SORTS.length}.`);
+            } catch (error) {
+                alert("Ошибка чтения данных из Excel файла.");
+            }
+        }
+
+        function exportToExcel() {
+            let table = document.getElementById("tbl-results");
+            if (!table || table.rows.length < 3) {
+                alert("Сначала запустите расчет матрицы!");
+                return;
+            }
+            // Клонируем таблицу, чтобы очистить скрытые display:none колонки (чтобы Excel был чистым)
+            let clone = table.cloneNode(true);
+            clone.querySelectorAll('th, td').forEach(cell => {
+                if(window.getComputedStyle(cell).display === 'none' || cell.style.display === 'none') {
+                    cell.remove();
+                }
+            });
+
+            let wb = XLSX.utils.table_to_book(clone, {sheet: "План Выручки MVP"});
+            XLSX.writeFile(wb, "Sales_Plan_MVP.xlsx");
+        }
+
+        // --- 5. ВЫЧИСЛИТЕЛЬНОЕ ЯДРО ---
+        function runCalculationEngine() {
+            let visibleCount = scenarios.filter(s => s.visible).length;
+            let subHeader = scenarios.map(s => `<th class="col-${s.id}" ${s.visible ? '' : 'style="display:none;"'}>${s.name}</th>`).join('');
+            let resCols = ['Товарный Объем (т)', 'Ср. Цена (₽)', 'Итого Выручка (₽)'];
+            let resThead = `<tr><th rowspan="2" style="z-index: 20;">Сорт</th><th rowspan="2" style="z-index: 20;">Торговая Сеть</th>${resCols.map(c => `<th colspan="${visibleCount}" class="group-th">${c}</th>`).join('')}</tr><tr>${subHeader.repeat(resCols.length)}</tr>`;
+            
+            let resTbody = '';
+            const formatter = new Intl.NumberFormat('ru-RU');
+
+            SORTS.forEach((sort, sIdx) => {
+                NETWORKS.forEach((net, nIdx) => {
+                    let htmlVol = '', htmlPrice = '', htmlRev = '';
+                    
+                    scenarios.forEach(scen => {
+                        let display = scen.visible ? '' : 'style="display:none;"';
+                        let cellClass = `col-${scen.id} ${scen.id === 'scur' ? 'col-cur' : 'readonly-cell'}`;
+                        
+                        // Достаем значения прямо из State-машины (Быстро и безошибочно)
+                        let gross = tableData[`vol_${sIdx}_0_${scen.id}`] || 0;
+                        let pInd = (tableData[`vol_${sIdx}_1_${scen.id}`] || 0) / 100;
+                        let pStor = (tableData[`vol_${sIdx}_3_${scen.id}`] || 0) / 100;
+                        let pLoss = (tableData[`vol_${sIdx}_4_${scen.id}`] || 0) / 100;
+                        
+                        let basePrice = tableData[`prc_${sIdx}_0_${scen.id}`] || 110;
+                        let netMod = (tableData[`net_${nIdx}_0_${scen.id}`] || 0) / 100;
+
+                        // Логика расчета
+                        let volComm = gross * (1 - pInd);
+                        let volStorageNet = (volComm * pStor) * (1 - pLoss);
+                        let totalSaleable = (volComm * (1 - pStor)) + volStorageNet;
+                        
+                        let netVol = totalSaleable / NETWORKS.length; 
+                        let finalPrice = basePrice * (1 + netMod);
+                        let revenue = (netVol * 1000) * finalPrice;
+
+                        let revStyle = scen.id === 'scur' ? 'color: var(--primary); font-weight: 800;' : '';
+
+                        htmlVol += `<td class="${cellClass}" ${display}>${netVol.toFixed(1)}</td>`;
+                        htmlPrice += `<td class="${cellClass}" ${display}>${finalPrice.toFixed(2)}</td>`;
+                        htmlRev += `<td class="${cellClass}" ${display} style="${revStyle}">${formatter.format(revenue)}</td>`;
+                    });
+
+                    resTbody += `<tr><td style="position: sticky; left:0; font-weight: 700; background: var(--surface);">${sort}</td><td style="position: sticky; left: 110px; z-index: 5; background: var(--surface-alt); font-weight: 600;">${net}</td>${htmlVol}${htmlPrice}${htmlRev}</tr>`;
+                });
+            });
+
+            document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results"><thead>${resThead}</thead><tbody>${resTbody}</tbody></table>`;
+            switchTab('tab-results', document.querySelectorAll('.nav-item')[5]);
+        }
+    </script>
+</body>
+</html>
