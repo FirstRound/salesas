@@ -31,6 +31,7 @@ init_db()
 class StateUpdate(BaseModel):
     tableData: dict
     scenarios: list
+    sorts: list = []
 
 # 1. Отдаем наш интерфейс при заходе на главную страницу
 @app.get("/")
