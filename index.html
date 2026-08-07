@@ -105,7 +105,7 @@
         .input-wrapper { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
         td input { width: 100%; height: 26px; padding: 0 4px; background: transparent; border: 1px solid transparent; border-radius: 4px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-main); text-align: right; transition: all 0.2s; }
         td input:focus { background-color: #fff; border-color: var(--primary); box-shadow: inset 0 0 0 1px rgba(79, 119, 74, 0.3); outline: none; }
-        td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; }
+        td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; } /* Стили плейсхолдера */
         .pct-sign { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-left: 2px;}
 
         .filters-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; }
@@ -169,13 +169,7 @@
             <div id="tab-vol" class="tab-content active">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Объём</h2>
                 <div class="block-info">Ответственный: Прилепин (Доступ: Редактирование)</div>
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)">
-                        <h3>Валовый сбор и распределение хранения</h3>
-                        <button class="mini-load" onclick="triggerLoad(event, 'vol')">Загрузить данные из файла</button>
-                    </div>
-                    <div class="accordion-body table-container" id="tbl-volumes"></div>
-                </div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Валовый сбор и распределение хранения</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-volumes"></div></div>
             </div>
 
             <div id="tab-qual" class="tab-content">
@@ -206,14 +200,7 @@
 
             <div id="tab-price" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Цена реализации</h2>
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)">
-                        <h3>Базовые цены (₽)</h3>
-                        <button class="mini-load" onclick="triggerLoad(event, 'p_base')">Загрузить данные из файла</button>
-                    </div>
-                    <div class="accordion-body table-container" id="tbl-prc-base"></div>
-                </div>
-                
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия сети (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
@@ -329,7 +316,7 @@
             ind.className = 'sync-indicator'; 
             ind.title = status; 
             if (isError) { ind.classList.add('error'); ind.innerHTML = `⚠️`; } 
-            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...' || status === 'Чтение файла...') { 
+            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...') { 
                 ind.classList.add('syncing'); ind.innerHTML = `⏳`; 
             } 
             else if (status === 'Подключение к БД...') { ind.innerHTML = `🔄`; }
@@ -434,7 +421,7 @@
 
         function toggleAcc(el) { el.parentElement.classList.toggle('collapsed'); }
 
-        // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ ---
+        // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ (Dropdown & Delete) ---
         function toggleDropdown() {
             document.getElementById("scen-dropdown-list").classList.toggle("show");
         }
@@ -845,14 +832,8 @@
             document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ (ExcelJS / SheetJS) ---
-        let currentUploadTarget = 'generic';
-        function triggerLoad(e, target = 'generic') { 
-            e.stopPropagation(); 
-            currentUploadTarget = target;
-            document.getElementById('file-upload').value = ''; 
-            document.getElementById('file-upload').click(); 
-        }
+        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ ---
+        function triggerLoad(e) { e.stopPropagation(); document.getElementById('file-upload').click(); }
 
         document.getElementById('file-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -876,7 +857,11 @@
                         for (let j=0; j<row.length; j++) {
                             if (row[j] && typeof row[j] === 'string') {
                                 let text = String(row[j]).trim().toLowerCase();
-                                if (text && !text.includes('2025') && !text.includes('2026') && text !== 'сорт' && text !== 'итого') {
+                                // Игнорируем любые названия колонок шапки
+                                const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', 's1', 'факт', 'текущее'];
+                                let shouldSkip = skipWords.some(w => text.includes(w));
+                                
+                                if (text && !shouldSkip && text.length < 30) {
                                     sortColIdx = j;
                                     break;
                                 }
@@ -885,7 +870,7 @@
                         
                         if (sortColIdx !== -1) {
                             let sortName = String(row[sortColIdx]).trim();
-                            if (sortName.length > 0 && sortName.length < 30) {
+                            if (sortName.length > 0) {
                                 newSorts.push(sortName);
                                 let sIdx = newSorts.length - 1;
                                 
