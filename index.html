@@ -287,13 +287,16 @@
                 }
                 return null;
             },
-            async saveFullState(dataObj, scensObj) {
-                localStorage.setItem('agronom_db_state', JSON.stringify({tableData: dataObj, scenarios: scensObj}));
+            // Добавили sortsArr
+            async saveFullState(dataObj, scensObj, sortsArr) { 
+                // Сохраняем сорта локально
+                localStorage.setItem('agronom_db_state', JSON.stringify({tableData: dataObj, scenarios: scensObj, sorts: sortsArr}));
                 try {
                     let response = await fetch(`${API_BASE_URL}/api/v1/scenarios/update`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ tableData: dataObj, scenarios: scensObj })
+                        // Отправляем сорта на бекенд
+                        body: JSON.stringify({ tableData: dataObj, scenarios: scensObj, sorts: sortsArr }) 
                     });
                     if (!response.ok) throw new Error('Ошибка сервера');
                 } catch (e) {
@@ -321,7 +324,8 @@
             clearTimeout(syncTimeout);
             syncTimeout = setTimeout(async () => {
                 try {
-                    await API.saveFullState(tableData, scenarios);
+                    // Передаем глобальный массив SORTS как третий аргумент
+                    await API.saveFullState(tableData, scenarios, SORTS);
                     setSyncStatus('Сохранено в БД');
                 } catch (e) {
                     if (e.message === 'backend_offline') setSyncStatus('Локально (БД недоступна)', false);
@@ -383,13 +387,18 @@
             return parseFloat(str.replace(/\s/g, '').replace(',', '.')) || 0;
         }
 
-        // --- ИНИЦИАЛИЗАЦИЯ ---
         document.addEventListener('DOMContentLoaded', async () => {
             setSyncStatus('Подключение к БД...');
             let cloudData = await API.loadState();
             if (cloudData) {
                 tableData = cloudData.tableData || {};
                 scenarios = cloudData.scenarios || scenarios;
+                
+                // ВОССТАНАВЛЕНИЕ СТРУКТУРЫ ИЗ EXCEL
+                if (cloudData.sorts && Array.isArray(cloudData.sorts) && cloudData.sorts.length > 0) {
+                    SORTS.length = 0; // Очищаем дефолтные сорта
+                    SORTS.push(...cloudData.sorts); // Разворачиваем те, что были сохранены
+                }
             }
             renderCheckboxes();
             generateAllTables();
