@@ -105,7 +105,7 @@
         .input-wrapper { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
         td input { width: 100%; height: 26px; padding: 0 4px; background: transparent; border: 1px solid transparent; border-radius: 4px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-main); text-align: right; transition: all 0.2s; }
         td input:focus { background-color: #fff; border-color: var(--primary); box-shadow: inset 0 0 0 1px rgba(79, 119, 74, 0.3); outline: none; }
-        td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; } /* Стили плейсхолдера */
+        td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; }
         .pct-sign { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-left: 2px;}
 
         .filters-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; }
@@ -169,7 +169,13 @@
             <div id="tab-vol" class="tab-content active">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Объём</h2>
                 <div class="block-info">Ответственный: Прилепин (Доступ: Редактирование)</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Валовый сбор и распределение хранения</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-volumes"></div></div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)">
+                        <h3>Валовый сбор и распределение хранения</h3>
+                        <button class="mini-load" onclick="triggerLoad(event, 'vol')">Загрузить данные из файла</button>
+                    </div>
+                    <div class="accordion-body table-container" id="tbl-volumes"></div>
+                </div>
             </div>
 
             <div id="tab-qual" class="tab-content">
@@ -200,7 +206,14 @@
 
             <div id="tab-price" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Цена реализации</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)">
+                        <h3>Базовые цены (₽)</h3>
+                        <button class="mini-load" onclick="triggerLoad(event, 'p_base')">Загрузить данные из файла</button>
+                    </div>
+                    <div class="accordion-body table-container" id="tbl-prc-base"></div>
+                </div>
+                
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия сети (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
@@ -316,7 +329,7 @@
             ind.className = 'sync-indicator'; 
             ind.title = status; 
             if (isError) { ind.classList.add('error'); ind.innerHTML = `⚠️`; } 
-            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...') { 
+            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...' || status === 'Чтение файла...') { 
                 ind.classList.add('syncing'); ind.innerHTML = `⏳`; 
             } 
             else if (status === 'Подключение к БД...') { ind.innerHTML = `🔄`; }
@@ -421,7 +434,7 @@
 
         function toggleAcc(el) { el.parentElement.classList.toggle('collapsed'); }
 
-        // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ (Dropdown & Delete) ---
+        // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ ---
         function toggleDropdown() {
             document.getElementById("scen-dropdown-list").classList.toggle("show");
         }
@@ -832,8 +845,14 @@
             document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ ---
-        function triggerLoad(e) { e.stopPropagation(); document.getElementById('file-upload').click(); }
+        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ (ExcelJS / SheetJS) ---
+        let currentUploadTarget = 'generic';
+        function triggerLoad(e, target = 'generic') { 
+            e.stopPropagation(); 
+            currentUploadTarget = target;
+            document.getElementById('file-upload').value = ''; 
+            document.getElementById('file-upload').click(); 
+        }
 
         document.getElementById('file-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -847,18 +866,49 @@
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
                     const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
                     let newSorts = [];
+                    
                     for(let i = 0; i < jsonData.length; i++) {
                         const row = jsonData[i];
-                        if(!row || !row[0]) continue;
-                        let firstCell = String(row[0]).trim();
-                        if (firstCell && firstCell.toLowerCase() !== 'сорт' && firstCell.toLowerCase() !== 'итого' && firstCell.length < 30) {
-                            newSorts.push(firstCell);
-                            if(row[1] !== undefined) {
-                                let val = parseFloat(String(row[1]).replace(/\s/g, '').replace(',', '.'));
-                                if(!isNaN(val)) tableData[`vol_${newSorts.length-1}_0_scur`] = val;
+                        if(!row || row.length === 0) continue;
+                        
+                        // Умный поиск колонки с названием сорта
+                        let sortColIdx = -1;
+                        for (let j=0; j<row.length; j++) {
+                            if (row[j] && typeof row[j] === 'string') {
+                                let text = String(row[j]).trim().toLowerCase();
+                                if (text && !text.includes('2025') && !text.includes('2026') && text !== 'сорт' && text !== 'итого') {
+                                    sortColIdx = j;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if (sortColIdx !== -1) {
+                            let sortName = String(row[sortColIdx]).trim();
+                            if (sortName.length > 0 && sortName.length < 30) {
+                                newSorts.push(sortName);
+                                let sIdx = newSorts.length - 1;
+                                
+                                let val1 = parseFloat(String(row[sortColIdx + 1] || '').replace(/\s/g, '').replace(',', '.'));
+                                let val2 = parseFloat(String(row[sortColIdx + 2] || '').replace(/\s/g, '').replace(',', '.'));
+                                
+                                if (currentUploadTarget === 'p_base') {
+                                    if (!isNaN(val1)) tableData[`p_base_${sIdx}_0_s2025`] = val1;
+                                    if (!isNaN(val2)) tableData[`p_base_${sIdx}_0_scur`] = val2;
+                                } else if (currentUploadTarget === 'vol') {
+                                    if (!isNaN(val1)) tableData[`vol_${sIdx}_0_scur`] = val1;
+                                } else {
+                                    if (!isNaN(val1) && !isNaN(val2)) {
+                                        tableData[`p_base_${sIdx}_0_s2025`] = val1;
+                                        tableData[`p_base_${sIdx}_0_scur`] = val2;
+                                    } else if (!isNaN(val1)) {
+                                        tableData[`vol_${sIdx}_0_scur`] = val1;
+                                    }
+                                }
                             }
                         }
                     }
+                    
                     if (newSorts.length > 0) {
                         SORTS.length = 0; SORTS.push(...newSorts); 
                         generateAllTables();
@@ -868,7 +918,7 @@
                         setSyncStatus("Синхронизировано");
                         alert(`Файл успешно обработан!\nЗагружено сортов: ${SORTS.length}. Все таблицы перестроены.`);
                     } else {
-                        alert("Не удалось найти названия сортов в первом столбце (А) вашего файла.");
+                        alert("Не удалось найти названия сортов в вашем файле.");
                         setSyncStatus("Готово к работе");
                     }
                 } catch (error) {
@@ -876,7 +926,6 @@
                     alert("Произошла ошибка при чтении файла. Проверьте формат.");
                     setSyncStatus("Ошибка чтения", true);
                 }
-                document.getElementById('file-upload').value = '';
             };
             reader.readAsArrayBuffer(file);
         });
