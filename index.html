@@ -14,6 +14,7 @@
             --surface: #ffffff; --surface-alt: #F5F2E9; --text-main: #2A362D;
             --text-muted: #6b7a70; --border: #E8E3D5; --col-2025: #f4f2eb; 
             --col-curr: #ffffff; --col-scen: #f8faf7;
+            --error-text: #d93025; --error-bg: #fff0f0;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,15 +28,26 @@
         .logo-area { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 15px;}
         .logo-area span { color: var(--primary); }
         
-        /* Индикатор синхронизации с БД */
-        .sync-indicator { font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: var(--surface-alt); padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); transition: all 0.3s;}
+        /* Индикатор синхронизации */
+        .sync-indicator { font-size: 1.1rem; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-alt); border: 1px solid var(--border); transition: all 0.3s; cursor: help; padding: 0; user-select: none; }
         .sync-indicator.syncing { color: #b45309; background: #fef3c7; border-color: #fcd34d; }
         .sync-indicator.error { color: var(--error-text); background: var(--error-bg); border-color: #fca5a5; }
 
         .scenario-controls { display: flex; gap: 10px; align-items: center; }
-        .scenario-checkboxes { display: flex; gap: 10px; background: var(--surface-alt); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
-        .scenario-checkboxes label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--text-main); }
         
+        /* Выпадающий список сценариев */
+        .scen-dropdown { position: relative; display: inline-block; }
+        .scen-dropdown-btn { padding: 8px 15px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .scen-dropdown-btn:hover { background: #efebe0; }
+        .scen-dropdown-content { display: none; position: absolute; top: 115%; left: 0; background: var(--surface); min-width: 240px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border); z-index: 1000; padding: 8px; flex-direction: column; gap: 4px; }
+        .scen-dropdown-content.show { display: flex; animation: fadeIn 0.2s ease forwards; }
+        .scen-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 4px; }
+        .scen-item:hover { background: var(--surface-alt); }
+        .scen-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; flex: 1; margin: 0; color: var(--text-main); }
+        .scen-item input { accent-color: var(--primary); cursor: pointer; }
+        .btn-del-scen { background: transparent; border: none; color: #a1a1aa; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-del-scen:hover { background: var(--error-bg); color: var(--error-text); }
+
         button { padding: 8px 15px; background-color: var(--surface); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 700; font-family: 'Nunito', sans-serif; transition: all 0.2s; }
         button:hover { background-color: var(--surface-alt); }
         button.primary { background-color: var(--primary); color: #ffffff; border: none; }
@@ -122,14 +134,18 @@
     <header>
         <div class="logo-area">
             Агроном-сад <span>| Sales Engine</span>
-            <div id="sync-indicator" class="sync-indicator">
-                <span>🔄</span> Подключение к БД...
-            </div>
+            <div id="sync-indicator" class="sync-indicator" title="Подключение к БД...">🔄</div>
         </div>
         
         <div class="scenario-controls">
-            <div class="scenario-checkboxes" id="checkbox-container"></div>
+            <div class="scen-dropdown">
+                <button class="scen-dropdown-btn" onclick="toggleDropdown()">Сценарии ▾</button>
+                <div class="scen-dropdown-content" id="scen-dropdown-list">
+                    </div>
+            </div>
+
             <button onclick="saveCurrentScenario()">Зафиксировать сценарий</button>
+            
             <input type="file" id="file-upload" style="display: none;" accept=".xlsx, .xls, .csv">
             <button class="export" onclick="exportData()">Выгрузить отчет</button>
             <button class="primary" onclick="runCalculationEngine()">Сформировать план</button>
@@ -157,42 +173,42 @@
 
             <div id="tab-qual" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Качество яблок</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение по Классам (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-classes"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Окрас (Доли, %)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-colors"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Калибровка I класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-1"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Расширенная калибровка II/III класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-ext"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение по Классам (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-classes"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Окрас (Доли, %)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-colors"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Калибровка I класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-cal-1"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Расширенная калибровка II/III класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-cal-ext"></div></div>
             </div>
 
             <div id="tab-graph" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">График вывода</h2>
                 <div class="block-info">Уровни планирования: Бюджет (lock) / Прогноз (edit) / Факт</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Объемы продаж по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-graph"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Объемы продаж по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-graph"></div></div>
             </div>
 
             <div id="tab-mix" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Продуктовый микс</h2>
                 <div class="block-info">Ответственный: Беляева А. (Матрица: Калибр → Упаковка)</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение Калибр → Упаковка (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-mix-pack"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение Калибр → Упаковка (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-mix-pack"></div></div>
             </div>
 
             <div id="tab-cap" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Ёмкость рынка</h2>
                 <div class="block-info">Ответственный: Захаренко С. (Коммерческие ограничения)</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Лимиты каналов сбыта по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-capacity"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Лимиты каналов сбыта по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-capacity"></div></div>
             </div>
 
             <div id="tab-price" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Цена реализации</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия сети (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за калибр (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-cal"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия сети (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за калибр (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-cal"></div></div>
             </div>
 
             <div id="tab-exp" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Расходные статьи</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Бюджет расходов (₽)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-expenses"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Бюджет расходов (₽)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-expenses"></div></div>
             </div>
 
             <div id="tab-pnl" class="tab-content">
@@ -221,7 +237,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -256,44 +271,33 @@
         let activeMonths = [...MONTHS, 'ИТОГО'];
         let activeMetrics = ['vol', 'rev', 'ebitda']; 
 
-        // Имитация API (Backend FastAPI)
-        const API_BASE_URL = '';
+        const API_BASE_URL = 'http://127.0.0.1:8000';
         
         const API = {
             async loadState() {
                 try {
-                    // Запрашиваем последнее состояние из базы
                     let response = await fetch(`${API_BASE_URL}/api/v1/scenarios`);
                     if (response.ok) {
                         let data = await response.json();
-                        // Если база не пустая
-                        if (Object.keys(data.tableData).length > 0) {
-                            return data;
-                        }
+                        if (data && data.tableData && Object.keys(data.tableData).length > 0) return data;
                     }
                 } catch (e) {
-                    console.warn("Бекенд недоступен, работаем с пустым шаблоном.", e);
+                    let saved = localStorage.getItem('agronom_db_state');
+                    return saved ? JSON.parse(saved) : null;
                 }
                 return null;
             },
-            async saveField(key, value) {
-                // В нашей архитектуре бекенда мы отправляем весь слепок данных разом, 
-                // поэтому пополевое сохранение здесь не требует отдельного запроса
-                return Promise.resolve(); 
-            },
             async saveFullState(dataObj, scensObj) {
-                // Отправляем весь массив данных в SQLite
-                let response = await fetch(`${API_BASE_URL}/api/v1/scenarios/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        tableData: dataObj, 
-                        scenarios: scensObj 
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                localStorage.setItem('agronom_db_state', JSON.stringify({tableData: dataObj, scenarios: scensObj}));
+                try {
+                    let response = await fetch(`${API_BASE_URL}/api/v1/scenarios/update`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ tableData: dataObj, scenarios: scensObj })
+                    });
+                    if (!response.ok) throw new Error('Ошибка сервера');
+                } catch (e) {
+                    throw new Error('backend_offline'); 
                 }
             }
         };
@@ -302,9 +306,13 @@
         function setSyncStatus(status, isError = false) {
             const ind = document.getElementById('sync-indicator');
             ind.className = 'sync-indicator'; 
-            if (isError) { ind.classList.add('error'); ind.innerHTML = `<span>⚠️</span> ${status}`; } 
-            else if (status === 'Сохранение...') { ind.classList.add('syncing'); ind.innerHTML = `<span>⏳</span> ${status}`; } 
-            else { ind.innerHTML = `<span>✅</span> ${status}`; }
+            ind.title = status; 
+            if (isError) { ind.classList.add('error'); ind.innerHTML = `⚠️`; } 
+            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...') { 
+                ind.classList.add('syncing'); ind.innerHTML = `⏳`; 
+            } 
+            else if (status === 'Подключение к БД...') { ind.innerHTML = `🔄`; }
+            else { ind.innerHTML = `✅`; }
         }
 
         let syncTimeout;
@@ -365,7 +373,6 @@
             if(newCursor < 0) newCursor = 0;
             el.setSelectionRange(newCursor, newCursor);
 
-            // БАГФИКС: Обновляем стейт сразу при вводе
             let key = el.getAttribute('data-key');
             tableData[key] = parseVal(el.value);
             autoSaveToBackend();
@@ -400,14 +407,37 @@
 
         function toggleAcc(el) { el.parentElement.classList.toggle('collapsed'); }
 
+        // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ (Dropdown & Delete) ---
+        function toggleDropdown() {
+            document.getElementById("scen-dropdown-list").classList.toggle("show");
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.scen-dropdown')) {
+                let dropdowns = document.getElementsByClassName("scen-dropdown-content");
+                for (let i = 0; i < dropdowns.length; i++) {
+                    dropdowns[i].classList.remove('show');
+                }
+            }
+        }
+
         function renderCheckboxes() {
-            let html = '<span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 4px;">Сценарии:</span>';
+            let html = '';
             scenarios.forEach(scen => {
                 let disabled = scen.id === 'scur' ? 'disabled' : ''; 
                 let checked = scen.visible ? 'checked' : '';
-                html += `<label><input type="checkbox" value="${scen.id}" onchange="toggleScenario(this)" ${checked} ${disabled}> ${scen.name}</label>`;
+                
+                let delBtnHtml = (scen.id !== 'scur' && scen.id !== 's2025') 
+                    ? `<button class="btn-del-scen" onclick="deleteScenario('${scen.id}')" title="Удалить сценарий">❌</button>` 
+                    : `<span style="width: 24px;"></span>`;
+
+                html += `
+                <div class="scen-item">
+                    <label><input type="checkbox" value="${scen.id}" onchange="toggleScenario(this)" ${checked} ${disabled}> ${scen.name}</label>
+                    ${delBtnHtml}
+                </div>`;
             });
-            document.getElementById('checkbox-container').innerHTML = html;
+            document.getElementById('scen-dropdown-list').innerHTML = html;
         }
 
         function toggleScenario(cb) {
@@ -430,6 +460,22 @@
                 if (key.endsWith('_scur')) tableData[key.replace('_scur', '_' + newId)] = tableData[key]; 
             }
             
+            autoSaveToBackend();
+            renderCheckboxes();
+            generateAllTables();
+            if (finalPnlResults.length > 0) renderPnlTable();
+        }
+
+        function deleteScenario(id) {
+            if(!confirm("Вы уверены, что хотите безвозвратно удалить этот сценарий?")) return;
+            
+            setSyncStatus('Удаление...');
+            scenarios = scenarios.filter(s => s.id !== id);
+            
+            for (let key in tableData) {
+                if (key.endsWith('_' + id)) delete tableData[key];
+            }
+
             autoSaveToBackend();
             renderCheckboxes();
             generateAllTables();
@@ -685,7 +731,7 @@
                             if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
                             if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) * 100 : 0;
 
-                            let rawVal = Math.floor(val*10)/10;
+                            let rawVal = Math.round(val*10)/10;
                             let styleExt = month === 'ИТОГО' ? 'background:#f4f9f4; font-weight:700;' : '';
                             
                             tr += `<td class="col-${scen.id}" style="${styleExt}" data-val="${rawVal}" data-type="${metricDef.isPct?'pct':'num'}">${formatVal(val, metricDef.isPct)}</td>`;
@@ -778,7 +824,7 @@
                             if (mId === 'margin') val = mData.rev > 0 ? (mData.rev - mData.exp) / mData.rev : 0;
 
                             let finalVal = metricDef.isPct ? val / 100 : val;
-                            let roundedVal = Math.floor(finalVal * 100) / 100;
+                            let roundedVal = Math.round(finalVal * 10) / 10;
                             rowData.push(roundedVal);
                         });
                     });
