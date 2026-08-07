@@ -124,6 +124,15 @@
             .mobile-overlay h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); line-height: 1.4; }
             header, .workspace { display: none !important; }
         }
+
+    /* --- ОПТИМИЗАЦИЯ ИНТЕРФЕЙСА (ПАГИНАЦИЯ) --- */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; padding-bottom: 10px; }
+        .page-btn { padding: 6px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: var(--text-main); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .page-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+        .page-info { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); }
+        .loading-overlay { text-align: center; padding: 80px 20px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.4rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
     </style>
 </head>
 <body>
@@ -418,6 +427,11 @@
                     SORTS.length = 0; 
                     SORTS.push(...cloudData.sorts); 
                 }
+                // Восстановление пользовательских сетей
+                if (tableData['_meta_networks'] && Array.isArray(tableData['_meta_networks'])) {
+                    NETWORKS.length = 0; 
+                    NETWORKS.push(...tableData['_meta_networks']); 
+                }
             }
             renderCheckboxes();
             generateAllTables();
@@ -689,99 +703,126 @@
             if (Object.keys(finalPnlResults).length > 0) renderPnlTable();
         }
 
-        // --- ГЛУБОКОЕ ВЫЧИСЛИТЕЛЬНОЕ ЯДРО ---
+        // --- ГЛУБОКОЕ ВЫЧИСЛИТЕЛЬНОЕ ЯДРО (АСИНХРОННОЕ) ---
         function runCalculationEngine() {
-            let pnlAgg = {}; 
+            // Мгновенно показываем лоадер, чтобы UI не казался "зависшим"
+            document.getElementById('tbl-results-container').innerHTML = `<div class="loading-overlay">⏳ Проводим вычисления матрицы P&L... Пожалуйста, подождите.</div>`;
             
-            scenarios.forEach(scen => {
-                if (!scen.visible) return;
-                let totalExp = 0;
-                for(let e=0; e<EXPENSES.length; e++) totalExp += getSt(`exp_${e}_0`, scen.id);
+            // Используем setTimeout, чтобы дать браузеру время отрисовать лоадер до блокировки потока математикой
+            setTimeout(() => {
+                let pnlAgg = {}; 
+                
+                scenarios.forEach(scen => {
+                    if (!scen.visible) return;
+                    let totalExp = 0;
+                    for(let e=0; e<EXPENSES.length; e++) totalExp += getSt(`exp_${e}_0`, scen.id);
 
-                SORTS.forEach((sort, sIdx) => {
-                    let basePrice = getSt(`p_base_${sIdx}_0`, scen.id);
-                    let gross = getSt(`vol_${sIdx}_0`, scen.id);
-                    let pInd = getSt(`vol_${sIdx}_1`, scen.id) / 100;
-                    let volIndTotal = gross * pInd;
+                    SORTS.forEach((sort, sIdx) => {
+                        let basePrice = getSt(`p_base_${sIdx}_0`, scen.id);
+                        let gross = getSt(`vol_${sIdx}_0`, scen.id);
+                        let pInd = getSt(`vol_${sIdx}_1`, scen.id) / 100;
+                        let volIndTotal = gross * pInd;
 
-                    NETWORKS.forEach((net, nIdx) => {
-                        let netMod = getSt(`p_net_${nIdx}_0`, scen.id) / 100;
-                        let rowKey = `${sort}_${net}`;
-                        
-                        if(!pnlAgg[rowKey]) pnlAgg[rowKey] = { sort, net, scenarios: {} };
-                        if(!pnlAgg[rowKey].scenarios[scen.id]) pnlAgg[rowKey].scenarios[scen.id] = {};
-
-                        MONTHS.forEach((month, mIdx) => {
-                            if(!pnlAgg[rowKey].scenarios[scen.id][month]) pnlAgg[rowKey].scenarios[scen.id][month] = { vol: 0, rev: 0, exp: 0 };
+                        NETWORKS.forEach((net, nIdx) => {
+                            let netMod = getSt(`p_net_${nIdx}_0`, scen.id) / 100;
+                            let rowKey = `${sort}_${net}`;
                             
-                            let rowIdx = (sIdx * 3) + 1; 
-                            let monthVol = getSt(`grph_${rowIdx}_${mIdx}`, scen.id);
-                            if (monthVol <= 0) return;
+                            if(!pnlAgg[rowKey]) pnlAgg[rowKey] = { sort, net, scenarios: {} };
+                            if(!pnlAgg[rowKey].scenarios[scen.id]) pnlAgg[rowKey].scenarios[scen.id] = {};
 
-                            let capLimit = getSt(`cap_${nIdx}_${mIdx}`, scen.id);
-                            let netVol = Math.min(monthVol / NETWORKS.length, capLimit); 
-                            if (netVol <= 0) return;
+                            MONTHS.forEach((month, mIdx) => {
+                                if(!pnlAgg[rowKey].scenarios[scen.id][month]) pnlAgg[rowKey].scenarios[scen.id][month] = { vol: 0, rev: 0, exp: 0 };
+                                
+                                let rowIdx = (sIdx * 3) + 1; 
+                                let monthVol = getSt(`grph_${rowIdx}_${mIdx}`, scen.id);
+                                if (monthVol <= 0) return;
 
-                            let overridePrice = tableData[`p_fin_${sIdx}_${mIdx}_${scen.id}`];
-                            let hasOverride = (overridePrice !== undefined && overridePrice !== null && overridePrice !== '');
+                                let capLimit = getSt(`cap_${nIdx}_${mIdx}`, scen.id);
+                                let netVol = Math.min(monthVol / NETWORKS.length, capLimit); 
+                                if (netVol <= 0) return;
 
-                            let totalRevForMonthNet = 0;
+                                let overridePrice = tableData[`p_fin_${sIdx}_${mIdx}_${scen.id}`];
+                                let hasOverride = (overridePrice !== undefined && overridePrice !== null && overridePrice !== '');
 
-                            CLASSES.forEach((cls, clsIdx) => {
-                                let pCls = getSt(`q_cls_${sIdx}_${clsIdx}`, scen.id) / 100;
-                                let clsVol = netVol * pCls;
-                                if (clsVol <= 0) return;
-                                let clsMod = getSt(`p_cls_${clsIdx}_0`, scen.id) / 100;
+                                let totalRevForMonthNet = 0;
 
-                                CALIBERS.forEach((cal, calIdx) => {
-                                    let tablePref = cls === 'I класс' ? 'q_cal1' : 'q_calX';
-                                    let pCal = getSt(`${tablePref}_${sIdx}_${calIdx}`, scen.id) / 100;
-                                    let calVol = clsVol * pCal;
-                                    if (calVol <= 0) return;
-                                    let calMod = getSt(`p_cal_${calIdx}_0`, scen.id) / 100;
+                                CLASSES.forEach((cls, clsIdx) => {
+                                    let pCls = getSt(`q_cls_${sIdx}_${clsIdx}`, scen.id) / 100;
+                                    let clsVol = netVol * pCls;
+                                    if (clsVol <= 0) return;
+                                    let clsMod = getSt(`p_cls_${clsIdx}_0`, scen.id) / 100;
 
-                                    PACKAGING.forEach((pack, packIdx) => {
-                                        let pPack = getSt(`mix_${calIdx}_${packIdx}`, scen.id) / 100;
-                                        let packVol = calVol * pPack;
-                                        if (packVol <= 0) return;
-                                        let packMod = getSt(`p_pack_${packIdx}_0`, scen.id) / 100;
+                                    CALIBERS.forEach((cal, calIdx) => {
+                                        let tablePref = cls === 'I класс' ? 'q_cal1' : 'q_calX';
+                                        let pCal = getSt(`${tablePref}_${sIdx}_${calIdx}`, scen.id) / 100;
+                                        let calVol = clsVol * pCal;
+                                        if (calVol <= 0) return;
+                                        let calMod = getSt(`p_cal_${calIdx}_0`, scen.id) / 100;
 
-                                        let microPrice = 0;
-                                        if (hasOverride) {
-                                            microPrice = overridePrice;
-                                        } else {
-                                            microPrice = basePrice * (1 + netMod + clsMod + calMod + packMod);
-                                        }
-                                        totalRevForMonthNet += (packVol * 1000) * microPrice;
+                                        PACKAGING.forEach((pack, packIdx) => {
+                                            let pPack = getSt(`mix_${calIdx}_${packIdx}`, scen.id) / 100;
+                                            let packVol = calVol * pPack;
+                                            if (packVol <= 0) return;
+                                            let packMod = getSt(`p_pack_${packIdx}_0`, scen.id) / 100;
+
+                                            let microPrice = 0;
+                                            if (hasOverride) {
+                                                microPrice = overridePrice;
+                                            } else {
+                                                microPrice = basePrice * (1 + netMod + clsMod + calMod + packMod);
+                                            }
+                                            totalRevForMonthNet += (packVol * 1000) * microPrice;
+                                        });
                                     });
                                 });
+
+                                let indVolNetMonth = (volIndTotal / 12) / NETWORKS.length;
+                                let indPrice = basePrice * 0.35;
+                                totalRevForMonthNet += (indVolNetMonth * 1000) * indPrice;
+
+                                let totalVolWithInd = netVol + indVolNetMonth;
+                                let allocExp = (totalVolWithInd / (gross||1)) * totalExp; 
+
+                                pnlAgg[rowKey].scenarios[scen.id][month].vol += totalVolWithInd;
+                                pnlAgg[rowKey].scenarios[scen.id][month].rev += totalRevForMonthNet;
+                                pnlAgg[rowKey].scenarios[scen.id][month].exp += allocExp;
                             });
-
-                            let indVolNetMonth = (volIndTotal / 12) / NETWORKS.length;
-                            let indPrice = basePrice * 0.35;
-                            totalRevForMonthNet += (indVolNetMonth * 1000) * indPrice;
-
-                            let totalVolWithInd = netVol + indVolNetMonth;
-                            let allocExp = (totalVolWithInd / (gross||1)) * totalExp; 
-
-                            pnlAgg[rowKey].scenarios[scen.id][month].vol += totalVolWithInd;
-                            pnlAgg[rowKey].scenarios[scen.id][month].rev += totalRevForMonthNet;
-                            pnlAgg[rowKey].scenarios[scen.id][month].exp += allocExp;
                         });
                     });
                 });
-            });
 
-            finalPnlResults = Object.values(pnlAgg);
-            renderPnlTable();
-            switchTab('tab-pnl', document.querySelectorAll('.nav-item')[7]);
+                finalPnlResults = Object.values(pnlAgg);
+                currentPage = 1; // Сброс пагинации при новом расчете
+                renderPnlTable();
+                switchTab('tab-pnl', document.querySelectorAll('.nav-item')[7]);
+            }, 50); // Пауза 50мс для рендеринга лоадера
         }
 
+        // --- ПАГИНАЦИЯ И РЕНДЕРИНГ P&L ---
         let currentFilters = { sort: '', net: '' };
+        let lastSortFilter = '';
+        let lastNetFilter = '';
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 15; // 15 Сорто-Сетей на страницу (это ровно 90 строк таблицы - браузер будет летать)
+
+        function changePage(delta) {
+            currentPage += delta;
+            renderPnlTable();
+        }
 
         function renderPnlTable() {
-            currentFilters.sort = document.getElementById('filt-sort').value;
-            currentFilters.net = document.getElementById('filt-net').value;
+            let newSort = document.getElementById('filt-sort').value;
+            let newNet = document.getElementById('filt-net').value;
+            
+            // Если фильтры изменились - сбрасываем страницу на первую
+            if (newSort !== lastSortFilter || newNet !== lastNetFilter) {
+                currentPage = 1;
+                lastSortFilter = newSort;
+                lastNetFilter = newNet;
+            }
+            currentFilters.sort = newSort;
+            currentFilters.net = newNet;
+            
             let visibleScens = scenarios.filter(s => s.visible);
 
             if(activeMonths.length === 0 || activeMetrics.length === 0 || visibleScens.length === 0) {
@@ -789,17 +830,31 @@
                 return;
             }
 
+            // 1. Применяем фильтры ко всей базе (ко всем 3600 комбинациям)
+            let filteredData = finalPnlResults.filter(row => {
+                if (currentFilters.sort && row.sort !== currentFilters.sort) return false;
+                if (currentFilters.net && row.net !== currentFilters.net) return false;
+                return true;
+            });
+
+            // 2. Рассчитываем пагинацию
+            let totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            let startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
+            // Отрезаем кусок данных только для текущей страницы
+            let paginatedData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            // 3. Формируем HTML шапки
             let subHeader = visibleScens.map(s => `<th class="col-${s.id}">${s.name}</th>`).join('');
             let thead = `<tr><th rowspan="2" class="col-sticky-1">Сорт</th><th rowspan="2" class="col-sticky-2">Сеть</th><th rowspan="2" class="col-sticky-3">Показатель</th>`;
             activeMonths.forEach(m => { thead += `<th colspan="${visibleScens.length}" class="group-th">${m}</th>`; });
             thead += `</tr><tr>${subHeader.repeat(activeMonths.length)}</tr>`;
 
+            // 4. Формируем HTML тела (только по 15 комбинациям)
             let tbody = '';
-            
-            finalPnlResults.forEach(row => {
-                if (currentFilters.sort && row.sort !== currentFilters.sort) return;
-                if (currentFilters.net && row.net !== currentFilters.net) return;
-
+            paginatedData.forEach(row => {
                 activeMetrics.forEach((mId, mIndex) => {
                     let metricDef = METRICS.find(m => m.id === mId);
                     let isFirstMetric = mIndex === 0;
@@ -843,7 +898,20 @@
             });
 
             if (tbody === '') tbody = `<tr><td colspan="30" style="text-align: center; padding: 40px;">Нет данных по фильтрам</td></tr>`;
-            document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+
+            // 5. Выводим таблицу + Блок кнопок пагинации внизу
+            let paginationControls = '';
+            if (totalPages > 1) {
+                paginationControls = `
+                    <div class="pagination">
+                        <button class="page-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>← Назад</button>
+                        <span class="page-info">Страница ${currentPage} из ${totalPages} <br><span style="font-weight:400; font-size:0.75rem; color:#888;">(Показано ${paginatedData.length} из ${filteredData.length} блоков Сорт-Сеть)</span></span>
+                        <button class="page-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Вперед →</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>` + paginationControls;
         }
 
         // --- УНИВЕРСАЛЬНЫЙ УМНЫЙ ИМПОРТ ВСЕХ ТАБЛИЦ ---
@@ -878,6 +946,7 @@
 
                     let parsedCount = 0;
 
+                    // 1. ПАРСЕР ДЛЯ СОРТОВ (Объемы, Качество, Базовая цена)
                     if (['vol', 'q_cls', 'q_col', 'q_cal1', 'q_calX', 'p_base', 'generic'].includes(currentUploadTarget)) {
                         let newSorts = [];
                         for(let i = 0; i < jsonData.length; i++) {
@@ -930,6 +999,41 @@
                             parsedCount = newSorts.length;
                         }
 
+                    // 2. ПАРСЕР ДЛЯ СЕТЕЙ (Премия сети)
+                    } else if (currentUploadTarget === 'p_net') {
+                        let newNets = [];
+                        for(let i = 0; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if(!row || row.length === 0) continue;
+                            let firstText = String(row[0] || '').trim();
+                            
+                            const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 's2025', 'параметр'];
+                            let shouldSkip = skipWordsNets.some(w => firstText.toLowerCase().includes(w));
+                            
+                            if (firstText && !shouldSkip && firstText.length < 50) {
+                                newNets.push(firstText);
+                                let nIdx = newNets.length - 1;
+                                
+                                let val1 = parseCellNum(row[1]);
+                                let val2 = parseCellNum(row[2]);
+                                
+                                if(!isNaN(val1)) {
+                                    if (Math.abs(val1) <= 2 && val1 !== 0) val1 *= 100;
+                                    tableData[`p_net_${nIdx}_0_s2025`] = val1;
+                                }
+                                if(!isNaN(val2)) {
+                                    if (Math.abs(val2) <= 2 && val2 !== 0) val2 *= 100;
+                                    tableData[`p_net_${nIdx}_0_scur`] = val2;
+                                }
+                            }
+                        }
+                        if (newNets.length > 0) {
+                            NETWORKS.length = 0; NETWORKS.push(...newNets);
+                            tableData['_meta_networks'] = NETWORKS;
+                            parsedCount = newNets.length;
+                        }
+
+                    // 3. ПАРСЕР ДЛЯ РУЧНОЙ КОРРЕКТИРОВКИ ЦЕН (По месяцам)
                     } else if (currentUploadTarget === 'p_fin') {
                         for(let i = 0; i < jsonData.length; i++) {
                             const row = jsonData[i];
@@ -945,6 +1049,7 @@
                             }
                         }
 
+                    // 4. ПАРСЕР ДЛЯ ГРАФИКА ВЫВОДА ПО МЕСЯЦАМ
                     } else if (currentUploadTarget === 'grph') {
                         for(let i = 0; i < jsonData.length; i++) {
                             const row = jsonData[i];
@@ -952,7 +1057,7 @@
                             let firstText = String(row[0] || row[1] || '').trim();
                             let matchedSortIdx = SORTS.findIndex(s => firstText.toLowerCase().includes(s.toLowerCase()));
                             if (matchedSortIdx !== -1) {
-                                let rowIdx = (matchedSortIdx * 3) + 1;
+                                let rowIdx = (matchedSortIdx * 3) + 1; // Всегда пишем в "Прогноз"
                                 for(let m=0; m<MONTHS.length; m++) {
                                     let v = parseCellNum(row[m + 1] || row[m + 2]);
                                     if(!isNaN(v)) tableData[`grph_${rowIdx}_${m}_scur`] = v;
@@ -961,6 +1066,7 @@
                             }
                         }
 
+                    // 5. ПАРСЕР ДЛЯ ПРОДУКТОВОГО МИКСА (Калибр -> Упаковка)
                     } else if (currentUploadTarget === 'mix') {
                         for(let i = 0; i < jsonData.length; i++) {
                             const row = jsonData[i];
@@ -976,6 +1082,7 @@
                             }
                         }
 
+                    // 6. ПАРСЕР ДЛЯ ЕМКОСТИ РЫНКА (Сети -> Месяца)
                     } else if (currentUploadTarget === 'cap') {
                         for(let i = 0; i < jsonData.length; i++) {
                             const row = jsonData[i];
@@ -991,9 +1098,9 @@
                             }
                         }
 
-                    } else if (['p_net', 'p_pack', 'p_cls', 'p_cal', 'exp'].includes(currentUploadTarget)) {
-                        let itemsArr = currentUploadTarget === 'p_net' ? NETWORKS :
-                                       currentUploadTarget === 'p_pack' ? PACKAGING :
+                    // 7. ОСТАЛЬНЫЕ СПРАВОЧНИКИ
+                    } else if (['p_pack', 'p_cls', 'p_cal', 'exp'].includes(currentUploadTarget)) {
+                        let itemsArr = currentUploadTarget === 'p_pack' ? PACKAGING :
                                        currentUploadTarget === 'p_cls' ? CLASSES :
                                        currentUploadTarget === 'p_cal' ? CALIBERS : EXPENSES;
                         
