@@ -269,8 +269,8 @@
         ];
 
         let scenarios = [
-            { id: 's2025', name: '2025 (Факт)', type: 'readonly', visible: true },
-            { id: 'scur', name: 'Текущее (Ввод)', type: 'input', visible: true },
+            { id: 's2025', name: '2025/2026', type: 'readonly', visible: true },
+            { id: 'scur', name: '2026/2027', type: 'input', visible: true },
             { id: 's1', name: 'Сценарий 1', type: 'readonly', visible: true }
         ];
 
@@ -832,8 +832,15 @@
             document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ ---
-        function triggerLoad(e) { e.stopPropagation(); document.getElementById('file-upload').click(); }
+        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ (ExcelJS / SheetJS) ---
+        let currentUploadTarget = 'generic'; // <-- Вот эта переменная потерялась!
+
+        function triggerLoad(e, target = 'generic') { 
+            e.stopPropagation(); 
+            currentUploadTarget = target;
+            document.getElementById('file-upload').value = ''; 
+            document.getElementById('file-upload').click(); 
+        }
 
         document.getElementById('file-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -877,6 +884,7 @@
                                 let val1 = parseFloat(String(row[sortColIdx + 1] || '').replace(/\s/g, '').replace(',', '.'));
                                 let val2 = parseFloat(String(row[sortColIdx + 2] || '').replace(/\s/g, '').replace(',', '.'));
                                 
+                                // Распределяем данные в зависимости от того, какую кнопку нажали
                                 if (currentUploadTarget === 'p_base') {
                                     if (!isNaN(val1)) tableData[`p_base_${sIdx}_0_s2025`] = val1;
                                     if (!isNaN(val2)) tableData[`p_base_${sIdx}_0_scur`] = val2;
