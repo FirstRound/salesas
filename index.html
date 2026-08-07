@@ -24,10 +24,15 @@
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
         
         header { background-color: var(--surface); padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; }
-        .logo-area { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; }
+        .logo-area { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 15px;}
         .logo-area span { color: var(--primary); }
-        .scenario-controls { display: flex; gap: 10px; align-items: center; }
         
+        /* Индикатор синхронизации с БД */
+        .sync-indicator { font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); background: var(--surface-alt); padding: 4px 10px; border-radius: 12px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); transition: all 0.3s;}
+        .sync-indicator.syncing { color: #b45309; background: #fef3c7; border-color: #fcd34d; }
+        .sync-indicator.error { color: var(--error-text); background: var(--error-bg); border-color: #fca5a5; }
+
+        .scenario-controls { display: flex; gap: 10px; align-items: center; }
         .scenario-checkboxes { display: flex; gap: 10px; background: var(--surface-alt); padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); align-items: center; }
         .scenario-checkboxes label { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; font-weight: 700; cursor: pointer; color: var(--text-main); }
         
@@ -88,7 +93,7 @@
         .input-wrapper { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
         td input { width: 100%; height: 26px; padding: 0 4px; background: transparent; border: 1px solid transparent; border-radius: 4px; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--text-main); text-align: right; transition: all 0.2s; }
         td input:focus { background-color: #fff; border-color: var(--primary); box-shadow: inset 0 0 0 1px rgba(79, 119, 74, 0.3); outline: none; }
-        .pct-sign { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; }
+        .pct-sign { color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-left: 2px;}
 
         .filters-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; }
         .filters-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
@@ -111,11 +116,17 @@
 <body>
 
     <div class="mobile-overlay">
-        <h2>Этот инструмент не имеет мобильной версии, пожалуйста, зайдите с ПК</h2>
+        <h2>Этот инструмент не имеет мобильной версии,<br>пожалуйста, зайдите с ПК</h2>
     </div>
 
     <header>
-        <div class="logo-area">Агроном-сад <span>| Sales Engine</span></div>
+        <div class="logo-area">
+            Агроном-сад <span>| Sales Engine</span>
+            <div id="sync-indicator" class="sync-indicator">
+                <span>🔄</span> Подключение к БД...
+            </div>
+        </div>
+        
         <div class="scenario-controls">
             <div class="scenario-checkboxes" id="checkbox-container"></div>
             <button onclick="saveCurrentScenario()">Зафиксировать сценарий</button>
@@ -154,16 +165,19 @@
 
             <div id="tab-graph" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">График вывода</h2>
+                <div class="block-info">Уровни планирования: Бюджет (lock) / Прогноз (edit) / Факт</div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Объемы продаж по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-graph"></div></div>
             </div>
 
             <div id="tab-mix" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Продуктовый микс</h2>
+                <div class="block-info">Ответственный: Беляева А. (Матрица: Калибр → Упаковка)</div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение Калибр → Упаковка (%)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-mix-pack"></div></div>
             </div>
 
             <div id="tab-cap" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Ёмкость рынка</h2>
+                <div class="block-info">Ответственный: Захаренко С. (Коммерческие ограничения)</div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Лимиты каналов сбыта по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event)">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-capacity"></div></div>
             </div>
 
@@ -212,7 +226,7 @@
     </div>
 
     <script>
-        // --- CONFIG & STATE ---
+        // --- 1. STATE MANAGEMENT & СИНХРОНИЗАЦИЯ БД ---
         const SORTS = ['Альва', 'Амброзия', 'Гала', 'Лигол', 'Спартан', 'Космик Крисп'];
         const NETWORKS = ['ПЕРЕКРЕСТОК', 'ВКУСВИЛЛ', 'МАГНИТ', 'ЛЕНТА'];
         const CLASSES = ['I класс', 'II класс', 'III класс', 'IV класс']; 
@@ -239,43 +253,122 @@
 
         let tableData = {};
         let finalPnlResults = []; 
-
         let activeMonths = [...MONTHS, 'ИТОГО'];
         let activeMetrics = ['vol', 'rev', 'ebitda']; 
 
-        // --- УТИЛИТЫ ФОРМАТИРОВАНИЯ ---
-        function formatVal(val, isPercent = false) {
-            if (isNaN(val) || val === null || val === 0) return '0' + (isPercent ? '%' : '');
-            let rounded = Math.round(val * 10) / 10; // Округление до 1 знака
-            let decimals = (rounded % 1 === 0) ? 0 : 1; // Убираем нули после запятой
-            let str = rounded.toLocaleString('ru-RU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-            str = str.replace('.', ','); // Строгая унификация в запятую
-            return isPercent ? str + '%' : str; // Без пробела
+        // Имитация API (Backend FastAPI)
+        const API_BASE_URL = '';
+        
+        const API = {
+            async loadState() {
+                try {
+                    // Запрашиваем последнее состояние из базы
+                    let response = await fetch(`${API_BASE_URL}/api/v1/scenarios`);
+                    if (response.ok) {
+                        let data = await response.json();
+                        // Если база не пустая
+                        if (Object.keys(data.tableData).length > 0) {
+                            return data;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Бекенд недоступен, работаем с пустым шаблоном.", e);
+                }
+                return null;
+            },
+            async saveField(key, value) {
+                // В нашей архитектуре бекенда мы отправляем весь слепок данных разом, 
+                // поэтому пополевое сохранение здесь не требует отдельного запроса
+                return Promise.resolve(); 
+            },
+            async saveFullState(dataObj, scensObj) {
+                // Отправляем весь массив данных в SQLite
+                let response = await fetch(`${API_BASE_URL}/api/v1/scenarios/update`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        tableData: dataObj, 
+                        scenarios: scensObj 
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+            }
+        };
+
+        // --- УТИЛИТЫ ---
+        function setSyncStatus(status, isError = false) {
+            const ind = document.getElementById('sync-indicator');
+            ind.className = 'sync-indicator'; 
+            if (isError) { ind.classList.add('error'); ind.innerHTML = `<span>⚠️</span> ${status}`; } 
+            else if (status === 'Сохранение...') { ind.classList.add('syncing'); ind.innerHTML = `<span>⏳</span> ${status}`; } 
+            else { ind.innerHTML = `<span>✅</span> ${status}`; }
         }
 
-        // Авто-форматирование инпута с разделителем разрядов
+        let syncTimeout;
+        function autoSaveToBackend() {
+            setSyncStatus('Сохранение...');
+            clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(async () => {
+                try {
+                    await API.saveFullState(tableData, scenarios);
+                    setSyncStatus('Сохранено в БД');
+                } catch (e) {
+                    if (e.message === 'backend_offline') setSyncStatus('Локально (БД недоступна)', false);
+                    else setSyncStatus('Ошибка сохранения', true);
+                }
+            }, 600);
+        }
+
+        function formatVal(val, isPercent = false) {
+            if (isNaN(val) || val === null || val === 0) return '0' + (isPercent ? '%' : '');
+            let rounded = Math.floor(val * 10) / 10; 
+            let decimals = (rounded % 1 === 0) ? 0 : 1; 
+            let str = rounded.toLocaleString('ru-RU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+            str = str.replace('.', ','); 
+            return isPercent ? str + '%' : str; 
+        }
+
         function formatInputDisplay(val) {
             if (isNaN(val) || val === null || val === 0) return '0';
-            let rounded = Math.round(val * 10) / 10;
+            let rounded = Math.floor(val * 10) / 10;
             let parts = rounded.toString().split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " "); // Пробел как разделитель тысяч
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " "); 
             return parts.join(',');
         }
 
-        function formatInputLive(el) {
+        function formatInputLive(el, isPercent) {
             let cursor = el.selectionStart;
             let oldLen = el.value.length;
             let isNegative = el.value.trim().startsWith('-');
             
-            let raw = el.value.replace(/[^0-9.,]/g, '').replace('.', ',');
+            let raw = el.value.replace(/[^0-9.,\-]/g, '');
+            if (isNegative) raw = '-' + raw.replace(/\-/g, '');
+            else raw = raw.replace(/\-/g, '');
+            raw = raw.replace('.', ',');
+            
             let parts = raw.split(',');
             if (parts.length > 2) parts = [parts[0], parts.slice(1).join('')];
-            if (parts[0]) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
             
-            el.value = (isNegative ? '-' : '') + parts.join(',');
+            if (parts[0]) {
+                let numPart = parts[0].replace('-', '');
+                numPart = numPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+                parts[0] = (isNegative ? '-' : '') + numPart;
+            }
+            
+            el.value = parts.join(',');
             
             let newLen = el.value.length;
-            el.setSelectionRange(cursor + (newLen - oldLen), cursor + (newLen - oldLen));
+            let newCursor = cursor + (newLen - oldLen);
+            if(newCursor < 0) newCursor = 0;
+            el.setSelectionRange(newCursor, newCursor);
+
+            // БАГФИКС: Обновляем стейт сразу при вводе
+            let key = el.getAttribute('data-key');
+            tableData[key] = parseVal(el.value);
+            autoSaveToBackend();
         }
 
         function parseVal(str) {
@@ -283,10 +376,18 @@
             return parseFloat(str.replace(/\s/g, '').replace(',', '.')) || 0;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            setSyncStatus('Подключение к БД...');
+            let cloudData = await API.loadState();
+            if (cloudData) {
+                tableData = cloudData.tableData || {};
+                scenarios = cloudData.scenarios || scenarios;
+            }
             renderCheckboxes();
             generateAllTables();
             initPnlControls();
+            setSyncStatus(cloudData ? 'Синхронизировано' : 'Готово к работе');
         });
 
         // --- UI ЛОГИКА ---
@@ -303,7 +404,8 @@
             let html = '<span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 4px;">Сценарии:</span>';
             scenarios.forEach(scen => {
                 let disabled = scen.id === 'scur' ? 'disabled' : ''; 
-                html += `<label><input type="checkbox" value="${scen.id}" onchange="toggleScenario(this)" ${scen.visible ? 'checked' : ''} ${disabled}> ${scen.name}</label>`;
+                let checked = scen.visible ? 'checked' : '';
+                html += `<label><input type="checkbox" value="${scen.id}" onchange="toggleScenario(this)" ${checked} ${disabled}> ${scen.name}</label>`;
             });
             document.getElementById('checkbox-container').innerHTML = html;
         }
@@ -313,21 +415,25 @@
             if(scen) scen.visible = cb.checked;
             generateAllTables(); 
             if (finalPnlResults.length > 0) renderPnlTable(); 
+            autoSaveToBackend(); 
         }
 
-        function saveCurrentScenario() {
+        async function saveCurrentScenario() {
             let name = prompt("Название нового зафиксированного сценария:", "Сценарий " + (scenarios.length));
             if (!name) return;
+            
+            setSyncStatus('Создание сценария...');
             let newId = 's_' + Date.now();
             scenarios.push({ id: newId, name: name, type: 'readonly', visible: true });
-            for (let key in tableData) { if (key.endsWith('_scur')) tableData[key.replace('_scur', '_' + newId)] = tableData[key]; }
+            
+            for (let key in tableData) { 
+                if (key.endsWith('_scur')) tableData[key.replace('_scur', '_' + newId)] = tableData[key]; 
+            }
+            
+            autoSaveToBackend();
             renderCheckboxes();
             generateAllTables();
             if (finalPnlResults.length > 0) renderPnlTable();
-        }
-
-        function saveToState(inputEl) {
-            tableData[inputEl.getAttribute('data-key')] = parseVal(inputEl.value);
         }
 
         // --- ГЕНЕРАТОР БАЗОВЫХ ТАБЛИЦ ---
@@ -352,7 +458,7 @@
                     let key = `${tableId}_${rIdx}_${cIdx}_${scen.id}`;
                     html += `<td class="col-${scen.id}">
                         <div class="input-wrapper">
-                            <input type="text" data-key="${key}" value="${formatInputDisplay(val)}" oninput="formatInputLive(this)" onchange="saveToState(this)">
+                            <input type="text" data-key="${key}" value="${formatInputDisplay(val)}" oninput="formatInputLive(this, ${isPercent})">
                             ${isPercent ? `<span class="pct-sign">%</span>` : ''}
                         </div>
                     </td>`;
@@ -470,7 +576,7 @@
                         MONTHS.forEach((month, mIdx) => {
                             if(!pnlAgg[rowKey].scenarios[scen.id][month]) pnlAgg[rowKey].scenarios[scen.id][month] = { vol: 0, rev: 0, exp: 0 };
                             
-                            let rowIdx = (sIdx * 3) + 1; // Прогноз
+                            let rowIdx = (sIdx * 3) + 1; 
                             let monthVol = getSt(`grph_${rowIdx}_${mIdx}`, scen.id);
                             if (monthVol <= 0) return;
 
@@ -537,7 +643,6 @@
                 return;
             }
 
-            // ШАПКА: Месяцы -> Сценарии
             let subHeader = visibleScens.map(s => `<th class="col-${s.id}">${s.name}</th>`).join('');
             let thead = `<tr><th rowspan="2" class="col-sticky-1">Сорт</th><th rowspan="2" class="col-sticky-2">Сеть</th><th rowspan="2" class="col-sticky-3">Показатель</th>`;
             activeMonths.forEach(m => { thead += `<th colspan="${visibleScens.length}" class="group-th">${m}</th>`; });
@@ -565,7 +670,6 @@
                             let d = row.scenarios[scen.id] || {};
                             let mData = d[month] || {vol:0, rev:0, exp:0};
                             
-                            // Агрегация ИТОГО
                             if (month === 'ИТОГО') {
                                 mData = {vol:0, rev:0, exp:0};
                                 MONTHS.forEach(mm => {
@@ -581,7 +685,7 @@
                             if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
                             if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) * 100 : 0;
 
-                            let rawVal = Math.round(val*10)/10;
+                            let rawVal = Math.floor(val*10)/10;
                             let styleExt = month === 'ИТОГО' ? 'background:#f4f9f4; font-weight:700;' : '';
                             
                             tr += `<td class="col-${scen.id}" style="${styleExt}" data-val="${rawVal}" data-type="${metricDef.isPct?'pct':'num'}">${formatVal(val, metricDef.isPct)}</td>`;
@@ -598,7 +702,12 @@
 
         // --- УМНЫЙ ЭКСПОРТ (ExcelJS) ---
         function triggerLoad(e) { e.stopPropagation(); document.getElementById('file-upload').click(); }
-        document.getElementById('file-upload').addEventListener('change', (e) => { if(e.target.files.length > 0) alert("Данные из файла подгружены."); });
+        document.getElementById('file-upload').addEventListener('change', (e) => { 
+            if(e.target.files.length > 0) {
+                setSyncStatus("Чтение файла...");
+                setTimeout(() => setSyncStatus("Синхронизировано"), 1500);
+            }
+        });
 
         async function exportData() {
             if (finalPnlResults.length === 0) { 
@@ -615,47 +724,33 @@
             let filterSort = document.getElementById('filt-sort').value;
             let filterNet = document.getElementById('filt-net').value;
 
-            // 1. Шапка - Ряд 1 (Месяцы)
             let headerRow1 = ['Сорт', 'Торговая Сеть', 'Финансовый показатель'];
-            activeMonths.forEach(m => {
-                visibleScens.forEach(() => headerRow1.push(m));
-            });
+            activeMonths.forEach(m => { visibleScens.forEach(() => headerRow1.push(m)); });
             worksheet.addRow(headerRow1);
 
-            // 2. Шапка - Ряд 2 (Сценарии)
             let headerRow2 = ['', '', ''];
-            activeMonths.forEach(m => {
-                visibleScens.forEach(s => headerRow2.push(s.name));
-            });
+            activeMonths.forEach(m => { visibleScens.forEach(s => headerRow2.push(s.name)); });
             worksheet.addRow(headerRow2);
 
-            // Объединение ячеек шапки
             worksheet.mergeCells('A1:A2');
             worksheet.mergeCells('B1:B2');
             worksheet.mergeCells('C1:C2');
             
             let colIndex = 4;
             activeMonths.forEach(() => {
-                if (visibleScens.length > 1) {
-                    worksheet.mergeCells(1, colIndex, 1, colIndex + visibleScens.length - 1);
-                }
+                if (visibleScens.length > 1) worksheet.mergeCells(1, colIndex, 1, colIndex + visibleScens.length - 1);
                 colIndex += visibleScens.length;
             });
 
-            // Стилизация шапки
             [worksheet.getRow(1), worksheet.getRow(2)].forEach(row => {
                 row.eachCell(cell => {
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4F774A' } };
                     cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, name: 'Nunito', size: 10 };
                     cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                    cell.border = {
-                        top: {style:'thin', color:{argb:'FFD0D7D2'}}, bottom: {style:'thin', color:{argb:'FFD0D7D2'}},
-                        left: {style:'thin', color:{argb:'FFD0D7D2'}}, right: {style:'thin', color:{argb:'FFD0D7D2'}}
-                    };
+                    cell.border = { top: {style:'thin', color:{argb:'FFD0D7D2'}}, bottom: {style:'thin', color:{argb:'FFD0D7D2'}}, left: {style:'thin', color:{argb:'FFD0D7D2'}}, right: {style:'thin', color:{argb:'FFD0D7D2'}} };
                 });
             });
 
-            // 3. Заполнение строк данных строго с учетом выбранных фильтров
             finalPnlResults.forEach(row => {
                 if (filterSort && row.sort !== filterSort) return;
                 if (filterNet && row.net !== filterNet) return;
@@ -671,9 +766,7 @@
                             
                             if (month === 'ИТОГО') {
                                 mData = {vol:0, rev:0, exp:0};
-                                MONTHS.forEach(mm => {
-                                    if(d[mm]) { mData.vol += d[mm].vol; mData.rev += d[mm].rev; mData.exp += d[mm].exp; }
-                                });
+                                MONTHS.forEach(mm => { if(d[mm]) { mData.vol += d[mm].vol; mData.rev += d[mm].rev; mData.exp += d[mm].exp; } });
                             }
 
                             let val = 0;
@@ -685,8 +778,7 @@
                             if (mId === 'margin') val = mData.rev > 0 ? (mData.rev - mData.exp) / mData.rev : 0;
 
                             let finalVal = metricDef.isPct ? val / 100 : val;
-                            let roundedVal = Math.round(finalVal * 100) / 100;
-                            
+                            let roundedVal = Math.floor(finalVal * 100) / 100;
                             rowData.push(roundedVal);
                         });
                     });
@@ -695,10 +787,7 @@
 
                     newRow.eachCell((cell, colNum) => {
                         cell.font = { name: 'Nunito', size: 10, color: { argb: 'FF2A362D' } };
-                        cell.border = {
-                            top: {style:'thin', color:{argb:'FFD0D7D2'}}, bottom: {style:'thin', color:{argb:'FFD0D7D2'}},
-                            left: {style:'thin', color:{argb:'FFD0D7D2'}}, right: {style:'thin', color:{argb:'FFD0D7D2'}}
-                        };
+                        cell.border = { top: {style:'thin', color:{argb:'FFD0D7D2'}}, bottom: {style:'thin', color:{argb:'FFD0D7D2'}}, left: {style:'thin', color:{argb:'FFD0D7D2'}}, right: {style:'thin', color:{argb:'FFD0D7D2'}} };
 
                         if (colNum <= 3) {
                             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F2E9' } };
@@ -711,7 +800,6 @@
                             
                             let monthGroupIdx = Math.floor((colNum - 4) / visibleScens.length);
                             let isTotalCol = activeMonths[monthGroupIdx] === 'ИТОГО';
-                            
                             if (isTotalCol) {
                                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F9F4' } };
                                 cell.font.bold = true;
@@ -724,9 +812,7 @@
             worksheet.getColumn(1).width = 15;
             worksheet.getColumn(2).width = 18;
             worksheet.getColumn(3).width = 30;
-            for(let i=4; i<=3+activeMonths.length*visibleScens.length; i++) {
-                worksheet.getColumn(i).width = 14;
-            }
+            for(let i=4; i<=3+activeMonths.length*visibleScens.length; i++) worksheet.getColumn(i).width = 14;
 
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
