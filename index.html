@@ -746,14 +746,80 @@
             document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        // --- УМНЫЙ ЭКСПОРТ (ExcelJS) ---
-        function triggerLoad(e) { e.stopPropagation(); document.getElementById('file-upload').click(); }
-        document.getElementById('file-upload').addEventListener('change', (e) => { 
-            if(e.target.files.length > 0) {
-                setSyncStatus("Чтение файла...");
-                setTimeout(() => setSyncStatus("Синхронизировано"), 1500);
+        // --- УМНЫЙ ИМПОРТ И ЭКСПОРТ (ExcelJS / SheetJS) ---
+function triggerLoad(e) { e.stopPropagation(); document.getElementById('file-upload').click(); }
+
+document.getElementById('file-upload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setSyncStatus("Чтение файла...");
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        
+        try {
+            // Берем первый лист из файла
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            // Превращаем его в массив массивов
+            const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
+            
+            let newSorts = [];
+            
+            // Проходим по каждой строке Excel
+            for(let i = 0; i < jsonData.length; i++) {
+                const row = jsonData[i];
+                if(!row || !row[0]) continue;
+                
+                let firstCell = String(row[0]).trim();
+                
+                // Исключаем пустые строки, заголовки и системные слова
+                if (firstCell && firstCell.toLowerCase() !== 'сорт' && firstCell.toLowerCase() !== 'итого' && firstCell.length < 30) {
+                    newSorts.push(firstCell);
+                    
+                    // Если во второй колонке (B) есть цифра — сохраняем ее как Валовый сбор в Текущий сценарий
+                    if(row[1] !== undefined) {
+                        let val = parseFloat(String(row[1]).replace(/\s/g, '').replace(',', '.'));
+                        if(!isNaN(val)) {
+                            tableData[`vol_${newSorts.length-1}_0_scur`] = val;
+                        }
+                    }
+                }
             }
-        });
+
+            if (newSorts.length > 0) {
+                // Полностью обновляем глобальный список сортов
+                SORTS.length = 0; 
+                SORTS.push(...newSorts); 
+                
+                // Перерисовываем весь интерфейс под новый список
+                generateAllTables();
+                initPnlControls();
+                
+                // Если матрица уже была сформирована - пересчитываем
+                if (finalPnlResults.length > 0) runCalculationEngine();
+                
+                // Сохраняем новые данные в базу
+                autoSaveToBackend();
+                setSyncStatus("Синхронизировано");
+                alert(`Файл успешно обработан!\nЗагружено сортов: ${SORTS.length}. Все таблицы перестроены.`);
+            } else {
+                alert("Не удалось найти названия сортов в первом столбце (А) вашего файла.");
+                setSyncStatus("Готово к работе");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Произошла ошибка при чтении файла. Проверьте формат.");
+            setSyncStatus("Ошибка чтения", true);
+        }
+        
+        // Очищаем поле ввода, чтобы можно было загрузить тот же файл еще раз при ошибке
+        document.getElementById('file-upload').value = '';
+    };
+    reader.readAsArrayBuffer(file);
+});
 
         async function exportData() {
             if (finalPnlResults.length === 0) { 
