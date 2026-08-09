@@ -19,7 +19,7 @@ app.add_middleware(
 # --- НАСТРОЙКА БАЗЫ ДАННЫХ ---
 # Вставьте сюда вашу строку подключения из панели Timeweb
 # ВАЖНО: Убедитесь, что она начинается с postgresql:// (если там postgres:// - допишите ql)
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://gen_user:********@201.34.142.178:5432/default_db")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://gen_user:dEK(v8V3$^*CJ8@201.34.142.178:5432/default_db")
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
