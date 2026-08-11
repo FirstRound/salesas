@@ -18,37 +18,36 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-family: 'Nunito', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; font-family: 'Nunito', sans-serif; overflow: hidden; }
+
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #D5D0C5; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-        
-        header { background-color: var(--surface); padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 100; flex-shrink: 0; }
-        .logo-area { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 15px;}
+
+        header { background-color: var(--surface); padding: 14px 28px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .logo-area { font-family: 'Playfair Display', serif; font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 15px; }
         .logo-area span { color: var(--primary); }
-        
-        /* Индикатор синхронизации */
-        .sync-indicator { font-size: 1.1rem; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-alt); border: 1px solid var(--border); transition: all 0.3s; cursor: help; padding: 0; user-select: none; }
+
+        .sync-indicator { font-size: 0.82rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: #f0ede4; color: var(--text-muted); border: 1px solid var(--border); transition: all 0.3s ease; }
         .sync-indicator.syncing { color: #b45309; background: #fef3c7; border-color: #fcd34d; }
         .sync-indicator.error { color: var(--error-text); background: var(--error-bg); border-color: #fca5a5; }
 
         .scenario-controls { display: flex; gap: 10px; align-items: center; }
         
-        /* Выпадающий список сценариев */
         .scen-dropdown { position: relative; display: inline-block; }
-        .scen-dropdown-btn { padding: 8px 15px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .scen-dropdown-btn { padding: 8px 15px; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: var(--text-main); transition: all 0.2s; }
         .scen-dropdown-btn:hover { background: #efebe0; }
-        .scen-dropdown-content { display: none; position: absolute; top: 115%; left: 0; background: var(--surface); min-width: 240px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; border: 1px solid var(--border); z-index: 1000; padding: 8px; flex-direction: column; gap: 4px; }
+        .scen-dropdown-content { display: none; position: absolute; top: 115%; left: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.12); padding: 10px; z-index: 100; min-width: 210px; flex-direction: column; gap: 6px; }
         .scen-dropdown-content.show { display: flex; animation: fadeIn 0.2s ease forwards; }
-        .scen-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 4px; }
+        .scen-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 4px; transition: background 0.15s; }
         .scen-item:hover { background: var(--surface-alt); }
-        .scen-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; flex: 1; margin: 0; color: var(--text-main); }
+        .scen-item label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600; width: 100%; }
         .scen-item input { accent-color: var(--primary); cursor: pointer; }
-        .btn-del-scen { background: transparent; border: none; color: #a1a1aa; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+        .btn-del-scen { background: transparent; border: none; color: #a1a1aa; cursor: pointer; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
         .btn-del-scen:hover { background: var(--error-bg); color: var(--error-text); }
 
-        button { padding: 8px 15px; background-color: var(--surface); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; cursor: pointer; font-size: 0.88rem; font-weight: 700; font-family: 'Nunito', sans-serif; transition: all 0.2s; }
+        button { padding: 8px 15px; background-color: var(--surface); color: var(--primary); border: 1px solid var(--primary); border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
         button:hover { background-color: var(--surface-alt); }
         button.primary { background-color: var(--primary); color: #ffffff; border: none; }
         button.primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
@@ -58,80 +57,81 @@
         button.mini-load:hover { border-color: var(--primary); color: var(--primary); }
 
         .workspace { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 260px; background-color: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px 0; overflow-y: auto; flex-shrink: 0; }
-        .nav-item { padding: 12px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-muted); border-left: 4px solid transparent; }
+        .sidebar { width: 260px; background-color: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
+        .nav-item { padding: 12px 20px; cursor: pointer; font-weight: 700; font-size: 0.92rem; color: var(--text-muted); border-left: 4px solid transparent; transition: all 0.2s; }
         .nav-item:hover { color: var(--primary); background-color: var(--surface-alt); }
         .nav-item.active { border-left-color: var(--primary); background-color: var(--surface-alt); color: var(--primary); }
 
         .content { flex: 1; padding: 24px 32px; overflow-y: auto; background: var(--bg-color); }
         .tab-content { display: none; animation: fadeIn 0.2s ease forwards; }
         .tab-content.active { display: block; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-        .block-info { font-size: 0.82rem; color: var(--primary); background: #eef3ec; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 14px; font-weight: 600; }
-
-        .accordion { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .accordion-header { padding: 12px 18px; background: var(--surface-alt); display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; }
-        .accordion-header h3 { font-family: 'Playfair Display', serif; font-size: 1.08rem; color: var(--primary); margin: 0; cursor: pointer; flex: 1; }
+        .block-info { font-size: 0.82rem; color: var(--primary); background: #eef3ec; padding: 4px 10px; border-radius: 4px; display: inline-block; margin-bottom: 12px; font-weight: 600; }
+        
+        .accordion { margin-bottom: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .accordion-header { padding: 12px 18px; background: var(--surface-alt); display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+        .accordion-header h3 { font-family: 'Playfair Display', serif; font-size: 1.08rem; color: var(--primary); }
         .accordion-body { padding: 0; transition: max-height 0.3s; }
         .accordion.collapsed .accordion-body { display: none; }
         .accordion.collapsed .accordion-header { border-radius: 8px; }
 
-        /* --- СТИЛИ ТАБЛИЦ И ЗАКРЕПЛЕННЫХ КОЛОНОК --- */
-        .table-container { width: 100%; overflow-x: auto; max-height: 65vh; background-color: var(--surface); border-radius: 0 0 8px 8px; position: relative; }
+        /* ИСПРАВЛЕННАЯ ВЕРСТКА ДЛЯ P&L И ТАБЛИЦ */
+        .table-container { width: 100%; overflow: auto; max-height: 65vh; background-color: var(--surface); border-bottom: 1px solid var(--border); }
         table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        
-        th, td { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: right; min-width: 78px; padding: 4px 6px; font-size: 0.78rem; vertical-align: middle; }
+        th, td { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: right; padding: 4px 6px; font-size: 0.78rem; white-space: nowrap; }
         th:last-child, td:last-child { border-right: none; }
+        th { background-color: #f9f8f4; position: sticky; top: 0; z-index: 10; font-weight: 700; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; height: 28px; }
+        tr:nth-child(2) th { top: 28px; height: 26px; z-index: 9; color: var(--text-muted); font-size: 0.68rem; }
         
-        th { background-color: #f9f8f4; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; font-weight: 700; position: sticky; top: 0; height: 28px; z-index: 10; text-align: center; }
-        tr:nth-child(2) th { top: 28px; height: 26px; z-index: 9; color: var(--text-muted); font-size: 0.68rem; } 
-        
-        .sticky-col { text-align: left; font-weight: 700; background-color: #f9f8f4; position: sticky; z-index: 15; box-shadow: 1px 0 0 var(--border); }
+        .sticky-col { text-align: left; font-weight: 700; background-color: #f9f8f4; position: sticky; z-index: 15; }
         th.sticky-col { z-index: 20; }
         .group-th { border-bottom: 2px solid var(--primary); text-align: center !important; }
 
-        .col-sticky-1 { position: sticky; left: 0px; width: 120px; min-width: 120px; max-width: 120px; z-index: 15; background: var(--surface) !important; text-align: left; }
-        .col-sticky-2 { position: sticky; left: 120px; width: 95px; min-width: 95px; max-width: 95px; z-index: 15; background: var(--surface-alt) !important; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.75rem; font-weight: 600; }
-        .col-sticky-3 { position: sticky; left: 215px; width: 150px; min-width: 150px; max-width: 150px; z-index: 15; background: var(--surface-alt) !important; text-align: left; font-weight: 600; color: var(--primary); font-size: 0.75rem; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.12); line-height: 1.1; }
-        
-        th.col-sticky-1 { top: 0; left: 0px; width: 120px; min-width: 120px; max-width: 120px; z-index: 25; background: #f9f8f4 !important; }
-        th.col-sticky-2 { top: 0; left: 120px; width: 95px; min-width: 95px; max-width: 95px; z-index: 25; background: #f9f8f4 !important; }
-        th.col-sticky-3 { top: 0; left: 215px; width: 150px; min-width: 150px; max-width: 150px; z-index: 25; background: #f9f8f4 !important; box-shadow: 3px 0 5px -2px rgba(0,0,0,0.12); }
+        /* ИСПРАВЛЕННЫЕ ЗАКРЕПЛЕННЫЕ КОЛОНКИ С ПЕРЕНОСОМ ТЕКСТА */
+        .col-sticky-1 { position: sticky; left: 0px; width: 110px; min-width: 110px; max-width: 110px; z-index: 15; background-color: #f9f8f4; text-align: left; font-weight: 700; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
+        .col-sticky-2 { position: sticky; left: 110px; width: 120px; min-width: 120px; max-width: 120px; z-index: 15; background-color: #f9f8f4; text-align: left; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
+        .col-sticky-3 { position: sticky; left: 230px; width: 160px; min-width: 160px; max-width: 160px; z-index: 15; background-color: #f9f8f4; text-align: left; font-weight: 600; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
+
+        th.col-sticky-1 { top: 0; left: 0px; width: 110px; min-width: 110px; max-width: 110px; z-index: 25; }
+        th.col-sticky-2 { top: 0; left: 110px; width: 120px; min-width: 120px; max-width: 120px; z-index: 25; }
+        th.col-sticky-3 { top: 0; left: 230px; width: 160px; min-width: 160px; max-width: 160px; z-index: 25; }
 
         .col-25 { background-color: var(--col-2025); color: var(--text-muted); }
         .col-cur { background-color: var(--col-curr); }
         .col-scn { background-color: var(--col-scen); color: var(--text-main); font-weight: 600; }
-        
-        .input-wrapper { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
-        td input { width: 100%; height: 22px; padding: 0 4px; background: transparent; border: 1px solid transparent; border-radius: 4px; font-family: 'Nunito', sans-serif; font-size: 0.78rem; font-weight: 600; color: var(--text-main); text-align: right; transition: all 0.2s; }
-        td input:focus { background-color: #fff; border-color: var(--primary); box-shadow: inset 0 0 0 1px rgba(79, 119, 74, 0.3); outline: none; }
-        td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; }
-        .pct-sign { color: var(--text-muted); font-size: 0.75rem; font-weight: 600; margin-left: 2px;}
 
-        .filters-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; }
-        .filters-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+        .input-wrapper { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
+        td input { width: 100%; height: 22px; text-align: right; border: 1px solid transparent; background: transparent; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: var(--primary); outline: none; border-radius: 3px; padding: 0 4px; transition: all 0.15s; }
+        td input:focus { background-color: #fff; border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
+        td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; }
+        .pct-sign { color: var(--text-muted); font-size: 0.75rem; font-weight: 600; margin-left: 2px; }
+
+        /* ИСПРАВЛЕННЫЙ БЛОК ФИЛЬТРОВ И КНОПОК */
+        .filters-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+        .filters-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
         .filters-row:last-child { margin-bottom: 0; }
-        .filters-row label { font-size: 0.82rem; font-weight: 700; color: var(--primary); width: 90px; flex-shrink: 0; }
-        .filters-row select { padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-family: 'Nunito', sans-serif; font-size: 0.85rem; flex: 1; max-width: 190px; }
-        .toggles-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-        .toggles-group label { background: var(--surface-alt); padding: 3px 8px; border-radius: 5px; font-weight: 600; font-size: 0.78rem; color: var(--text-main); cursor: pointer; border: 1px solid var(--border); width: auto; }
-        .toggles-group input { accent-color: var(--primary); margin-right: 4px; }
+        .filters-row label { font-size: 0.85rem; font-weight: 700; color: var(--primary); min-width: 75px; flex-shrink: 0; margin-bottom: 0; }
+        .filters-row select { padding: 6px 12px; border: 1px solid var(--border); border-radius: 6px; outline: none; font-family: inherit; font-size: 0.85rem; background: var(--bg-color); max-width: 250px; flex: 1; }
+        .toggles-group { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; align-items: center; margin-top: -2px; }
+        .toggles-group label { background: var(--surface-alt); padding: 5px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); white-space: nowrap; margin-bottom: 0; }
+        .toggles-group input { accent-color: var(--primary); margin-right: 0; }
 
         /* Пагинация */
-        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; padding-bottom: 10px; }
-        .page-btn { padding: 6px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; color: var(--text-main); transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .page-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px; padding: 10px; background: var(--surface); border-top: 1px solid var(--border); }
+        .page-btn { padding: 6px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.8rem; color: var(--text-main); }
+        .page-btn:hover:not(:disabled) { background: var(--surface-alt); border-color: var(--primary); color: var(--primary); }
         .page-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
         .page-info { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-align: center; }
-        .loading-overlay { text-align: center; padding: 80px 20px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.4rem; animation: pulse 1.5s infinite; }
+
+        .loading-overlay { text-align: center; padding: 80px 20px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 1.3rem; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
 
-        /* Мобильная заглушка */
         .mobile-overlay { display: none; }
         @media (max-width: 1024px) {
-            .mobile-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 99999; align-items: center; justify-content: center; text-align: center; padding: 30px; }
-            .mobile-overlay h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); line-height: 1.4; }
+            .mobile-overlay { display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #FDFBF7; z-index: 9999; justify-content: center; align-items: center; text-align: center; padding: 30px; }
+            .mobile-overlay h2 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: var(--primary); }
             header, .workspace { display: none !important; }
         }
     </style>
@@ -139,24 +139,20 @@
 <body>
 
     <div class="mobile-overlay">
-        <h2>Этот инструмент не имеет мобильной версии,<br>пожалуйста, зайдите с ПК</h2>
+        <h2>Этот инструмент не имеет мобильной версии, <br>пожалуйста, зайдите с ПК</h2>
     </div>
 
     <header>
         <div class="logo-area">
             Агроном-сад <span>| Sales Engine</span>
-            <div id="sync-indicator" class="sync-indicator" title="Подключение к БД...">🔄</div>
+            <div id="sync-indicator" class="sync-indicator" title="Подключение к БД...">Подключение...</div>
         </div>
-        
         <div class="scenario-controls">
             <div class="scen-dropdown">
                 <button class="scen-dropdown-btn" onclick="toggleDropdown()">Сценарии ▾</button>
-                <div class="scen-dropdown-content" id="scen-dropdown-list">
-                    </div>
+                <div class="scen-dropdown-content" id="scen-dropdown-list"></div>
             </div>
-
             <button onclick="saveCurrentScenario()">Зафиксировать сценарий</button>
-            
             <input type="file" id="file-upload" style="display: none;" accept=".xlsx, .xls, .csv">
             <button class="export" onclick="exportData()">Выгрузить отчет</button>
             <button class="primary" onclick="runCalculationEngine()">Сформировать план</button>
@@ -171,13 +167,13 @@
             <div class="nav-item" onclick="switchTab('tab-mix', this)">4. Продуктовый микс</div>
             <div class="nav-item" onclick="switchTab('tab-cap', this)">5. Ёмкость рынка</div>
             <div class="nav-item" onclick="switchTab('tab-price', this)">6. Цена реализации</div>
-            <div class="nav-item" onclick="switchTab('tab-exp', this)">7. Расходные статьи</div>
-            <div class="nav-item" onclick="switchTab('tab-pnl', this)">8. План продаж (P&L)</div>
+            <div class="nav-item" onclick="switchTab('tab-pnl', this)">7. План выручки</div>
+            <div class="nav-item" onclick="switchTab('tab-exp', this)">8. Расходные статьи</div>
         </div>
 
         <div class="content">
             <div id="tab-vol" class="tab-content active">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Объём</h2>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Объём сбора и стратегия хранения</h2>
                 <div class="block-info">Ответственный: Прилепин (Доступ: Редактирование)</div>
                 <div class="accordion">
                     <div class="accordion-header" onclick="toggleAcc(this)">
@@ -189,84 +185,98 @@
             </div>
 
             <div id="tab-qual" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Качество яблок</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение по Классам (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_cls')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-classes"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Окрас (Доли, %)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_col')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-colors"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Калибровка I класс (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_cal1')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-cal-1"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Расширенная калибровка II/III класс (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_calX')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-qual-cal-ext"></div></div>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Качественные характеристики урожая</h2>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение по классам качества (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_cls')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-classes"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Окрас (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_col')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-colors"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Калибровка I класса (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_call')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-1"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Расширенная калибровка II-V классов (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_calX')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-ext"></div></div>
             </div>
 
             <div id="tab-graph" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">График вывода</h2>
-                <div class="block-info">Уровни планирования: Бюджет (lock) / Прогноз (edit) / Факт</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Объемы продаж по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event, 'grph')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-graph"></div></div>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">График вывода по месяцам</h2>
+                <div class="block-info">Уровни планирования: Прогноз / Факт</div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Объемы продаж (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'grph')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-graph"></div></div>
             </div>
 
             <div id="tab-mix" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Продуктовый микс</h2>
-                <div class="block-info">Ответственный: Беляева А. (Матрица: Калибр → Упаковка)</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение Калибр → Упаковка (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'mix')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-mix-pack"></div></div>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Продуктовый микс и форматы упаковок</h2>
+                <div class="block-info">Ответственный: Беляева А. (Матрица: Калибр × Упаковка)</div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение упаковки по калибрам (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'mix')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-mix-pack"></div></div>
             </div>
 
             <div id="tab-cap" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Ёмкость рынка</h2>
-                <div class="block-info">Ответственный: Захаренко С. (Коммерческие ограничения)</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Лимиты каналов сбыта по месяцам (т)</h3><button class="mini-load" onclick="triggerLoad(event, 'cap')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-capacity"></div></div>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Коммерческая емкость рынка</h2>
+                <div class="block-info">Оставьте ячейки сетей и упаковок пустыми или 0, если ограничений нет</div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>1. Общий лимит продаж сорта (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'cap')">Загрузить данные</button></div>
+                    <div class="accordion-body table-container" id="tbl-cap-sort"></div>
+                </div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>2. Лимит по сетям (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'net_cap')">Загрузить данные</button></div>
+                    <div class="accordion-body table-container" id="tbl-cap-net"></div>
+                </div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>3. Лимит по упаковке (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'pack_cap')">Загрузить данные</button></div>
+                    <div class="accordion-body table-container" id="tbl-cap-pack"></div>
+                </div>
             </div>
 
             <div id="tab-price" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Цена реализации</h2>
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)">
-                        <h3>Базовые цены (₽)</h3>
-                        <button class="mini-load" onclick="triggerLoad(event, 'p_base')">Загрузить данные из файла</button>
-                    </div>
-                    <div class="accordion-body table-container" id="tbl-prc-base"></div>
-                </div>
-                
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия сети (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_net')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_pack')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_cls')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за калибр (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_cal')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-prc-cal"></div></div>
-                
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Ценовая политика и условия коммерции</h2>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_base')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия / Скидка по сетям (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_net')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_pack')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс качества (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_cls')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за калибр (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_cal')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-cal"></div></div>
                 <div class="accordion">
                     <div class="accordion-header" onclick="toggleAcc(this)">
                         <h3>Ручная корректировка цены по месяцам (₽/кг)</h3>
-                        <button class="mini-load" onclick="triggerLoad(event, 'p_fin')">Загрузить данные из файла</button>
+                        <button class="mini-load" onclick="triggerLoad(event, 'p_fin')">Загрузить данные</button>
                     </div>
                     <div class="accordion-body table-container" id="tbl-prc-monthly"></div>
                 </div>
             </div>
 
-            <div id="tab-exp" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Расходные статьи</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Бюджет расходов (₽)</h3><button class="mini-load" onclick="triggerLoad(event, 'exp')">Загрузить данные из файла</button></div><div class="accordion-body table-container" id="tbl-expenses"></div></div>
-            </div>
-
             <div id="tab-pnl" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 12px;">План продаж (Детальный P&L)</h2>
-                
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 12px;">План выручки</h2>
                 <div class="filters-container">
                     <div class="filters-row">
-                        <label>Срезы:</label>
+                        <label>Срезы: </label>
                         <select id="filt-sort" onchange="renderPnlTable()"></select>
                         <select id="filt-net" onchange="renderPnlTable()"></select>
                     </div>
                     <div class="filters-row">
-                        <label>Месяцы:</label>
+                        <label>Месяцы: </label>
                         <div class="toggles-group" id="toggles-months"></div>
                     </div>
                     <div class="filters-row" style="margin-bottom: 0;">
-                        <label>Метрики:</label>
+                        <label>Метрики: </label>
                         <div class="toggles-group" id="toggles-metrics"></div>
                     </div>
                 </div>
-
                 <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>Аналитическая матрица</h3></div>
-                    <div class="accordion-body table-container" style="max-height: 58vh;" id="tbl-results-container">
-                        <table><tbody><tr><td style="text-align: center; padding: 50px; color: var(--text-muted);">Нажмите "Сформировать план" для проведения расчетов.</td></tr></tbody></table>
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>Аналитическая матрица P&L</h3></div>
+                    <div class="accordion-body table-container" id="tbl-results-container">
+                        <table><tbody><tr><td style="text-align: center; padding: 50px; color: var(--text-muted);">Нажмите "Сформировать план" для вычисления сценария</td></tr></tbody></table>
                     </div>
+                </div>
+            </div>
+
+            <div id="tab-exp" class="tab-content">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Аллокация расходов</h2>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)">
+                        <h3>Бюджет расходов по статьям (₽)</h3>
+                        <button class="mini-load" onclick="triggerLoad(event, 'exp')">Загрузить данные</button>
+                    </div>
+                    <div class="accordion-body table-container" id="tbl-expenses"></div>
+                </div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)">
+                        <h3>Детализированные расходы по сортам</h3>
+                        <button class="mini-load" onclick="triggerLoad(event, 'exp_detailed')">Загрузить файл расходов</button>
+                    </div>
+                    <div class="accordion-body table-container" id="tbl-exp-detailed"></div>
                 </div>
             </div>
         </div>
@@ -276,17 +286,25 @@
         // --- 1. STATE MANAGEMENT & СИНХРОНИЗАЦИЯ БД ---
         const SORTS = ['Альва', 'Амброзия', 'Гала', 'Лигол', 'Спартан', 'Космик Крисп'];
         const NETWORKS = ['ПЕРЕКРЕСТОК', 'ВКУСВИЛЛ', 'МАГНИТ', 'ЛЕНТА'];
-        const CLASSES = ['I класс', 'II класс', 'III класс', 'IV класс', 'V класс', 'VI класс (индустриальное)']; 
+        const CLASSES = ['I класс', 'II класс', 'III класс', 'IV класс', 'V класс', 'VI класс (индустриальное)'];
         const COLORS = ['Красный', 'Зеленый', 'Желтый', 'Би-колор'];
-        const CALIBERS = ['>95 мм', '90-95 мм', '85-90 мм', '80-85 мм', '75-80 мм', '65-70 мм', '60-65 мм', '55+ мм'];
+        const CALIBERS = ['>95 мм', '90-95 мм', '85-90 мм', '80-85 мм', '75-80 мм', '65-70 мм', '60-65 мм'];
         const PACKAGING = ['Вес', 'Лоток 4*1', 'FP 6*1', 'Пакет', 'Сетка'];
         const MONTHS = ['Авг', 'Сен', 'Окт', 'Ноя', 'Дек', 'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'];
         const EXPENSES = ['Pre-harvest', 'Harvest', 'Логистика', 'Хранение', 'ФОТ Комм. отдела', 'Маркетинг'];
         
+        const EXP_DETAILED_COLS = [
+            'EBITDA блок', 'Категория сорта', 'Объем, т', 'Выручка, млн', 'EBITDA тотал, млн', 
+            'Цена без 6 класса', 'Объем бренд-упаковки', 'Доля бренд уп. от 1 кл.', 
+            'Доля 1 класса (без 6)', 'Прехарвест', 'Риск', 'Харвест', 
+            'Пост Харвест (тотал)', 'Хранение', 'Сорт/Упак', 'Упаковка', 'ФОТ Коммерции', 
+            'Маркетинг', 'Логистика', 'Админ косты', 'EBITDA, %', 'Общая себестоимость'
+        ];
+
         const METRICS = [
             { id: 'vol', name: 'Объем продаж (т)', isPct: false },
-            { id: 'price', name: 'Ср. Цена реализации (₽/кг)', isPct: false },
             { id: 'rev', name: 'Валовая Выручка (₽)', isPct: false },
+            { id: 'price', name: 'Ср. Цена реализации (₽/кг)', isPct: false },
             { id: 'exp', name: 'Аллоцированные расходы (₽)', isPct: false },
             { id: 'ebitda', name: 'EBITDA (₽)', isPct: false },
             { id: 'margin', name: 'Рентабельность по EBITDA (%)', isPct: true }
@@ -299,12 +317,12 @@
         ];
 
         let tableData = {};
-        let finalPnlResults = []; 
+        let finalPnlResults = [];
         let activeMonths = [...MONTHS, 'ИТОГО'];
-        let activeMetrics = ['vol', 'rev', 'ebitda']; 
+        let activeMetrics = ['vol', 'rev', 'ebitda'];
 
-        const API_BASE_URL = '';
-        
+        const API_BASE_URL = ''; 
+
         const API = {
             async loadState() {
                 try {
@@ -313,14 +331,12 @@
                         let data = await response.json();
                         if (data && data.tableData && Object.keys(data.tableData).length > 0) return data;
                     }
-                } catch (e) {
-                    let saved = localStorage.getItem('agronom_db_state');
-                    return saved ? JSON.parse(saved) : null;
-                }
-                return null;
+                } catch (e) { console.log('Не удалось загрузить данные из сети'); }
+                let saved = localStorage.getItem('agronom_db_state');
+                return saved ? JSON.parse(saved) : null;
             },
             async saveFullState(dataObj, scensObj, sortsArr) {
-                localStorage.setItem('agronom_db_state', JSON.stringify({tableData: dataObj, scenarios: scensObj, sorts: sortsArr}));
+                localStorage.setItem('agronom_db_state', JSON.stringify({ tableData: dataObj, scenarios: scensObj, sorts: sortsArr }));
                 try {
                     let response = await fetch(`${API_BASE_URL}/api/v1/scenarios/update`, {
                         method: 'POST',
@@ -329,22 +345,21 @@
                     });
                     if (!response.ok) throw new Error('Ошибка сервера');
                 } catch (e) {
-                    throw new Error('backend_offline'); 
+                    throw new Error('backend_offline');
                 }
             }
         };
 
-        // --- УТИЛИТЫ ---
+        // --- УТИЛИТЫ ФОРМАТИРОВАНИЯ ---
         function setSyncStatus(status, isError = false) {
             const ind = document.getElementById('sync-indicator');
-            ind.className = 'sync-indicator'; 
-            ind.title = status; 
-            if (isError) { ind.classList.add('error'); ind.innerHTML = `⚠️`; } 
-            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...' || status === 'Чтение файла...') { 
-                ind.classList.add('syncing'); ind.innerHTML = `⏳`; 
-            } 
-            else if (status === 'Подключение к БД...') { ind.innerHTML = `🔄`; }
-            else { ind.innerHTML = `✅`; }
+            ind.className = 'sync-indicator';
+            ind.title = status;
+            if (isError) { ind.classList.add('error'); ind.innerHTML = '● Ошибка БД'; }
+            else if (status === 'Сохранение...' || status === 'Создание сценария...' || status === 'Удаление...') {
+                ind.classList.add('syncing'); ind.innerHTML = '⟳ ' + status;
+            } else if (status === 'Подключение к БД...') { ind.innerHTML = '◌ Подключение...'; }
+            else { ind.innerHTML = '✓ ' + status; }
         }
 
         let syncTimeout;
@@ -354,7 +369,7 @@
             syncTimeout = setTimeout(async () => {
                 try {
                     await API.saveFullState(tableData, scenarios, SORTS);
-                    setSyncStatus('Сохранено в БД');
+                    setSyncStatus('Синхронизировано');
                 } catch (e) {
                     if (e.message === 'backend_offline') setSyncStatus('Локально (БД недоступна)', false);
                     else setSyncStatus('Ошибка сохранения', true);
@@ -363,21 +378,20 @@
         }
 
         function formatVal(val, isPercent = false) {
-            if (val === null || val === '') return ''; 
+            if (val === undefined || val === null || val === '') return '';
             if (isNaN(val) || val === 0) return '0' + (isPercent ? '%' : '');
-            let rounded = Math.round(val * 10) / 10; 
-            let decimals = (rounded % 1 === 0) ? 0 : 1; 
+            let rounded = Math.round(val * 10) / 10;
+            let decimals = (rounded % 1 === 0) ? 0 : 1;
             let str = rounded.toLocaleString('ru-RU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-            str = str.replace('.', ','); 
-            return isPercent ? str + '%' : str; 
+            return isPercent ? str + '%' : str;
         }
 
         function formatInputDisplay(val) {
-            if (val === null || val === '') return ''; 
+            if (val === undefined || val === null || val === '') return '';
             if (isNaN(val) || val === 0) return '0';
-            let rounded = Math.floor(val * 10) / 10;
+            let rounded = Math.round(val * 10) / 10;
             let parts = rounded.toString().split('.');
-            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " "); 
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
             return parts.join(',');
         }
 
@@ -385,23 +399,18 @@
             let cursor = el.selectionStart;
             let oldLen = el.value.length;
             let isNegative = el.value.trim().startsWith('-');
-            
-            let raw = el.value.replace(/[^0-9.,\-]/g, '');
-            if (isNegative) raw = '-' + raw.replace(/\-/g, '');
-            else raw = raw.replace(/\-/g, '');
+            let raw = el.value.replace(/[^0-9.,\-]/g,'');
+            if (isNegative) raw = '-' + raw.replace(/\-/g,'');
+            else raw = raw.replace(/\-/g,'');
             raw = raw.replace('.', ',');
-            
             let parts = raw.split(',');
             if (parts.length > 2) parts = [parts[0], parts.slice(1).join('')];
-            
-            if (parts[0]) {
-                let numPart = parts[0].replace('-', '');
+            if (parts[0]){
+                let numPart = parts[0].replace('-','');
                 numPart = numPart.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
                 parts[0] = (isNegative ? '-' : '') + numPart;
             }
-            
             el.value = parts.join(',');
-            
             let newLen = el.value.length;
             let newCursor = cursor + (newLen - oldLen);
             if(newCursor < 0) newCursor = 0;
@@ -409,12 +418,31 @@
 
             let key = el.getAttribute('data-key');
             tableData[key] = parseVal(el.value);
+
+            if (key.startsWith('p_base') || key.startsWith('p_net') || key.startsWith('p_cls') || key.startsWith('p_cal') || key.startsWith('p_pack') || key.startsWith('q_cls') || key.startsWith('mix') || key.startsWith('q_call') || key.startsWith('q_calX')) {
+                recalculateDependentTables();
+            }
+
+            autoSaveToBackend();
+        }
+
+        function saveRawInput(el) {
+            let key = el.getAttribute('data-key');
+            let val = el.value;
+            let cleanStr = val.replace(/\s/g,'').replace(',', '.').replace('%','');
+            let num = parseFloat(cleanStr);
+            if (!isNaN(num) && /^[0-9.,\-]+$/.test(cleanStr)) {
+                tableData[key] = num;
+                el.value = formatInputDisplay(num);
+            } else {
+                tableData[key] = val;
+            }
             autoSaveToBackend();
         }
 
         function parseVal(str) {
             if (!str || str.toString().trim() === '') return null;
-            return parseFloat(str.toString().replace(/\s/g, '').replace(',', '.')) || 0;
+            return parseFloat(str.toString().replace(/\s/g,'').replace(',', '.')) || 0;
         }
 
         // --- ИНИЦИАЛИЗАЦИЯ ---
@@ -425,12 +453,10 @@
                 tableData = cloudData.tableData || {};
                 scenarios = cloudData.scenarios || scenarios;
                 if (cloudData.sorts && Array.isArray(cloudData.sorts) && cloudData.sorts.length > 0) {
-                    SORTS.length = 0; 
-                    SORTS.push(...cloudData.sorts); 
+                    SORTS.length = 0; SORTS.push(...cloudData.sorts);
                 }
                 if (tableData['_meta_networks'] && Array.isArray(tableData['_meta_networks'])) {
-                    NETWORKS.length = 0; 
-                    NETWORKS.push(...tableData['_meta_networks']); 
+                    NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
                 }
             }
             renderCheckboxes();
@@ -439,7 +465,6 @@
             setSyncStatus(cloudData ? 'Синхронизировано' : 'Готово к работе');
         });
 
-        // --- UI ЛОГИКА ---
         function switchTab(tabId, el) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -450,31 +475,23 @@
         function toggleAcc(el) { el.parentElement.classList.toggle('collapsed'); }
 
         // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ ---
-        function toggleDropdown() {
-            document.getElementById("scen-dropdown-list").classList.toggle("show");
-        }
-
+        function toggleDropdown() { document.getElementById("scen-dropdown-list").classList.toggle("show"); }
         window.onclick = function(event) {
             if (!event.target.closest('.scen-dropdown')) {
                 let dropdowns = document.getElementsByClassName("scen-dropdown-content");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    dropdowns[i].classList.remove('show');
-                }
+                for (let i = 0; i < dropdowns.length; i++) dropdowns[i].classList.remove('show');
             }
         }
 
         function renderCheckboxes() {
             let html = '';
             scenarios.forEach(scen => {
-                let disabled = scen.id === 'scur' ? 'disabled' : ''; 
+                let disabled = scen.id === 'scur' ? 'disabled' : '';
                 let checked = scen.visible ? 'checked' : '';
-                
                 let delBtnHtml = (scen.id !== 'scur' && scen.id !== 's2025') 
-                    ? `<button class="btn-del-scen" onclick="deleteScenario('${scen.id}')" title="Удалить сценарий">❌</button>` 
-                    : `<span style="width: 24px;"></span>`;
-
-                html += `
-                <div class="scen-item">
+                    ? `<button class="btn-del-scen" onclick="deleteScenario('${scen.id}')" title="Удалить">✕</button>` 
+                    : '<span style="width: 24px;"></span>';
+                html += `<div class="scen-item">
                     <label><input type="checkbox" value="${scen.id}" onchange="toggleScenario(this)" ${checked} ${disabled}> ${scen.name}</label>
                     ${delBtnHtml}
                 </div>`;
@@ -485,23 +502,20 @@
         function toggleScenario(cb) {
             let scen = scenarios.find(s => s.id === cb.value);
             if(scen) scen.visible = cb.checked;
-            generateAllTables(); 
-            if (finalPnlResults.length > 0) renderPnlTable(); 
-            autoSaveToBackend(); 
+            generateAllTables();
+            if (finalPnlResults.length > 0) renderPnlTable();
+            autoSaveToBackend();
         }
 
         async function saveCurrentScenario() {
-            let name = prompt("Название нового зафиксированного сценария:", "Сценарий " + (scenarios.length));
+            let name = prompt("Название нового зафиксированного сценария:", "Сценарий " + (scenarios.length - 1));
             if (!name) return;
-            
             setSyncStatus('Создание сценария...');
             let newId = 's_' + Date.now();
             scenarios.push({ id: newId, name: name, type: 'readonly', visible: true });
-            
-            for (let key in tableData) { 
-                if (key.endsWith('_scur')) tableData[key.replace('_scur', '_' + newId)] = tableData[key]; 
+            for (let key in tableData) {
+                if (key.endsWith('_scur')) tableData[key.replace('_scur', '_' + newId)] = tableData[key];
             }
-            
             autoSaveToBackend();
             renderCheckboxes();
             generateAllTables();
@@ -510,21 +524,18 @@
 
         function deleteScenario(id) {
             if(!confirm("Вы уверены, что хотите безвозвратно удалить этот сценарий?")) return;
-            
             setSyncStatus('Удаление...');
             scenarios = scenarios.filter(s => s.id !== id);
-            
             for (let key in tableData) {
                 if (key.endsWith('_' + id)) delete tableData[key];
             }
-
             autoSaveToBackend();
             renderCheckboxes();
             generateAllTables();
             if (finalPnlResults.length > 0) renderPnlTable();
         }
 
-        // --- ГЕНЕРАТОР БАЗОВЫХ ТАБЛИЦ ---
+        // --- ГЕНЕРАТОРЫ БАЗОВЫХ ТАБЛИЦ ---
         function getOrInitData(tableId, rIdx, cIdx, scenId, baseVal) {
             let key = `${tableId}_${rIdx}_${cIdx}_${scenId}`;
             if (tableData[key] !== undefined && tableData[key] !== null) return tableData[key];
@@ -541,13 +552,12 @@
                 if (!scen.visible) return;
                 let val = getOrInitData(tableId, rIdx, cIdx, scen.id, baseVal);
                 let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
-                
                 if (scen.type === 'input') {
                     let key = `${tableId}_${rIdx}_${cIdx}_${scen.id}`;
                     html += `<td class="col-${scen.id}">
                         <div class="input-wrapper">
                             <input type="text" data-key="${key}" value="${formatInputDisplay(val)}" oninput="formatInputLive(this, ${isPercent})">
-                            ${isPercent ? `<span class="pct-sign">%</span>` : ''}
+                            ${isPercent ? '<span class="pct-sign">%</span>' : ''}
                         </div>
                     </td>`;
                 } else {
@@ -561,126 +571,204 @@
             let visibleScens = scenarios.filter(s => s.visible);
             let subHeader = visibleScens.map(s => `<th class="col-${s.id}">${s.name}</th>`).join('');
             let thead = `<tr><th rowspan="2" class="sticky-col" style="left:0;">Параметр</th>${colHeaders.map(c => `<th colspan="${visibleScens.length}" class="group-th">${c}</th>`).join('')}</tr><tr>${subHeader.repeat(colHeaders.length)}</tr>`;
-            
             let tbody = rowHeaders.map((rowHeader, rIdx) => {
                 let rowName = typeof rowHeader === 'object' ? rowHeader.name : rowHeader;
                 let isReadonlyRow = typeof rowHeader === 'object' && rowHeader.lock;
-                
                 let rowData = colHeaders.map((colHeader, cIdx) => {
                     let isPct = Array.isArray(isPercentArr) ? isPercentArr[cIdx] : isPercentArr;
                     let val = dataGenerator(rIdx, cIdx);
                     if (isReadonlyRow) {
-                        return visibleScens.map(scen => `<td class="col-${scen.id} readonly-cell">${formatVal(val, isPct)}</td>`).join('');
+                        return visibleScens.map(scen => `<td class="col-${scen.id} readonly-cell">${formatVal(getOrInitData(tableId, rIdx, cIdx, scen.id, val), isPct)}</td>`).join('');
                     }
                     return buildInputs(tableId, rIdx, cIdx, val, isPct);
                 }).join('');
                 return `<tr><td class="sticky-col" style="left:0;">${rowName}</td>${rowData}</tr>`;
             }).join('');
-            
             return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        // --- НОВЫЙ ГЕНЕРАТОР ПОМЕСЯЧНЫХ ТАБЛИЦ (Месяцы = Столбцы, Сценарии = Строки) ---
         function buildMonthlyTableMatrix(tableId, rowHeaders, dataGenerator, isPercent) {
             let visibleScens = scenarios.filter(s => s.visible);
-            
             let thead = `<tr>
                 <th class="col-sticky-1">Параметр</th>
                 <th class="col-sticky-2">Сценарий</th>
                 ${MONTHS.map(m => `<th>${m}</th>`).join('')}
             </tr>`;
-
             let tbody = rowHeaders.map((rowHeader, rIdx) => {
                 let rowName = typeof rowHeader === 'object' ? rowHeader.name : rowHeader;
                 let isReadonlyRow = typeof rowHeader === 'object' && rowHeader.lock;
-
                 return visibleScens.map((scen, scenIdx) => {
                     let stickyCell1 = (scenIdx === 0) 
-                        ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align:middle;">${rowName}</td>` 
+                        ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${rowName}</b></td>` 
                         : '';
-
                     let monthCells = MONTHS.map((_, mIdx) => {
                         let val = getOrInitData(tableId, rIdx, mIdx, scen.id, dataGenerator(rIdx, mIdx));
                         let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
-
                         if (scen.type === 'input' && !isReadonlyRow) {
                             let key = `${tableId}_${rIdx}_${mIdx}_${scen.id}`;
                             return `<td class="col-${scen.id}">
                                 <div class="input-wrapper">
                                     <input type="text" data-key="${key}" value="${formatInputDisplay(val)}" oninput="formatInputLive(this, ${isPercent})">
-                                    ${isPercent ? `<span class="pct-sign">%</span>` : ''}
+                                    ${isPercent ? '<span class="pct-sign">%</span>' : ''}
                                 </div>
                             </td>`;
                         } else {
                             return `<td class="${cellClass}">${formatVal(val, isPercent)}</td>`;
                         }
                     }).join('');
-
                     return `<tr>${stickyCell1}<td class="col-sticky-2 col-${scen.id}">${scen.name}</td>${monthCells}</tr>`;
                 }).join('');
             }).join('');
-
+            return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
+        
+        // НОВАЯ ТАБЛИЦА: ЛИМИТЫ УПАКОВОК (Вкладка 5)
+        function buildPackCapTable() {
+            let visibleScens = scenarios.filter(s => s.visible);
+            let thead = `<tr>
+                <th class="col-sticky-1">СОРТ</th>
+                <th class="col-sticky-2">Упаковка</th>
+                <th class="col-sticky-3" style="width:100px; min-width:100px;">Сценарий</th>
+                ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+            </tr>`;
+            
+            let tbody = SORTS.map((sort, sIdx) => {
+                return PACKAGING.map((pack, pIdx) => {
+                    return visibleScens.map((scen, scenIdx) => {
+                        let stickyCell1 = (pIdx === 0 && scenIdx === 0)
+                            ? `<td rowspan="${PACKAGING.length * visibleScens.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${sort}</b></td>`
+                            : '';
+                        let stickyCell2 = (scenIdx === 0)
+                            ? `<td rowspan="${visibleScens.length}" class="col-sticky-2" style="vertical-align: middle;">${pack}</td>`
+                            : '';
+                        
+                        let monthCells = MONTHS.map((month, mIdx) => {
+                            let key = `pack_cap_${sIdx}_${pIdx}_${mIdx}_${scen.id}`;
+                            let val = tableData[key];
+                            let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
+                            
+                            if (scen.type === 'input') {
+                                let displayVal = (val !== undefined && val !== null && val !== '') ? formatInputDisplay(val) : '';
+                                return `<td class="col-${scen.id}">
+                                    <div class="input-wrapper">
+                                        <input type="text" data-key="${key}" value="${displayVal}" placeholder="∞" oninput="formatInputLive(this, false)">
+                                    </div>
+                                </td>`;
+                            } else {
+                                let finalDisplay = (val !== undefined && val !== null && val !== '') ? formatVal(val, false) : '';
+                                return `<td class="${cellClass}">${finalDisplay}</td>`;
+                            }
+                        }).join('');
+                        return `<tr>${stickyCell1}${stickyCell2}<td class="col-sticky-3 col-${scen.id}" style="width:100px; min-width:100px;">${scen.name}</td>${monthCells}</tr>`;
+                    }).join('');
+                }).join('');
+            }).join('');
+            
             return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        // --- ДВИЖОК РУЧНОЙ КОРРЕКТИРОВКИ ЦЕН ---
-        function getSt(keyPrefix, scenId) { 
-            let val = tableData[`${keyPrefix}_${scenId}`];
-            return (val === null || val === undefined || val === '') ? 0 : val; 
-        }
-
-        function getCalculatedAvgPrice(sIdx, scenId) {
-            let basePrice = getSt(`p_base_${sIdx}_0`, scenId);
-            
-            let avgNetMod = 0;
-            NETWORKS.forEach((net, nIdx) => { avgNetMod += getSt(`p_net_${nIdx}_0`, scenId); });
-            avgNetMod = (NETWORKS.length > 0 ? avgNetMod / NETWORKS.length : 0) / 100;
-
-            let avgClsMod = 0;
-            CLASSES.forEach((cls, cIdx) => { avgClsMod += (getSt(`q_cls_${sIdx}_${cIdx}`, scenId)/100) * (getSt(`p_cls_${cIdx}_0`, scenId)/100); });
-
-            let avgCalMod = 0;
-            CALIBERS.forEach((cal, cIdx) => { avgCalMod += (getSt(`q_cal1_${sIdx}_${cIdx}`, scenId)/100) * (getSt(`p_cal_${cIdx}_0`, scenId)/100); });
-
-            let avgPackMod = 0;
-            PACKAGING.forEach((pack, pIdx) => {
-                let pShare = 0;
-                CALIBERS.forEach((c, cIdx) => { pShare += getSt(`mix_${cIdx}_${pIdx}`, scenId)/100; });
-                pShare /= (CALIBERS.length || 1);
-                avgPackMod += pShare * (getSt(`p_pack_${pIdx}_0`, scenId)/100);
-            });
-
-            return basePrice * (1 + avgNetMod + avgClsMod + avgCalMod + avgPackMod);
-        }
-
-        function buildMonthlyPriceTable() {
+        function buildExpDetailedTable() {
             let visibleScens = scenarios.filter(s => s.visible);
-            
             let thead = `<tr>
-                <th class="col-sticky-1">Сорт</th>
+                <th class="col-sticky-1">СОРТ</th>
                 <th class="col-sticky-2">Сценарий</th>
-                ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+                ${EXP_DETAILED_COLS.map(c => `<th>${c}</th>`).join('')}
             </tr>`;
 
             let tbody = SORTS.map((sort, sIdx) => {
                 return visibleScens.map((scen, scenIdx) => {
                     let stickyCell1 = (scenIdx === 0) 
-                        ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align:middle;"><b>${sort}</b></td>` 
+                        ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${sort}</b></td>` 
                         : '';
-
-                    let monthCells = MONTHS.map((month, mIdx) => {
-                        let key = `p_fin_${sIdx}_${mIdx}_${scen.id}`;
-                        let calcVal = getCalculatedAvgPrice(sIdx, scen.id); 
-                        let hasOverride = (tableData[key] !== undefined && tableData[key] !== null && tableData[key] !== '');
-                        
+                    
+                    let cells = EXP_DETAILED_COLS.map((colName, cIdx) => {
+                        let key = `expdet_${sIdx}_${cIdx}_${scen.id}`;
+                        let val = tableData[key];
+                        let hasVal = (val !== undefined && val !== null && val !== '');
                         let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                         
+                        if (scen.type === 'input') {
+                            let displayVal = hasVal ? (typeof val === 'number' ? formatInputDisplay(val) : val) : '';
+                            return `<td class="col-${scen.id}">
+                                <div class="input-wrapper">
+                                    <input type="text" data-key="${key}" value="${displayVal}" onchange="saveRawInput(this)">
+                                </div>
+                            </td>`;
+                        } else {
+                            let displayVal = hasVal ? (typeof val === 'number' ? formatVal(val, false) : val) : '';
+                            return `<td class="${cellClass}">${displayVal}</td>`;
+                        }
+                    }).join('');
+                    
+                    return `<tr>${stickyCell1}<td class="col-sticky-2 col-${scen.id}">${scen.name}</td>${cells}</tr>`;
+                }).join('');
+            }).join('');
+            document.getElementById('tbl-exp-detailed').innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
+
+        // --- УМНЫЕ ТАБЛИЦЫ: ГРАФИКИ И ЦЕНЫ ---
+        function getSt(keyPrefix, scenId) {
+            let val = tableData[`${keyPrefix}_${scenId}`];
+            return (val === null || val === undefined || val === '') ? 0 : val;
+        }
+
+        function getCalculatedAvgPrice(sIdx, scenId) {
+            if (!scenId) scenId = 'scur';
+            let basePrice = getSt(`p_base_${sIdx}_0`, scenId) || 0;
+            
+            let avgNetMod = 0;
+            if (NETWORKS.length > 0) {
+                NETWORKS.forEach((net, nIdx) => { avgNetMod += getSt(`p_net_${nIdx}_0`, scenId); });
+                avgNetMod = (avgNetMod / NETWORKS.length) / 100;
+            }
+            
+            let avgClsMod = 0;
+            CLASSES.forEach((cls, cIdx) => { 
+                avgClsMod += (getSt(`q_cls_${sIdx}_${cIdx}`, scenId) / 100) * (getSt(`p_cls_${cIdx}_0`, scenId) / 100); 
+            });
+            
+            let avgCalMod = 0;
+            CALIBERS.forEach((cal, cIdx) => { 
+                let tablePref = (cIdx === 0) ? 'q_call' : 'q_calX';
+                let pCal = getSt(`${tablePref}_${sIdx}_${cIdx}`, scenId) / 100;
+                let calMod = getSt(`p_cal_${cIdx}_0`, scenId) / 100;
+                avgCalMod += pCal * calMod; 
+            });
+            
+            let avgPackMod = 0;
+            PACKAGING.forEach((pack, pIdx) => {
+                let pShare = 0;
+                CALIBERS.forEach((c, cIdx) => { pShare += getSt(`mix_${cIdx}_${pIdx}`, scenId) / 100; });
+                pShare /= (CALIBERS.length || 1);
+                avgPackMod += pShare * (getSt(`p_pack_${pIdx}_0`, scenId) / 100);
+            });
+            
+            return basePrice * (1 + avgNetMod + avgClsMod + avgCalMod + avgPackMod);
+        }
+
+        function buildMonthlyPriceTable() {
+            let visibleScens = scenarios.filter(s => s.visible);
+            let thead = `<tr>
+                <th class="col-sticky-1">СОРТ</th>
+                <th class="col-sticky-2">Сценарий</th>
+                ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+            </tr>`;
+            let tbody = SORTS.map((sort, sIdx) => {
+                return visibleScens.map((scen, scenIdx) => {
+                    let stickyCell1 = (scenIdx === 0)
+                        ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${sort}</b></td>`
+                        : '';
+                    let monthCells = MONTHS.map((month, mIdx) => {
+                        let key = `p_fin_${sIdx}_${mIdx}_${scen.id}`;
+                        let calcVal = getCalculatedAvgPrice(sIdx, scen.id);
+                        let hasOverride = (tableData[key] !== undefined && tableData[key] !== null && tableData[key] !== '');
+                        let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                         if (scen.type === 'input') {
                             let displayVal = hasOverride ? formatInputDisplay(tableData[key]) : '';
                             let placeholder = formatInputDisplay(calcVal);
                             return `<td class="col-${scen.id}">
                                 <div class="input-wrapper">
-                                    <input type="text" data-key="${key}" value="${displayVal}" placeholder="${placeholder}" oninput="formatInputLive(this, false)" title="Пусто = расчетная цена. Введите число для принудительной корректировки.">
+                                    <input type="text" data-key="${key}" value="${displayVal}" placeholder="${placeholder}" oninput="formatInputLive(this, false)">
                                 </div>
                             </td>`;
                         } else {
@@ -688,51 +776,99 @@
                             return `<td class="${cellClass}">${formatVal(finalDisplay, false)}</td>`;
                         }
                     }).join('');
-
                     return `<tr>${stickyCell1}<td class="col-sticky-2 col-${scen.id}">${scen.name}</td>${monthCells}</tr>`;
                 }).join('');
             }).join('');
-
             document.getElementById('tbl-prc-monthly').innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
 
-        function generateAllTables() {
-            document.getElementById('tbl-volumes').innerHTML = buildTableMatrix('vol', SORTS, ['Валовый сбор (т)', 'Индустриальное (%)', 'На хранение (%)', 'Потери (%)'], (r,c) => [1000, 15, 75, 5][c], [false, true, true, true]);
-            document.getElementById('tbl-qual-classes').innerHTML = buildTableMatrix('q_cls', SORTS, CLASSES, () => 25, true);
-            document.getElementById('tbl-qual-colors').innerHTML = buildTableMatrix('q_col', SORTS, COLORS, () => 25, true);
-            document.getElementById('tbl-qual-cal-1').innerHTML = buildTableMatrix('q_cal1', SORTS, CALIBERS, () => 12.5, true);
-            document.getElementById('tbl-qual-cal-ext').innerHTML = buildTableMatrix('q_calX', SORTS, CALIBERS, () => 12.5, true);
+        function buildMonthlyGraphTable() {
+            window.systemCalculatedGraph = window.systemCalculatedGraph || {};
+            let visibleScens = scenarios.filter(s => s.visible);
+            let thead = `<tr>
+                <th class="col-sticky-1" style="width:160px; min-width:160px;">СОРТ</th>
+                <th class="col-sticky-2">Сценарий</th>
+                ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+            </tr>`;
 
-            let graphRows = [];
-            SORTS.forEach(s => {
-                graphRows.push({name: `<b>${s}</b> | Бюджет`, lock: true});
-                graphRows.push({name: `<b>${s}</b> | Прогноз`, lock: false});
-                graphRows.push({name: `<b>${s}</b> | Факт`, lock: false});
-            });
-            document.getElementById('tbl-graph').innerHTML = buildMonthlyTableMatrix('grph', graphRows, () => Math.floor(Math.random()*150+50), false);
+            let tbody = SORTS.map((sort, sIdx) => {
+                return visibleScens.map((scen, scenIdx) => {
+                    let stickyCell1 = (scenIdx === 0) 
+                        ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${sort}</b></td>` 
+                        : '';
+                    let monthCells = MONTHS.map((month, mIdx) => {
+                        let key = `grph_${sIdx}_${mIdx}_${scen.id}`;
+                        let val = tableData[key];
+                        let hasOverride = (val !== undefined && val !== null && val !== '');
+                        let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
+                        
+                        if (scen.type === 'input') {
+                            let displayVal = hasOverride ? formatInputDisplay(val) : '';
+                            let sysVal = (window.systemCalculatedGraph[scen.id] && window.systemCalculatedGraph[scen.id][sIdx]) 
+                                ? window.systemCalculatedGraph[scen.id][sIdx][mIdx] 
+                                : 0;
+                            let placeholder = formatInputDisplay(sysVal);
+                            
+                            return `<td class="col-${scen.id}">
+                                <div class="input-wrapper">
+                                    <input type="text" data-key="${key}" value="${displayVal}" placeholder="${placeholder}" oninput="formatInputLive(this, false)">
+                                </div>
+                            </td>`;
+                        } else {
+                            let finalDisplay = hasOverride ? val : 0;
+                            return `<td class="${cellClass}">${formatVal(finalDisplay, false)}</td>`;
+                        }
+                    }).join('');
+                    return `<tr>${stickyCell1}<td class="col-sticky-2 col-${scen.id}">${scen.name}</td>${monthCells}</tr>`;
+                }).join('');
+            }).join('');
+            document.getElementById('tbl-graph').innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
 
-            document.getElementById('tbl-mix-pack').innerHTML = buildTableMatrix('mix', CALIBERS, PACKAGING, () => 20, true);
-            document.getElementById('tbl-capacity').innerHTML = buildMonthlyTableMatrix('cap', NETWORKS, () => 500, false);
+        function recalculateCapacityTable() {
+            document.getElementById('tbl-cap-sort').innerHTML = buildMonthlyTableMatrix('cap', SORTS, () => 300, false);
+            document.getElementById('tbl-cap-net').innerHTML = buildMonthlyTableMatrix('net_cap', NETWORKS, () => '', false);
+            document.getElementById('tbl-cap-pack').innerHTML = buildPackCapTable();
+        }
 
-            document.getElementById('tbl-prc-base').innerHTML = buildTableMatrix('p_base', SORTS, ['Базовая цена (₽)'], () => 110, false);
-            document.getElementById('tbl-prc-net').innerHTML = buildTableMatrix('p_net', NETWORKS, ['Премия (%)'], () => 12, true);
-            document.getElementById('tbl-prc-pack').innerHTML = buildTableMatrix('p_pack', PACKAGING, ['Премия (%)'], (r) => r===0?0:10, true);
-            document.getElementById('tbl-prc-cls').innerHTML = buildTableMatrix('p_cls', CLASSES, ['Скидка (%)'], (r) => r * -15, true);
-            document.getElementById('tbl-prc-cal').innerHTML = buildTableMatrix('p_cal', CALIBERS, ['Скидка (%)'], (r) => r * -2, true);
-            document.getElementById('tbl-expenses').innerHTML = buildTableMatrix('exp', EXPENSES, ['Бюджет (₽)'], () => 2500000, false);
-            
+        function recalculateDependentTables() {
             buildMonthlyPriceTable();
+            recalculateCapacityTable();
+            if (typeof buildMonthlyGraphTable === 'function') {
+                buildMonthlyGraphTable();
+            }
+        }
+
+        function generateAllTables() {
+            document.getElementById('tbl-volumes').innerHTML = buildTableMatrix('vol', SORTS, ['Валовый сбор (т)', 'Индустриальное (%)', 'На хранение (%)', 'Убыль и потери (%)'], () => 0, [false, true, true, true]);
+            document.getElementById('tbl-qual-classes').innerHTML = buildTableMatrix('q_cls', SORTS, CLASSES, () => 0, true);
+            document.getElementById('tbl-qual-colors').innerHTML = buildTableMatrix('q_col', SORTS, COLORS, () => 0, true);
+            document.getElementById('tbl-qual-cal-1').innerHTML = buildTableMatrix('q_call', SORTS, CALIBERS, () => 0, true);
+            document.getElementById('tbl-qual-cal-ext').innerHTML = buildTableMatrix('q_calX', SORTS, CALIBERS, () => 0, true);
+
+            buildMonthlyGraphTable();
+            
+            document.getElementById('tbl-mix-pack').innerHTML = buildTableMatrix('mix', CALIBERS, PACKAGING, () => 0, true);
+            document.getElementById('tbl-prc-base').innerHTML = buildTableMatrix('p_base', SORTS, ['Базовая цена (₽)'], () => 100, false);
+            document.getElementById('tbl-prc-net').innerHTML = buildTableMatrix('p_net', NETWORKS, ['Премия/Скидка (%)'], () => 0, true);
+            document.getElementById('tbl-prc-pack').innerHTML = buildTableMatrix('p_pack', PACKAGING, ['Надбавка (%)'], () => 0, true);
+            document.getElementById('tbl-prc-cls').innerHTML = buildTableMatrix('p_cls', CLASSES, ['Скидка (%)'], () => 0, true);
+            document.getElementById('tbl-prc-cal').innerHTML = buildTableMatrix('p_cal', CALIBERS, ['Скидка (%)'], () => 0, true);
+            document.getElementById('tbl-expenses').innerHTML = buildTableMatrix('exp', EXPENSES, ['Бюджет (₽)'], () => 0, false);
+
+            buildExpDetailedTable();
+            recalculateDependentTables();
         }
 
         // --- УПРАВЛЕНИЕ P&L ---
         function initPnlControls() {
-            let sortHtml = `<option value="">Все сорта</option>` + SORTS.map(s => `<option value="${s}">${s}</option>`).join('');
+            let sortHtml = '<option value="">Все сорта</option>' + SORTS.map(s => `<option value="${s}">${s}</option>`).join('');
             document.getElementById('filt-sort').innerHTML = sortHtml;
-            let netHtml = `<option value="">Все сети</option>` + NETWORKS.map(n => `<option value="${n}">${n}</option>`).join('');
+            let netHtml = '<option value="">Все сети</option>' + NETWORKS.map(n => `<option value="${n}">${n}</option>`).join('');
             document.getElementById('filt-net').innerHTML = netHtml;
 
             let mHtml = MONTHS.map(m => `<label><input type="checkbox" value="${m}" checked onchange="toggleMonth(this)"> ${m}</label>`).join('');
-            mHtml += `<label><input type="checkbox" value="ИТОГО" checked onchange="toggleMonth(this)"> ИТОГО</label>`;
+            mHtml += '<label><input type="checkbox" value="ИТОГО" checked onchange="toggleMonth(this)"> ИТОГО</label>';
             document.getElementById('toggles-months').innerHTML = mHtml;
 
             let metricHtml = METRICS.map(m => `<label><input type="checkbox" value="${m.id}" ${activeMetrics.includes(m.id)?'checked':''} onchange="toggleMetric(this)"> ${m.name}</label>`).join('');
@@ -755,108 +891,209 @@
             if (Object.keys(finalPnlResults).length > 0) renderPnlTable();
         }
 
-        // --- ГЛУБОКОЕ ВЫЧИСЛИТЕЛЬНОЕ ЯДРО (АСИНХРОННОЕ С ПРОПОРЦИОНАЛЬНОЙ ЛОГИКОЙ) ---
+        // --- ДВУХПРОХОДНОЕ МАТЕМАТИЧЕСКОЕ ЯДРО (ОПТИМИЗАТОР P&L) ---
         function runCalculationEngine() {
-            document.getElementById('tbl-results-container').innerHTML = `<div class="loading-overlay">⏳ Проводим вычисления матрицы P&L... Пожалуйста, подождите.</div>`;
+            document.getElementById('tbl-results-container').innerHTML = '<div class="loading-overlay">Расчет...</div>';
+            
+            recalculateDependentTables();
             
             setTimeout(() => {
-                let pnlAgg = {}; 
+                let pnlAgg = {};
+                window.systemCalculatedGraph = {}; 
                 
                 scenarios.forEach(scen => {
                     if (!scen.visible) return;
+                    window.systemCalculatedGraph[scen.id] = {};
                     
                     let totalExp = 0;
                     for(let e=0; e<EXPENSES.length; e++) totalExp += getSt(`exp_${e}_0`, scen.id);
-
-                    SORTS.forEach((sort, sIdx) => {
-                        let basePrice = getSt(`p_base_${sIdx}_0`, scen.id);
-                        let gross = getSt(`vol_${sIdx}_0`, scen.id) || 1; 
-
+                    
+                    // Считываем лимиты сетей (Вкладка 5)
+                    let netMonthLimits = {};
+                    NETWORKS.forEach((net, nIdx) => {
+                        netMonthLimits[net] = {};
                         MONTHS.forEach((month, mIdx) => {
-                            let rowIdx = (sIdx * 3) + 1; 
-                            let monthVol = getSt(`grph_${rowIdx}_${mIdx}`, scen.id); 
-                            if (monthVol <= 0) return;
+                            let limitVal = tableData[`net_cap_${nIdx}_${mIdx}_${scen.id}`];
+                            let parsed = parseFloat(limitVal);
+                            netMonthLimits[net][mIdx] = (!isNaN(parsed) && parsed !== 0) ? parsed : Infinity;
+                        });
+                    });
 
-                            let totalMonthCap = 0;
-                            NETWORKS.forEach((_, nIdx) => totalMonthCap += getSt(`cap_${nIdx}_${mIdx}`, scen.id));
-
-                            NETWORKS.forEach((net, nIdx) => {
-                                let netMod = getSt(`p_net_${nIdx}_0`, scen.id) / 100;
-                                let netCap = getSt(`cap_${nIdx}_${mIdx}`, scen.id);
-                                
-                                let netVol = 0;
-                                if (totalMonthCap > 0) {
-                                    netVol = monthVol * (netCap / totalMonthCap); 
-                                } else {
-                                    netVol = monthVol / NETWORKS.length; 
-                                }
-                                netVol = Math.min(netVol, netCap); 
-
-                                if (netVol <= 0) return;
-
-                                let rowKey = `${sort}_${net}`;
-                                if(!pnlAgg[rowKey]) pnlAgg[rowKey] = { sort, net, scenarios: {} };
-                                if(!pnlAgg[rowKey].scenarios[scen.id]) pnlAgg[rowKey].scenarios[scen.id] = {};
-                                if(!pnlAgg[rowKey].scenarios[scen.id][month]) pnlAgg[rowKey].scenarios[scen.id][month] = { vol: 0, rev: 0, exp: 0 };
-
-                                let overridePrice = tableData[`p_fin_${sIdx}_${mIdx}_${scen.id}`];
-                                let hasOverride = (overridePrice !== undefined && overridePrice !== null && overridePrice !== '');
-
-                                let totalRevForMonthNet = 0;
-
-                                CLASSES.forEach((cls, clsIdx) => {
-                                    let pCls = getSt(`q_cls_${sIdx}_${clsIdx}`, scen.id) / 100;
-                                    let clsVol = netVol * pCls;
-                                    if (clsVol <= 0) return;
-                                    let clsMod = getSt(`p_cls_${clsIdx}_0`, scen.id) / 100;
-
-                                    CALIBERS.forEach((cal, calIdx) => {
-                                        let tablePref = (clsIdx === 0) ? 'q_cal1' : 'q_calX'; 
-                                        let pCal = getSt(`${tablePref}_${sIdx}_${calIdx}`, scen.id) / 100;
-                                        let calVol = clsVol * pCal;
-                                        if (calVol <= 0) return;
-                                        let calMod = getSt(`p_cal_${calIdx}_0`, scen.id) / 100;
-
-                                        PACKAGING.forEach((pack, packIdx) => {
-                                            let pPack = getSt(`mix_${calIdx}_${packIdx}`, scen.id) / 100;
-                                            let packVol = calVol * pPack;
-                                            if (packVol <= 0) return;
-                                            let packMod = getSt(`p_pack_${packIdx}_0`, scen.id) / 100;
-
-                                            let microPrice = 0;
-                                            if (hasOverride) {
-                                                microPrice = overridePrice; 
-                                            } else {
-                                                microPrice = basePrice * (1 + netMod + clsMod + calMod + packMod);
-                                            }
-                                            totalRevForMonthNet += (packVol * 1000) * microPrice; 
-                                        });
-                                    });
-                                });
-
-                                let allocExp = (netVol / gross) * totalExp;
-
-                                pnlAgg[rowKey].scenarios[scen.id][month].vol += netVol;
-                                pnlAgg[rowKey].scenarios[scen.id][month].rev += totalRevForMonthNet;
-                                pnlAgg[rowKey].scenarios[scen.id][month].exp += allocExp;
+                    // Считываем лимиты упаковок (Вкладка 5)
+                    let packMonthLimits = {};
+                    SORTS.forEach((sort, sIdx) => {
+                        packMonthLimits[sIdx] = {};
+                        PACKAGING.forEach((pack, pIdx) => {
+                            packMonthLimits[sIdx][pIdx] = {};
+                            MONTHS.forEach((month, mIdx) => {
+                                let limitVal = tableData[`pack_cap_${sIdx}_${pIdx}_${mIdx}_${scen.id}`];
+                                let parsed = parseFloat(limitVal);
+                                packMonthLimits[sIdx][pIdx][mIdx] = (!isNaN(parsed) && parsed !== 0) ? parsed : Infinity;
                             });
                         });
                     });
-                });
+                    
+                    SORTS.forEach((sort, sIdx) => {
+                        window.systemCalculatedGraph[scen.id][sIdx] = Array(12).fill(0);
+                        let basePrice = getSt(`p_base_${sIdx}_0`, scen.id) || 0;
+                        
+                        let monthTargets = {};
+                        let graphSum = 0;
+                        MONTHS.forEach((month, mIdx) => {
+                            let key = `grph_${sIdx}_${mIdx}_${scen.id}`;
+                            let val = tableData[key];
+                            if (val !== undefined && val !== null && val !== '') {
+                                let num = parseFloat(val) || 0;
+                                monthTargets[mIdx] = { active: true, target: num };
+                                graphSum += num;
+                            } else {
+                                monthTargets[mIdx] = { active: false, target: 0 };
+                            }
+                        });
 
+                        let gross = getSt(`vol_${sIdx}_0`, scen.id) || 0;
+                        if (gross <= 0 && graphSum > 0) gross = graphSum;
+                        if (gross <= 0) return;
+
+                        let pctInd = (getSt(`vol_${sIdx}_1`, scen.id) || 0) / 100;
+                        let pctStorage = (getSt(`vol_${sIdx}_2`, scen.id) || 0) / 100;
+                        let pctLoss = (getSt(`vol_${sIdx}_3`, scen.id) || 0) / 100;
+                        
+                        if (pctStorage <= 0 && pctInd < 1) pctStorage = 1 - pctInd;
+                        
+                        let volIndustrial = gross * pctInd;
+                        let rawStorage = gross * pctStorage;
+                        let volLosses = rawStorage * pctLoss;
+                        let remStorageNet = Math.max(0, rawStorage - volLosses);
+                        let remDirect = Math.max(0, gross - volIndustrial - rawStorage); 
+
+                        // ИСПРАВЛЕНИЕ 1: Авто-балансировка долей Справочников (чтобы не терялись проценты)
+                        let sumCls = 0; CLASSES.forEach((_, c) => sumCls += getSt(`q_cls_${sIdx}_${c}`, scen.id));
+                        let sumCal = 0; CALIBERS.forEach((_, c) => sumCal += getSt(`q_call_${sIdx}_${c}`, scen.id));
+                        let sumPackArr = [];
+                        CALIBERS.forEach((_, c) => {
+                            let sP = 0; PACKAGING.forEach((_, p) => sP += getSt(`mix_${c}_${p}`, scen.id));
+                            sumPackArr[c] = sP;
+                        });
+
+                        let salesSlots = [];
+                        let fractionDemand = {}; 
+
+                        MONTHS.forEach((month, mIdx) => {
+                            let isAutumn = ['Авг', 'Сен', 'Окт', 'Ноя'].includes(month);
+                            
+                            // ИСПРАВЛЕНИЕ 2: Пустая емкость означает безлимит (Infinity), а не 0
+                            let capKey = `cap_${sIdx}_${mIdx}_${scen.id}`;
+                            let capVal = tableData[capKey];
+                            let defaultCap = (capVal !== undefined && capVal !== null && capVal !== '') ? parseFloat(capVal) : Infinity;
+                            
+                            let targetVolume = monthTargets[mIdx].active ? monthTargets[mIdx].target : defaultCap;
+                            if (targetVolume <= 0) return;
+                            
+                            let overridePrice = tableData[`p_fin_${sIdx}_${mIdx}_${scen.id}`];
+                            let hasOverride = (overridePrice !== undefined && overridePrice !== null && overridePrice !== '');
+                            let calcAvg = getCalculatedAvgPrice(sIdx, scen.id);
+                            let monthPriceMultiplier = (hasOverride && calcAvg > 0) ? (overridePrice / calcAvg) : 1;
+
+                            CLASSES.forEach((cls, clsIdx) => {
+                                let rawCls = getSt(`q_cls_${sIdx}_${clsIdx}`, scen.id);
+                                let pCls = sumCls > 0 ? (rawCls / sumCls) : (1 / CLASSES.length);
+                                let clsMod = getSt(`p_cls_${clsIdx}_0`, scen.id) / 100;
+                                if (pCls <= 0) return;
+                                
+                                CALIBERS.forEach((cal, calIdx) => {
+                                    let tablePref = (clsIdx === 0) ? 'q_call' : 'q_calX'; 
+                                    let rawCal = getSt(`${tablePref}_${sIdx}_${calIdx}`, scen.id);
+                                    let pCal = sumCal > 0 ? (rawCal / sumCal) : (1 / CALIBERS.length);
+                                    let calMod = getSt(`p_cal_${calIdx}_0`, scen.id) / 100;
+                                    if (pCal <= 0) return;
+                                    
+                                    PACKAGING.forEach((pack, packIdx) => {
+                                        let rawPack = getSt(`mix_${calIdx}_${packIdx}`, scen.id);
+                                        let sP = sumPackArr[calIdx];
+                                        let pPack = sP > 0 ? (rawPack / sP) : (1 / PACKAGING.length);
+                                        let packMod = getSt(`p_pack_${packIdx}_0`, scen.id) / 100;
+                                        if (pPack <= 0) return;
+                                        
+                                        let fractionShare = pCls * pCal * pPack;
+                                        let fractionVol = targetVolume * fractionShare;
+                                        let fractionId = `${mIdx}_${clsIdx}_${calIdx}_${packIdx}`;
+                                        
+                                        fractionDemand[fractionId] = fractionVol;
+                                        
+                                        NETWORKS.forEach((net, nIdx) => {
+                                            let netMod = getSt(`p_net_${nIdx}_0`, scen.id) / 100;
+                                            let standardPrice = basePrice * (1 + netMod + clsMod + calMod + packMod);
+                                            let finalPrice = hasOverride ? (standardPrice * monthPriceMultiplier) : standardPrice;
+                                            if (hasOverride && calcAvg === 0) finalPrice = overridePrice;
+                                            
+                                            salesSlots.push({
+                                                month, mIdx, isAutumn, net,
+                                                fractionId: fractionId,
+                                                price: finalPrice,
+                                                pIdx: packIdx
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                        
+                        salesSlots.sort((a, b) => b.price - a.price);
+                        
+                        salesSlots.forEach(slot => {
+                            let needed = fractionDemand[slot.fractionId];
+                            let netLimit = netMonthLimits[slot.net][slot.mIdx];
+                            let packLimit = packMonthLimits[sIdx][slot.pIdx][slot.mIdx];
+                            
+                            if (needed <= 0 || netLimit <= 0 || packLimit <= 0) return;
+
+                            let sellVol = 0;
+                            if (slot.isAutumn && remDirect > 0) {
+                                sellVol = Math.min(remDirect, needed, netLimit, packLimit);
+                                remDirect -= sellVol;
+                            } 
+                            else if (remStorageNet > 0) {
+                                sellVol = Math.min(remStorageNet, needed, netLimit, packLimit);
+                                remStorageNet -= sellVol;
+                            }
+                            
+                            if (sellVol <= 0) return;
+                            
+                            fractionDemand[slot.fractionId] -= sellVol;
+                            netMonthLimits[slot.net][slot.mIdx] -= sellVol;
+                            packMonthLimits[sIdx][slot.pIdx][slot.mIdx] -= sellVol;
+                            
+                            window.systemCalculatedGraph[scen.id][sIdx][slot.mIdx] += sellVol;
+                            
+                            let rowKey = `${sort}_${slot.net}`;
+                            if(!pnlAgg[rowKey]) pnlAgg[rowKey] = { sort, net: slot.net, scenarios: {} };
+                            if(!pnlAgg[rowKey].scenarios[scen.id]) pnlAgg[rowKey].scenarios[scen.id] = {};
+                            if(!pnlAgg[rowKey].scenarios[scen.id][slot.month]) pnlAgg[rowKey].scenarios[scen.id][slot.month] = {vol: 0, rev: 0, exp: 0};
+                            
+                            pnlAgg[rowKey].scenarios[scen.id][slot.month].vol += sellVol;
+                            pnlAgg[rowKey].scenarios[scen.id][slot.month].rev += (sellVol * 1000) * slot.price;
+                            pnlAgg[rowKey].scenarios[scen.id][slot.month].exp += (sellVol / gross) * totalExp;
+                        });
+                    });
+                });
+                
                 finalPnlResults = Object.values(pnlAgg);
-                currentPage = 1; 
+                currentPage = 1;
                 renderPnlTable();
-                switchTab('tab-pnl', document.querySelectorAll('.nav-item')[7]);
-            }, 50); 
+                buildMonthlyGraphTable();
+                
+                // Переключаем на 7 вкладку (План выручки)
+                switchTab('tab-pnl', document.querySelectorAll('.nav-item')[6]);
+            }, 50);
         }
 
-        // --- ПАГИНАЦИЯ И РЕНДЕРИНГ P&L ---
+        // --- РЕНДЕРИНГ P&L ---
         let currentFilters = { sort: '', net: '' };
         let lastSortFilter = '';
         let lastNetFilter = '';
         let currentPage = 1;
-        const ITEMS_PER_PAGE = 50; 
+        const ITEMS_PER_PAGE = 50;
 
         function changePage(delta) {
             currentPage += delta;
@@ -872,13 +1109,13 @@
                 lastSortFilter = newSort;
                 lastNetFilter = newNet;
             }
+            
             currentFilters.sort = newSort;
             currentFilters.net = newNet;
-            
-            let visibleScens = scenarios.filter(s => s.visible);
 
+            let visibleScens = scenarios.filter(s => s.visible);
             if(activeMonths.length === 0 || activeMetrics.length === 0 || visibleScens.length === 0) {
-                document.getElementById('tbl-results-container').innerHTML = `<table><tbody><tr><td style="text-align: center; padding: 40px;">Выберите хотя бы один месяц, метрику и сценарий.</td></tr></tbody></table>`;
+                document.getElementById('tbl-results-container').innerHTML = '<table><tbody><tr><td style="text-align:center; padding:50px;">Выделите хотя бы один срез, месяц и метрику</td></tr></tbody></table>';
                 return;
             }
 
@@ -896,7 +1133,7 @@
             let paginatedData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
             let subHeader = visibleScens.map(s => `<th class="col-${s.id}">${s.name}</th>`).join('');
-            let thead = `<tr><th rowspan="2" class="col-sticky-1">Сорт</th><th rowspan="2" class="col-sticky-2">Сеть</th><th rowspan="2" class="col-sticky-3">Показатель</th>`;
+            let thead = `<tr><th rowspan="2" class="col-sticky-1">СОРТ</th><th rowspan="2" class="col-sticky-2">Торговая Сеть</th><th rowspan="2" class="col-sticky-3">Показатель</th>`;
             activeMonths.forEach(m => { thead += `<th colspan="${visibleScens.length}" class="group-th">${m}</th>`; });
             thead += `</tr><tr>${subHeader.repeat(activeMonths.length)}</tr>`;
 
@@ -905,11 +1142,10 @@
                 activeMetrics.forEach((mId, mIndex) => {
                     let metricDef = METRICS.find(m => m.id === mId);
                     let isFirstMetric = mIndex === 0;
-                    let tr = `<tr>`;
-                    
+                    let tr = '<tr>';
                     if (isFirstMetric) {
-                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-1" style="vertical-align:top;"><b>${row.sort}</b></td>`;
-                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-2" style="vertical-align:top;">${row.net}</td>`;
+                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${row.sort}</b></td>`;
+                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-2" style="vertical-align: middle;">${row.net}</td>`;
                     }
                     tr += `<td class="col-sticky-3">${metricDef.name}</td>`;
 
@@ -917,7 +1153,6 @@
                         visibleScens.forEach(scen => {
                             let d = row.scenarios[scen.id] || {};
                             let mData = d[month] || {vol:0, rev:0, exp:0};
-                            
                             if (month === 'ИТОГО') {
                                 mData = {vol:0, rev:0, exp:0};
                                 MONTHS.forEach(mm => {
@@ -933,74 +1168,132 @@
                             if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
                             if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) * 100 : 0;
 
-                            let rawVal = Math.round(val*10)/10;
+                            let rawVal = Math.round(val * 10) / 10;
                             let styleExt = month === 'ИТОГО' ? 'background:#f4f9f4; font-weight:700;' : '';
-                            
-                            tr += `<td class="col-${scen.id}" style="${styleExt}" data-val="${rawVal}" data-type="${metricDef.isPct?'pct':'num'}">${formatVal(val, metricDef.isPct)}</td>`;
+                            tr += `<td class="col-${scen.id}" style="${styleExt}" data-val="${rawVal}">${formatVal(val, metricDef.isPct)}</td>`;
                         });
                     });
-                    tr += `</tr>`;
+                    tr += '</tr>';
                     tbody += tr;
                 });
             });
 
-            if (tbody === '') tbody = `<tr><td colspan="30" style="text-align: center; padding: 40px;">Нет данных по фильтрам</td></tr>`;
+            if (filteredData.length > 0) {
+                let overallAgg = {};
+                filteredData.forEach(row => {
+                    visibleScens.forEach(scen => {
+                        if (!overallAgg[scen.id]) overallAgg[scen.id] = {};
+                        let d = row.scenarios[scen.id] || {};
+                        MONTHS.forEach(m => {
+                            if (!overallAgg[scen.id][m]) overallAgg[scen.id][m] = {vol:0, rev:0, exp:0};
+                            if (d[m]) {
+                                overallAgg[scen.id][m].vol += d[m].vol;
+                                overallAgg[scen.id][m].rev += d[m].rev;
+                                overallAgg[scen.id][m].exp += d[m].exp;
+                            }
+                        });
+                    });
+                });
+
+                activeMetrics.forEach((mId, mIndex) => {
+                    let metricDef = METRICS.find(m => m.id === mId);
+                    let isFirstMetric = mIndex === 0;
+                    let tr = '<tr style="background:#eef3ec; font-weight:700;">';
+                    if (isFirstMetric) {
+                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-1" style="vertical-align: middle; background:#eef3ec; color:var(--primary); font-size:0.85rem;"><b>ИТОГО (ВСЕ СОРТА)</b></td>`;
+                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-2" style="vertical-align: middle; background:#eef3ec; color:var(--primary);">Все сети</td>`;
+                    }
+                    tr += `<td class="col-sticky-3" style="background:#eef3ec; color:var(--primary);"><b>${metricDef.name}</b></td>`;
+
+                    activeMonths.forEach(month => {
+                        visibleScens.forEach(scen => {
+                            let mData = {vol:0, rev:0, exp:0};
+                            if (month === 'ИТОГО') {
+                                MONTHS.forEach(mm => {
+                                    if(overallAgg[scen.id] && overallAgg[scen.id][mm]) {
+                                        mData.vol += overallAgg[scen.id][mm].vol;
+                                        mData.rev += overallAgg[scen.id][mm].rev;
+                                        mData.exp += overallAgg[scen.id][mm].exp;
+                                    }
+                                });
+                            } else if (overallAgg[scen.id] && overallAgg[scen.id][month]) {
+                                mData = overallAgg[scen.id][month];
+                            }
+
+                            let val = 0;
+                            if (mId === 'vol') val = mData.vol;
+                            if (mId === 'rev') val = mData.rev;
+                            if (mId === 'exp') val = mData.exp;
+                            if (mId === 'ebitda') val = mData.rev - mData.exp;
+                            if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
+                            if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) * 100 : 0;
+
+                            let styleExt = 'background:#eef3ec; font-weight:800; border-top:2px solid var(--primary);';
+                            tr += `<td class="col-${scen.id}" style="${styleExt}">${formatVal(val, metricDef.isPct)}</td>`;
+                        });
+                    });
+                    tr += '</tr>';
+                    tbody += tr;
+                });
+            }
+
+            if (tbody === '') tbody = '<tr><td colspan="30" style="text-align: center; padding: 40px;">Нет данных по выбранным фильтрам</td></tr>';
 
             let paginationControls = '';
             if (totalPages > 1) {
                 paginationControls = `
-                    <div class="pagination">
-                        <button class="page-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>← Назад</button>
-                        <span class="page-info">Страница ${currentPage} из ${totalPages} <br><span style="font-weight:400; font-size:0.75rem; color:#888;">(Показано ${paginatedData.length} из ${filteredData.length} блоков Сорт-Сеть)</span></span>
-                        <button class="page-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Вперед →</button>
-                    </div>
-                `;
+                <div class="pagination">
+                    <button class="page-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>← Назад</button>
+                    <span class="page-info">Страница ${currentPage} из ${totalPages}</span>
+                    <button class="page-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Вперед →</button>
+                </div>`;
             }
 
             document.getElementById('tbl-results-container').innerHTML = `<table id="tbl-results-matrix"><thead>${thead}</thead><tbody>${tbody}</tbody></table>` + paginationControls;
         }
 
-        // --- УНИВЕРСАЛЬНЫЙ УМНЫЙ ИМПОРТ ВСЕХ ТАБЛИЦ ---
+        // --- УНИВЕРСАЛЬНЫЙ ИМПОРТ ИЗ EXCEL ---
         let currentUploadTarget = 'generic';
 
-        function triggerLoad(e, target = 'generic') { 
-            e.stopPropagation(); 
+        function triggerLoad(e, target = 'generic') {
+            e.stopPropagation();
             currentUploadTarget = target;
-            document.getElementById('file-upload').value = ''; 
-            document.getElementById('file-upload').click(); 
+            document.getElementById('file-upload').value = '';
+            document.getElementById('file-upload').click();
         }
 
         document.getElementById('file-upload').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
+
             setSyncStatus("Чтение файла...");
             const reader = new FileReader();
+
             reader.onload = function(e) {
                 const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
                 try {
+                    const workbook = XLSX.read(data, { type: 'array' });
                     const sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const jsonData = XLSX.utils.sheet_to_json(sheet, {header: 1});
-                    
-                    const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', 's1', 'факт', 'текущее', 'параметр', 'валовый', 'сбор', 'индустриальное', 'хранение', 'потери', 'убыль', 'класс', 'калибр', 'упаковка', 'сеть', 'статья', 'премия', 'скидка', 'надбавка'];
+                    const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', '1', 'факт', 'прогноз', 'бюджет'];
 
                     function parseCellNum(val) {
                         if (val === undefined || val === null) return NaN;
-                        let s = String(val).replace(/\s/g, '').replace(',', '.');
+                        let s = String(val).replace(/\s/g,'').replace(',', '.');
                         return parseFloat(s);
                     }
 
                     let parsedCount = 0;
 
-                    // 1. ПАРСЕР ДЛЯ СОРТОВ (Объемы, Качество, Базовая цена)
-                    if (['vol', 'q_cls', 'q_col', 'q_cal1', 'q_calX', 'p_base', 'generic'].includes(currentUploadTarget)) {
+                    if (['vol', 'q_cls', 'q_col', 'q_call', 'q_calX', 'p_base', 'generic'].includes(currentUploadTarget)) {
                         let newSorts = [];
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=0; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             if(!row || row.length === 0) continue;
-                            
+
                             let sortColIdx = -1;
-                            for (let j=0; j<row.length; j++) {
+                            for (let j=0; j < row.length; j++) {
                                 if (row[j] && typeof row[j] === 'string') {
                                     let text = String(row[j]).trim().toLowerCase();
                                     let shouldSkip = skipWords.some(w => text.includes(w));
@@ -1010,7 +1303,7 @@
                                     }
                                 }
                             }
-                            
+
                             if (sortColIdx !== -1) {
                                 let sortName = String(row[sortColIdx]).trim();
                                 if (sortName.length > 0) {
@@ -1023,6 +1316,7 @@
                                         if (!isNaN(val1)) tableData[`p_base_${sIdx}_0_s2025`] = val1;
                                         if (!isNaN(val2)) tableData[`p_base_${sIdx}_0_scur`] = val2;
                                     }
+
                                     if (currentUploadTarget === 'vol' || currentUploadTarget === 'generic') {
                                         for(let c=0; c<4; c++) {
                                             let v = parseCellNum(row[sortColIdx + 1 + c]);
@@ -1032,7 +1326,8 @@
                                             }
                                         }
                                     }
-                                    if (['q_cls', 'q_col', 'q_cal1', 'q_calX'].includes(currentUploadTarget)) {
+
+                                    if (['q_cls', 'q_col', 'q_call', 'q_calX'].includes(currentUploadTarget)) {
                                         let colCount = currentUploadTarget === 'q_cls' ? CLASSES.length :
                                                        currentUploadTarget === 'q_col' ? COLORS.length : CALIBERS.length;
                                         for(let c=0; c<colCount; c++) {
@@ -1051,24 +1346,19 @@
                             parsedCount = newSorts.length;
                         }
 
-                    // 2. ПАРСЕР ДЛЯ СЕТЕЙ (Премия сети)
                     } else if (currentUploadTarget === 'p_net') {
                         let newNets = [];
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=0; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             if(!row || row.length === 0) continue;
                             let firstText = String(row[0] || '').trim();
-                            
-                            const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 's2025', 'параметр'];
+                            const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur'];
                             let shouldSkip = skipWordsNets.some(w => firstText.toLowerCase().includes(w));
-                            
                             if (firstText && !shouldSkip && firstText.length < 50) {
                                 newNets.push(firstText);
                                 let nIdx = newNets.length - 1;
-                                
                                 let val1 = parseCellNum(row[1]);
                                 let val2 = parseCellNum(row[2]);
-                                
                                 if(!isNaN(val1)) {
                                     if (Math.abs(val1) <= 2 && val1 !== 0) val1 *= 100;
                                     tableData[`p_net_${nIdx}_0_s2025`] = val1;
@@ -1085,42 +1375,40 @@
                             parsedCount = newNets.length;
                         }
 
-                    // 3. ПАРСЕР ДЛЯ РУЧНОЙ КОРРЕКТИРОВКИ ЦЕН (По месяцам)
                     } else if (currentUploadTarget === 'p_fin') {
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=1; i < jsonData.length; i++) {
                             const row = jsonData[i];
-                            if(!row || row.length === 0) continue;
-                            let firstText = String(row[0] || '').trim();
-                            let matchedSortIdx = SORTS.findIndex(s => firstText.toLowerCase().includes(s.toLowerCase()));
-                            if (matchedSortIdx !== -1) {
-                                for(let m=0; m<MONTHS.length; m++) {
-                                    let v = parseCellNum(row[m + 1]);
-                                    if(!isNaN(v)) tableData[`p_fin_${matchedSortIdx}_${m}_scur`] = v;
+                            if(!row || row.length < 14) continue;
+                            let sortName = String(row[0] || '').trim();
+                            let scenId = String(row[1] || '').trim();
+                            let matchedSortIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
+                            if (matchedSortIdx !== -1 && (scenId === 's2025' || scenId === 'scur')) {
+                                for(let m = 0; m < MONTHS.length; m++) {
+                                    let v = parseCellNum(row[2 + m]);
+                                    if(!isNaN(v)) tableData[`p_fin_${matchedSortIdx}_${m}_${scenId}`] = v;
                                 }
                                 parsedCount++;
                             }
                         }
 
-                    // 4. ПАРСЕР ДЛЯ ГРАФИКА ВЫВОДА ПО МЕСЯЦАМ
                     } else if (currentUploadTarget === 'grph') {
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=1; i < jsonData.length; i++) {
                             const row = jsonData[i];
-                            if(!row || row.length === 0) continue;
-                            let firstText = String(row[0] || row[1] || '').trim();
-                            let matchedSortIdx = SORTS.findIndex(s => firstText.toLowerCase().includes(s.toLowerCase()));
+                            if(!row || row.length < 13) continue;
+                            let sortName = String(row[0] || row[1] || row[2] || '').trim();
+                            if (sortName.toLowerCase().includes('итого') || sortName.toLowerCase().includes('общий')) continue;
+                            let matchedSortIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
                             if (matchedSortIdx !== -1) {
-                                let rowIdx = (matchedSortIdx * 3) + 1; 
-                                for(let m=0; m<MONTHS.length; m++) {
-                                    let v = parseCellNum(row[m + 1] || row[m + 2]);
-                                    if(!isNaN(v)) tableData[`grph_${rowIdx}_${m}_scur`] = v;
+                                for(let m = 0; m < MONTHS.length; m++) {
+                                    let v = parseCellNum(row[1 + m]);
+                                    if(!isNaN(v)) tableData[`grph_${matchedSortIdx}_${m}_scur`] = v;
                                 }
                                 parsedCount++;
                             }
                         }
 
-                    // 5. ПАРСЕР ДЛЯ ПРОДУКТОВОГО МИКСА (Калибр -> Упаковка)
                     } else if (currentUploadTarget === 'mix') {
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=0; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             if(!row || row.length === 0) continue;
                             let firstText = String(row[0] || '').trim();
@@ -1134,55 +1422,104 @@
                             }
                         }
 
-                    // 6. ПАРСЕР ДЛЯ ЕМКОСТИ РЫНКА (Сети -> Месяца)
                     } else if (currentUploadTarget === 'cap') {
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=0; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             if(!row || row.length === 0) continue;
                             let firstText = String(row[0] || '').trim();
-                            let netIdx = NETWORKS.findIndex(n => firstText.toLowerCase().includes(n.toLowerCase()));
-                            if (netIdx !== -1) {
+                            let sortIdx = SORTS.findIndex(s => firstText.toLowerCase().includes(s.toLowerCase()));
+                            if (sortIdx !== -1) {
                                 for(let m=0; m<MONTHS.length; m++) {
                                     let v = parseCellNum(row[m + 1]);
-                                    if(!isNaN(v)) tableData[`cap_${netIdx}_${m}_scur`] = v;
+                                    if(!isNaN(v)) tableData[`cap_${sortIdx}_${m}_scur`] = v;
+                                }
+                                parsedCount++;
+                            }
+                        }
+                    
+                    // ПАРСЕР ДЛЯ КВОТ СЕТЕЙ
+                    } else if (currentUploadTarget === 'net_cap') {
+                        for(let i=1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if(!row || row.length < 2) continue;
+                            let netName = String(row[0] || '').trim();
+                            let nIdx = NETWORKS.findIndex(n => netName.toLowerCase() === n.toLowerCase() || netName.toLowerCase().includes(n.toLowerCase()));
+                            if (nIdx !== -1) {
+                                for(let m=0; m<MONTHS.length; m++) {
+                                    let v = parseCellNum(row[m + 1]);
+                                    if(!isNaN(v)) tableData[`net_cap_${nIdx}_${m}_scur`] = v;
                                 }
                                 parsedCount++;
                             }
                         }
 
-                    // 7. СКИДКИ / НАДБАВКИ С СТРОГИМ СОПОСТАВЛЕНИЕМ
+                    // ПАРСЕР ДЛЯ ЛИМИТОВ УПАКОВКИ
+                    } else if (currentUploadTarget === 'pack_cap') {
+                        for(let i=1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if(!row || row.length < 3) continue;
+                            let sortName = String(row[0] || '').trim();
+                            let packName = String(row[1] || '').trim();
+                            let sIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
+                            let pIdx = PACKAGING.findIndex(p => packName.toLowerCase() === p.toLowerCase() || packName.toLowerCase().includes(p.toLowerCase()));
+                            if (sIdx !== -1 && pIdx !== -1) {
+                                for(let m=0; m<MONTHS.length; m++) {
+                                    let v = parseCellNum(row[m + 2]);
+                                    if(!isNaN(v)) tableData[`pack_cap_${sIdx}_${pIdx}_${m}_scur`] = v;
+                                }
+                                parsedCount++;
+                            }
+                        }
+
+                    } else if (currentUploadTarget === 'exp_detailed') {
+                        for(let i=1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if(!row || row.length < 3) continue;
+                            
+                            let sortName = String(row[1] || '').trim(); 
+                            if(!sortName) continue;
+                            
+                            let matchedSortIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
+                            if (matchedSortIdx !== -1) {
+                                let colIdx = 0;
+                                for(let c = 0; c < 23; c++) {
+                                    if (c === 1) continue; 
+                                    let rawVal = row[c];
+                                    let val = rawVal !== undefined ? rawVal : '';
+                                    
+                                    if (typeof rawVal === 'string') {
+                                        let cleanStr = rawVal.replace(/\s/g,'').replace(',', '.').replace('%','');
+                                        let parsedNum = parseFloat(cleanStr);
+                                        if (!isNaN(parsedNum) && /^[0-9.,\-]+$/.test(cleanStr)) {
+                                            val = parsedNum;
+                                        }
+                                    }
+                                    tableData[`expdet_${matchedSortIdx}_${colIdx}_scur`] = val;
+                                    colIdx++;
+                                }
+                                parsedCount++;
+                            }
+                        }
+
                     } else if (['p_pack', 'p_cls', 'p_cal', 'exp'].includes(currentUploadTarget)) {
-                        let itemsArr = currentUploadTarget === 'p_net' ? NETWORKS :
-                                       currentUploadTarget === 'p_pack' ? PACKAGING :
+                        let itemsArr = currentUploadTarget === 'p_pack' ? PACKAGING :
                                        currentUploadTarget === 'p_cls' ? CLASSES :
                                        currentUploadTarget === 'p_cal' ? CALIBERS : EXPENSES;
-                        
-                        for(let i = 0; i < jsonData.length; i++) {
+                        for(let i=0; i < jsonData.length; i++) {
                             const row = jsonData[i];
                             if(!row || row.length === 0) continue;
                             let firstText = String(row[0] || '').trim();
                             if(!firstText) continue;
 
-                            const skipHeaderWords = ['класс', 'калибр', 'упаковка', 'статья', 'скидка', 'надбавка', 'бюджет'];
-                            if (skipHeaderWords.some(w => firstText.toLowerCase() === w)) continue;
-
                             let itemIdx = itemsArr.findIndex(it => {
                                 let t1 = firstText.toLowerCase().trim();
                                 let t2 = it.toLowerCase().trim();
-                                if (t1 === t2) return true;
-                                
-                                let cleanT1 = t1.replace(/\s*\(.*?\)\s*/g, '').trim();
-                                let cleanT2 = t2.replace(/\s*\(.*?\)\s*/g, '').trim();
-                                if (cleanT1 === cleanT2) return true;
-
-                                if (t2.startsWith(t1 + ' ') || t1.startsWith(t2 + ' ')) return true;
-                                return false;
+                                return t1 === t2 || t1.includes(t2) || t2.includes(t1);
                             });
 
                             if (itemIdx !== -1) {
                                 let val1 = parseCellNum(row[1]);
                                 let val2 = parseCellNum(row[2]);
-
                                 if (!isNaN(val1)) {
                                     if (Math.abs(val1) <= 2 && val1 !== 0) val1 *= 100;
                                     tableData[`${currentUploadTarget}_${itemIdx}_0_s2025`] = val1;
@@ -1201,7 +1538,7 @@
                     if (finalPnlResults.length > 0) runCalculationEngine();
                     autoSaveToBackend();
                     setSyncStatus("Синхронизировано");
-                    alert(`Файл успешно обработан!\nЗагружено записей/строк: ${parsedCount || SORTS.length}. Таблицы обновлены.`);
+                    alert(`Файл успешно обработан!\nЗагружено записей/строк: ${parsedCount || SORTS.length}`);
 
                 } catch (error) {
                     console.error(error);
@@ -1209,17 +1546,19 @@
                     setSyncStatus("Ошибка чтения", true);
                 }
             };
+
             reader.readAsArrayBuffer(file);
         });
 
+        // --- ЭКСПОРТ В EXCEL ---
         async function exportData() {
-            if (finalPnlResults.length === 0) { 
-                alert("Сначала сформируйте план продаж!"); 
-                return; 
+            if (finalPnlResults.length === 0) {
+                alert("Сначала сформируйте план продаж!");
+                return;
             }
 
             const workbook = new ExcelJS.Workbook();
-            const worksheet = workbook.addWorksheet('План продаж P&L', {
+            const worksheet = workbook.addWorksheet('План выручки P&L', {
                 views: [{ state: 'frozen', xSplit: 3, ySplit: 2 }]
             });
 
@@ -1238,7 +1577,7 @@
             worksheet.mergeCells('A1:A2');
             worksheet.mergeCells('B1:B2');
             worksheet.mergeCells('C1:C2');
-            
+
             let colIndex = 4;
             activeMonths.forEach(() => {
                 if (visibleScens.length > 1) worksheet.mergeCells(1, colIndex, 1, colIndex + visibleScens.length - 1);
@@ -1250,7 +1589,7 @@
                     cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4F774A' } };
                     cell.font = { color: { argb: 'FFFFFFFF' }, bold: true, name: 'Nunito', size: 10 };
                     cell.alignment = { vertical: 'middle', horizontal: 'center' };
-                    cell.border = { top: {style:'thin', color:{argb:'FFD0D7D2'}}, bottom: {style:'thin', color:{argb:'FFD0D7D2'}}, left: {style:'thin', color:{argb:'FFD0D7D2'}}, right: {style:'thin', color:{argb:'FFD0D7D2'}} };
+                    cell.border = { top: {style: 'thin', color: {argb: 'FFD0D7D2'}}, bottom: {style: 'thin', color: {argb: 'FFD0D7D2'}} };
                 });
             });
 
@@ -1266,10 +1605,11 @@
                         visibleScens.forEach(scen => {
                             let d = row.scenarios[scen.id] || {};
                             let mData = d[month] || {vol:0, rev:0, exp:0};
-                            
                             if (month === 'ИТОГО') {
                                 mData = {vol:0, rev:0, exp:0};
-                                MONTHS.forEach(mm => { if(d[mm]) { mData.vol += d[mm].vol; mData.rev += d[mm].rev; mData.exp += d[mm].exp; } });
+                                MONTHS.forEach(mm => {
+                                    if(d[mm]) { mData.vol += d[mm].vol; mData.rev += d[mm].rev; mData.exp += d[mm].exp; }
+                                });
                             }
 
                             let val = 0;
@@ -1278,7 +1618,7 @@
                             if (mId === 'exp') val = mData.exp;
                             if (mId === 'ebitda') val = mData.rev - mData.exp;
                             if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
-                            if (mId === 'margin') val = mData.rev > 0 ? (mData.rev - mData.exp) / mData.rev : 0;
+                            if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) : 0;
 
                             let finalVal = metricDef.isPct ? val / 100 : val;
                             let roundedVal = Math.round(finalVal * 10) / 10;
@@ -1287,11 +1627,9 @@
                     });
 
                     let newRow = worksheet.addRow(rowData);
-
                     newRow.eachCell((cell, colNum) => {
                         cell.font = { name: 'Nunito', size: 10, color: { argb: 'FF2A362D' } };
-                        cell.border = { top: {style:'thin', color:{argb:'FFD0D7D2'}}, bottom: {style:'thin', color:{argb:'FFD0D7D2'}}, left: {style:'thin', color:{argb:'FFD0D7D2'}}, right: {style:'thin', color:{argb:'FFD0D7D2'}} };
-
+                        cell.border = { top: {style: 'thin', color: {argb: 'FFD0D7D2'}}, bottom: {style: 'thin', color: {argb: 'FFD0D7D2'}} };
                         if (colNum <= 3) {
                             cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F2E9' } };
                             cell.font.bold = true;
