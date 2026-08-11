@@ -1663,6 +1663,124 @@
             link.download = "Sales_Plan_Analytic_Report.xlsx";
             link.click();
         }
+
+// --- АДМИН-ПАНЕЛЬ: СКРЫТЫЕ КНОПКИ УПРАВЛЕНИЯ БД ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            // Секретный параметр. Кнопки появятся только по адресу: ваш_сайт.com/?admin=true
+            if (urlParams.get('admin') === 'true') {
+                const controls = document.querySelector('.scenario-controls');
+                if (!controls) return;
+
+                // 1. Кнопка выгрузки на сервер (которая уже была)
+                const adminSyncBtn = document.createElement('button');
+                adminSyncBtn.className = 'primary';
+                adminSyncBtn.style.backgroundColor = '#b45309'; 
+                adminSyncBtn.innerHTML = '⚡ ВЫГРУЗИТЬ НА СЕРВЕР';
+                
+                adminSyncBtn.onclick = function() {
+                    if(!confirm('ВНИМАНИЕ!\nВы уверены, что хотите принудительно перезаписать базу данных на сервере текущими локальными данными из вашего браузера?')) return;
+                    
+                    setSyncStatus('Сохранение всей БД...');
+                    adminSyncBtn.innerHTML = '⏳ Выгрузка...';
+                    adminSyncBtn.disabled = true;
+                    
+                    API.saveFullState(tableData, scenarios, SORTS)
+                       .then(() => {
+                           alert('УСПЕХ!\nВсе локальные данные успешно выгружены на основной сервер.');
+                           setSyncStatus('Синхронизировано');
+                       })
+                       .catch((err) => {
+                           alert('ОШИБКА!\nСервер недоступен или произошла ошибка записи.\nУбедитесь, что бэкенд запущен.');
+                           setSyncStatus('Ошибка сохранения', true);
+                       })
+                       .finally(() => {
+                           adminSyncBtn.innerHTML = '⚡ ВЫГРУЗИТЬ НА СЕРВЕР';
+                           adminSyncBtn.disabled = false;
+                       });
+                };
+
+                // 2. НОВАЯ КНОПКА: Загрузка из файла JSON
+                const adminLoadBtn = document.createElement('button');
+                adminLoadBtn.className = 'primary';
+                adminLoadBtn.style.backgroundColor = '#1d4ed8'; // Синий цвет
+                adminLoadBtn.innerHTML = '📥 ЗАГРУЗИТЬ ИЗ ФАЙЛА';
+
+                // Скрытый инпут для выбора файла JSON
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+                fileInput.style.display = 'none';
+
+                // По клику на синюю кнопку открываем проводник
+                adminLoadBtn.onclick = () => fileInput.click();
+
+                // Обработчик загрузки файла
+                fileInput.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    if (!confirm('ВНИМАНИЕ!\nЭто действие полностью удалит текущие данные и заменит их данными из файла, после чего сохранит их на сервере. Продолжить?')) {
+                        fileInput.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        try {
+                            const importedData = JSON.parse(evt.target.result);
+                            
+                            if (!importedData.tableData || !importedData.scenarios) {
+                                throw new Error("Неверный формат файла. Ожидается JSON от этой системы.");
+                            }
+
+                            // 1. Подменяем локальные данные
+                            tableData = importedData.tableData;
+                            scenarios = importedData.scenarios;
+                            if (importedData.sorts && importedData.sorts.length > 0) {
+                                SORTS.length = 0; SORTS.push(...importedData.sorts);
+                            }
+                            if (tableData['_meta_networks']) {
+                                NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
+                            }
+
+                            // 2. Отправляем обновленную базу на сервер
+                            setSyncStatus('Загрузка на сервер...');
+                            API.saveFullState(tableData, scenarios, SORTS)
+                               .then(() => {
+                                   alert('УСПЕХ!\nБаза данных загружена из файла и успешно отправлена на сервер.');
+                                   setSyncStatus('Синхронизировано');
+                                   
+                                   // 3. Обновляем интерфейс визуально
+                                   renderCheckboxes();
+                                   generateAllTables();
+                                   initPnlControls();
+                                   if (finalPnlResults.length > 0) runCalculationEngine();
+                               })
+                               .catch((err) => {
+                                   alert('Данные загружены локально в таблицы, но ОШИБКА отправки на сервер: ' + err.message);
+                                   setSyncStatus('Ошибка сохранения', true);
+                                   
+                                   renderCheckboxes();
+                                   generateAllTables();
+                                   initPnlControls();
+                               });
+
+                        } catch (error) {
+                            alert('Ошибка чтения файла: ' + error.message);
+                        }
+                        fileInput.value = ''; // Очищаем инпут для возможности повторной загрузки
+                    };
+                    reader.readAsText(file);
+                };
+
+                // Добавляем все новые элементы в шапку сайта (слева направо)
+                controls.prepend(fileInput);
+                controls.prepend(adminLoadBtn);
+                controls.prepend(adminSyncBtn);
+            }
+        });
+        
     </script>
 </body>
 </html>
