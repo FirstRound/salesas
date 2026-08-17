@@ -77,38 +77,44 @@
         .accordion.collapsed .accordion-body { display: none; }
         .accordion.collapsed .accordion-header { border-radius: 8px; }
 
-        /* ИСПРАВЛЕННАЯ ВЕРСТКА ДЛЯ P&L И ТАБЛИЦ */
+        /* ИСПРАВЛЕННАЯ КОМПАКТНАЯ ВЕРСТКА ДЛЯ ТАБЛИЦ */
         .table-container { width: 100%; overflow: auto; max-height: 65vh; background-color: var(--surface); border-bottom: 1px solid var(--border); }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th, td { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: right; padding: 4px 6px; font-size: 0.78rem; white-space: nowrap; }
+        table { border-collapse: separate; border-spacing: 0; }
+        /* Минимальные отступы для ячеек */
+        th, td { border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); text-align: right; padding: 2px 4px; font-size: 0.75rem; white-space: nowrap; }
         th:last-child, td:last-child { border-right: none; }
-        th { background-color: #f9f8f4; position: sticky; top: 0; z-index: 10; font-weight: 700; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; height: 28px; }
-        tr:nth-child(2) th { top: 28px; height: 26px; z-index: 9; color: var(--text-muted); font-size: 0.68rem; }
+        th { background-color: #f9f8f4; position: sticky; top: 0; z-index: 10; font-weight: 700; color: var(--text-main); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; height: 26px; }
+        tr:nth-child(2) th { top: 26px; height: 24px; z-index: 9; color: var(--text-muted); font-size: 0.68rem; }
         
         .sticky-col { text-align: left; font-weight: 700; background-color: #f9f8f4; position: sticky; z-index: 15; }
         th.sticky-col { z-index: 20; }
         .group-th { border-bottom: 2px solid var(--primary); text-align: center !important; }
 
-        /* ИСПРАВЛЕННЫЕ ЗАКРЕПЛЕННЫЕ КОЛОНКИ С ПЕРЕНОСОМ ТЕКСТА */
-        .col-sticky-1 { position: sticky; left: 0px; width: 110px; min-width: 110px; max-width: 110px; z-index: 15; background-color: #f9f8f4; text-align: left; font-weight: 700; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
-        .col-sticky-2 { position: sticky; left: 110px; width: 120px; min-width: 120px; max-width: 120px; z-index: 15; background-color: #f9f8f4; text-align: left; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
-        .col-sticky-3 { position: sticky; left: 230px; width: 160px; min-width: 160px; max-width: 160px; z-index: 15; background-color: #f9f8f4; text-align: left; font-weight: 600; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
+        /* Аналитическая колонка иерархии */
+        .col-sticky-1 { position: sticky; left: 0px; width: 260px; min-width: 260px; max-width: 260px; z-index: 15; background-color: #f9f8f4; text-align: left; font-weight: 700; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
+        .col-sticky-2 { position: sticky; left: 260px; width: 140px; min-width: 140px; max-width: 140px; z-index: 15; background-color: #f9f8f4; text-align: left; font-weight: 600; white-space: normal; word-break: break-word; vertical-align: middle; line-height: 1.2; }
+        
+        th.col-sticky-1 { top: 0; left: 0px; z-index: 25; }
+        th.col-sticky-2 { top: 0; left: 260px; z-index: 25; }
 
-        th.col-sticky-1 { top: 0; left: 0px; width: 110px; min-width: 110px; max-width: 110px; z-index: 25; }
-        th.col-sticky-2 { top: 0; left: 110px; width: 120px; min-width: 120px; max-width: 120px; z-index: 25; }
-        th.col-sticky-3 { top: 0; left: 230px; width: 160px; min-width: 160px; max-width: 160px; z-index: 25; }
+        .scrollable-toggles { max-height: 70px; overflow-y: auto; border: 1px solid var(--border); padding: 5px; border-radius: 6px; background: #fff; }
+        .pivot-level-1 { padding-left: 10px !important; font-weight: 800; color: var(--primary); background: #eef3ec; }
+        .pivot-level-2 { padding-left: 25px !important; font-weight: 700; color: #2A362D; background: #f4f9f4; border-left: 3px solid #84a980;}
+        .pivot-level-3 { padding-left: 40px !important; font-weight: 600; color: #4a5d4f; border-left: 3px solid #b3cbb0;}
+        .pivot-level-4 { padding-left: 55px !important; font-weight: 500; color: #6b7a70; border-left: 3px solid #d0e0cd;}
 
         .col-25 { background-color: var(--col-2025); color: var(--text-muted); }
         .col-cur { background-color: var(--col-curr); }
         .col-scn { background-color: var(--col-scen); color: var(--text-main); font-weight: 600; }
 
+        
+        /* Жесткая фиксация ширины инпутов и выравнивание строго по правому краю */
         .input-wrapper { display: flex; align-items: center; justify-content: flex-end; width: 100%; }
-        td input { width: 100%; height: 22px; text-align: right; border: 1px solid transparent; background: transparent; font-family: inherit; font-size: 0.78rem; font-weight: 600; color: var(--primary); outline: none; border-radius: 3px; padding: 0 4px; transition: all 0.15s; }
+        td input { width: 65px; height: 18px; text-align: right; border: 1px solid transparent; background: transparent; font-family: inherit; font-size: 0.75rem; font-weight: 600; color: var(--primary); outline: none; border-radius: 3px; padding: 0 2px; transition: all 0.15s; }
         td input:focus { background-color: #fff; border-color: var(--primary); box-shadow: inset 0 0 0 1px var(--primary); }
         td input::placeholder { color: #a1a1aa; font-weight: 500; font-style: italic; }
         .pct-sign { color: var(--text-muted); font-size: 0.75rem; font-weight: 600; margin-left: 2px; }
 
-        /* ИСПРАВЛЕННЫЙ БЛОК ФИЛЬТРОВ И КНОПОК */
         .filters-container { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
         .filters-row { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
         .filters-row:last-child { margin-bottom: 0; }
@@ -189,7 +195,7 @@
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение по классам качества (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_cls')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-classes"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Окрас (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_col')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-colors"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Калибровка I класса (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_call')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-1"></div></div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Расширенная калибровка II-V классов (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_calX')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-ext"></div></div>
+                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Калибровка II класса (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'q_calX')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-qual-cal-ext"></div></div>
             </div>
 
             <div id="tab-graph" class="tab-content">
@@ -200,30 +206,36 @@
 
             <div id="tab-mix" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Продуктовый микс и форматы упаковок</h2>
-                <div class="block-info">Ответственный: Беляева А. (Матрица: Калибр × Упаковка)</div>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Распределение упаковки по калибрам (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'mix')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-mix-pack"></div></div>
+                <div class="block-info">Ответственный: Беляева А. (Для каждой упаковки задается распределение по калибрам)</div>
+                <div style="margin-bottom: 15px;">
+                    <button class="mini-load" style="padding: 6px 12px; font-size: 0.85rem;" onclick="triggerLoad(event, 'mix')">📥 Загрузить матрицу упаковок из файла</button>
+                </div>
+                <div id="mix-tables-container"></div>
             </div>
 
             <div id="tab-cap" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Коммерческая емкость рынка</h2>
-                <div class="block-info">Оставьте ячейки сетей и упаковок пустыми или 0, если ограничений нет</div>
+                <div class="block-info">Оставьте ячейки сетей и упаковок пустыми, если ограничений нет. Строгий ноль = 0 тонн</div>
                 <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>1. Общий лимит продаж сорта (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'cap')">Загрузить данные</button></div>
-                    <div class="accordion-body table-container" id="tbl-cap-sort"></div>
-                </div>
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>2. Лимит по сетям (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'net_cap')">Загрузить данные</button></div>
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>1. Лимит по сетям (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'net_cap')">Загрузить данные</button></div>
                     <div class="accordion-body table-container" id="tbl-cap-net"></div>
                 </div>
                 <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>3. Лимит по упаковке (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'pack_cap')">Загрузить данные</button></div>
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>2. Лимит по упаковке (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'pack_cap')">Загрузить данные</button></div>
                     <div class="accordion-body table-container" id="tbl-cap-pack"></div>
+                </div>
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>3. Детализированный лимит (Сорт -> Сеть -> Упаковка)</h3><button class="mini-load" onclick="triggerLoad(event, 'det_cap')">Загрузить данные</button></div>
+                    <div class="accordion-body table-container" id="tbl-cap-det"></div>
+                </div>
+                <div class="accordion collapsed">
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>4. Общий лимит продаж сорта (тонн)</h3><button class="mini-load" onclick="triggerLoad(event, 'cap')">Загрузить данные</button></div>
+                    <div class="accordion-body table-container" id="tbl-cap-sort"></div>
                 </div>
             </div>
 
             <div id="tab-price" class="tab-content">
                 <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 6px;">Ценовая политика и условия коммерции</h2>
-                <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_base')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Премия / Скидка по сетям (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_net')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-net"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Надбавка за упаковку (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_pack')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-pack"></div></div>
                 <div class="accordion"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Скидка за класс качества (%)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_cls')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-cls"></div></div>
@@ -233,19 +245,58 @@
                         <h3>Ручная корректировка цены по месяцам (₽/кг)</h3>
                         <button class="mini-load" onclick="triggerLoad(event, 'p_fin')">Загрузить данные</button>
                     </div>
-                    <div class="accordion-body table-container" id="tbl-prc-monthly"></div>
+                    <div class="accordion-body table-container" style="padding-bottom: 15px;">
+                        <div class="block-info" style="margin: 10px 18px;">базовая -цена за вес, 1 класс, 70+ калибр</div>
+                        <div id="tbl-prc-monthly"></div>
+                    </div>
                 </div>
+                <div class="accordion collapsed"><div class="accordion-header" onclick="toggleAcc(this)"><h3>Базовые цены (₽)</h3><button class="mini-load" onclick="triggerLoad(event, 'p_base')">Загрузить данные</button></div><div class="accordion-body table-container" id="tbl-prc-base"></div></div>
             </div>
 
             <div id="tab-pnl" class="tab-content">
-                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 12px;">План выручки</h2>
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 12px;">План выручки (Аналитический куб)</h2>
+                
                 <div class="filters-container">
-                    <div class="filters-row">
-                        <label>Срезы: </label>
-                        <select id="filt-sort" onchange="renderPnlTable()"></select>
-                        <select id="filt-net" onchange="renderPnlTable()"></select>
+                    <div class="filters-row" style="align-items: flex-start;">
+                        <label style="margin-top: 8px;">Фильтры:</label>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted);">Сорта</div>
+                            <div class="toggles-group scrollable-toggles" id="toggles-sort"></div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted);">Сети</div>
+                            <div class="toggles-group scrollable-toggles" id="toggles-net"></div>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 0.75rem; font-weight: bold; color: var(--text-muted);">Упаковка</div>
+                            <div class="toggles-group scrollable-toggles" id="toggles-pack"></div>
+                        </div>
                     </div>
-                    <div class="filters-row">
+
+                    <div class="filters-row" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                        <label>Иерархия строк:</label>
+                        <select id="pivot-g1" onchange="renderPnlTable()">
+                            <option value="net">Торговая Сеть</option>
+                            <option value="sort">Сорт</option>
+                            <option value="pack">Упаковка</option>
+                        </select>
+                        <span style="color: var(--text-muted); font-weight: bold;"> ➜ </span>
+                        <select id="pivot-g2" onchange="renderPnlTable()">
+                            <option value="sort">Сорт</option>
+                            <option value="net">Торговая Сеть</option>
+                            <option value="pack">Упаковка</option>
+                            <option value="">-- Нет --</option>
+                        </select>
+                        <span style="color: var(--text-muted); font-weight: bold;"> ➜ </span>
+                        <select id="pivot-g3" onchange="renderPnlTable()">
+                            <option value="">-- Нет --</option>
+                            <option value="pack">Упаковка</option>
+                            <option value="sort">Сорт</option>
+                            <option value="net">Торговая Сеть</option>
+                        </select>
+                    </div>
+
+                    <div class="filters-row" style="margin-top: 15px;">
                         <label>Месяцы: </label>
                         <div class="toggles-group" id="toggles-months"></div>
                     </div>
@@ -254,8 +305,9 @@
                         <div class="toggles-group" id="toggles-metrics"></div>
                     </div>
                 </div>
+
                 <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>Аналитическая матрица P&L</h3></div>
+                    <div class="accordion-header" onclick="toggleAcc(this)"><h3>Аналитическая матрица</h3></div>
                     <div class="accordion-body table-container" id="tbl-results-container">
                         <table><tbody><tr><td style="text-align: center; padding: 50px; color: var(--text-muted);">Нажмите "Сформировать план" для вычисления сценария</td></tr></tbody></table>
                     </div>
@@ -287,9 +339,10 @@
         const SORTS = ['Альва', 'Амброзия', 'Гала', 'Лигол', 'Спартан', 'Космик Крисп'];
         const NETWORKS = ['ПЕРЕКРЕСТОК', 'ВКУСВИЛЛ', 'МАГНИТ', 'ЛЕНТА'];
         const CLASSES = ['I класс', 'II класс', 'III класс', 'IV класс', 'V класс', 'VI класс (индустриальное)'];
-        const COLORS = ['Красный', 'Зеленый', 'Желтый', 'Би-колор'];
-        const CALIBERS = ['>95 мм', '90-95 мм', '85-90 мм', '80-85 мм', '75-80 мм', '65-70 мм', '60-65 мм'];
-        const PACKAGING = ['Вес', 'Лоток 4*1', 'FP 6*1', 'Пакет', 'Сетка'];
+        const COLORS = ['Super Red', 'Red', 'Green', 'All'];
+        const CALIBERS = ['<55 мм', '55-60 мм', '60-65 мм', '65-70 мм', '70-75 мм', '75-80 мм', '80+ мм'];
+        const PACKAGING = ['FP 2*1', 'FP 4*1', 'FP 6*1', 'Вес', 'Вес Бренд', 'Лоток 4*1', 'Лоток 4*1b', 'Пакет', 'Сетка'];
+        
         const MONTHS = ['Авг', 'Сен', 'Окт', 'Ноя', 'Дек', 'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл'];
         const EXPENSES = ['Pre-harvest', 'Harvest', 'Логистика', 'Хранение', 'ФОТ Комм. отдела', 'Маркетинг'];
         
@@ -380,15 +433,20 @@
         function formatVal(val, isPercent = false) {
             if (val === undefined || val === null || val === '') return '';
             if (isNaN(val) || val === 0) return '0' + (isPercent ? '%' : '');
+            if (isPercent) {
+                return Math.round(val) + '%';
+            }
             let rounded = Math.round(val * 10) / 10;
             let decimals = (rounded % 1 === 0) ? 0 : 1;
-            let str = rounded.toLocaleString('ru-RU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-            return isPercent ? str + '%' : str;
+            return rounded.toLocaleString('ru-RU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         }
 
-        function formatInputDisplay(val) {
+        function formatInputDisplay(val, isPercent = false) {
             if (val === undefined || val === null || val === '') return '';
             if (isNaN(val) || val === 0) return '0';
+            if (isPercent) {
+                return Math.round(val).toString();
+            }
             let rounded = Math.round(val * 10) / 10;
             let parts = rounded.toString().split('.');
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " ");
@@ -433,7 +491,7 @@
             let num = parseFloat(cleanStr);
             if (!isNaN(num) && /^[0-9.,\-]+$/.test(cleanStr)) {
                 tableData[key] = num;
-                el.value = formatInputDisplay(num);
+                el.value = formatInputDisplay(num, false);
             } else {
                 tableData[key] = val;
             }
@@ -546,22 +604,34 @@
             return val;
         }
 
-        function buildInputs(tableId, rIdx, cIdx, baseVal, isPercent) {
+        function buildInputs(tableId, rIdx, cIdx, baseVal, typeFlag) {
             let html = '';
+            let isText = typeFlag === 'text';
+            let isPct = typeFlag === true;
+            
             scenarios.forEach(scen => {
                 if (!scen.visible) return;
                 let val = getOrInitData(tableId, rIdx, cIdx, scen.id, baseVal);
                 let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                 if (scen.type === 'input') {
                     let key = `${tableId}_${rIdx}_${cIdx}_${scen.id}`;
-                    html += `<td class="col-${scen.id}">
-                        <div class="input-wrapper">
-                            <input type="text" data-key="${key}" value="${formatInputDisplay(val)}" oninput="formatInputLive(this, ${isPercent})">
-                            ${isPercent ? '<span class="pct-sign">%</span>' : ''}
-                        </div>
-                    </td>`;
+                    if (isText) {
+                        html += `<td class="col-${scen.id}">
+                            <div class="input-wrapper">
+                                <input type="text" data-key="${key}" value="${val || ''}" onchange="saveRawInput(this)">
+                            </div>
+                        </td>`;
+                    } else {
+                        html += `<td class="col-${scen.id}">
+                            <div class="input-wrapper">
+                                <input type="text" data-key="${key}" value="${formatInputDisplay(val, isPct)}" oninput="formatInputLive(this, ${isPct})">
+                                ${isPct ? '<span class="pct-sign">%</span>' : ''}
+                            </div>
+                        </td>`;
+                    }
                 } else {
-                    html += `<td class="${cellClass}">${formatVal(val, isPercent)}</td>`;
+                    let finalDisplay = isText ? (val || '') : formatVal(val, isPct);
+                    html += `<td class="${cellClass}">${finalDisplay}</td>`;
                 }
             });
             return html;
@@ -575,12 +645,12 @@
                 let rowName = typeof rowHeader === 'object' ? rowHeader.name : rowHeader;
                 let isReadonlyRow = typeof rowHeader === 'object' && rowHeader.lock;
                 let rowData = colHeaders.map((colHeader, cIdx) => {
-                    let isPct = Array.isArray(isPercentArr) ? isPercentArr[cIdx] : isPercentArr;
+                    let typeFlag = Array.isArray(isPercentArr) ? isPercentArr[cIdx] : isPercentArr;
                     let val = dataGenerator(rIdx, cIdx);
                     if (isReadonlyRow) {
-                        return visibleScens.map(scen => `<td class="col-${scen.id} readonly-cell">${formatVal(getOrInitData(tableId, rIdx, cIdx, scen.id, val), isPct)}</td>`).join('');
+                        return visibleScens.map(scen => `<td class="col-${scen.id} readonly-cell">${typeFlag==='text' ? getOrInitData(tableId, rIdx, cIdx, scen.id, val) : formatVal(getOrInitData(tableId, rIdx, cIdx, scen.id, val), typeFlag===true)}</td>`).join('');
                     }
-                    return buildInputs(tableId, rIdx, cIdx, val, isPct);
+                    return buildInputs(tableId, rIdx, cIdx, val, typeFlag);
                 }).join('');
                 return `<tr><td class="sticky-col" style="left:0;">${rowName}</td>${rowData}</tr>`;
             }).join('');
@@ -606,9 +676,17 @@
                         let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                         if (scen.type === 'input' && !isReadonlyRow) {
                             let key = `${tableId}_${rIdx}_${mIdx}_${scen.id}`;
+                            // Для таблиц емкости используем lazy-update (onchange) для производительности
+                            if (tableId === 'cap' || tableId === 'net_cap') {
+                                return `<td class="col-${scen.id}">
+                                    <div class="input-wrapper">
+                                        <input type="text" data-key="${key}" value="${formatInputDisplay(val, false)}" placeholder="∞" onchange="saveRawInput(this)">
+                                    </div>
+                                </td>`;
+                            }
                             return `<td class="col-${scen.id}">
                                 <div class="input-wrapper">
-                                    <input type="text" data-key="${key}" value="${formatInputDisplay(val)}" oninput="formatInputLive(this, ${isPercent})">
+                                    <input type="text" data-key="${key}" value="${formatInputDisplay(val, isPercent)}" oninput="formatInputLive(this, ${isPercent})">
                                     ${isPercent ? '<span class="pct-sign">%</span>' : ''}
                                 </div>
                             </td>`;
@@ -621,14 +699,41 @@
             }).join('');
             return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
         }
+
+        function buildMixTable(pIdx, packName) {
+            let visibleScens = scenarios.filter(s => s.visible);
+            let subHeader = visibleScens.map(s => `<th class="col-${s.id}">${s.name}</th>`).join('');
+            let thead = `<tr><th rowspan="2" class="sticky-col" style="left:0;">Калибр</th><th colspan="${visibleScens.length}" class="group-th">${packName}</th></tr><tr>${subHeader}</tr>`;
+            
+            let tbody = CALIBERS.map((cal, cIdx) => {
+                let rowData = visibleScens.map(scen => {
+                    let val = getOrInitData('mix', cIdx, pIdx, scen.id, 0);
+                    let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
+                    
+                    if (scen.type === 'input') {
+                        let key = `mix_${cIdx}_${pIdx}_${scen.id}`;
+                        return `<td class="col-${scen.id}">
+                            <div class="input-wrapper">
+                                <input type="text" data-key="${key}" value="${formatInputDisplay(val, true)}" oninput="formatInputLive(this, true)">
+                                <span class="pct-sign">%</span>
+                            </div>
+                        </td>`;
+                    } else {
+                        return `<td class="${cellClass}">${formatVal(val, true)}</td>`;
+                    }
+                }).join('');
+                return `<tr><td class="sticky-col" style="left:0;">${cal}</td>${rowData}</tr>`;
+            }).join('');
+            
+            return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
         
-        // НОВАЯ ТАБЛИЦА: ЛИМИТЫ УПАКОВОК (Вкладка 5)
         function buildPackCapTable() {
             let visibleScens = scenarios.filter(s => s.visible);
             let thead = `<tr>
                 <th class="col-sticky-1">СОРТ</th>
                 <th class="col-sticky-2">Упаковка</th>
-                <th class="col-sticky-3" style="width:100px; min-width:100px;">Сценарий</th>
+                <th class="col-sticky-3">Сценарий</th>
                 ${MONTHS.map(m => `<th>${m}</th>`).join('')}
             </tr>`;
             
@@ -648,10 +753,10 @@
                             let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                             
                             if (scen.type === 'input') {
-                                let displayVal = (val !== undefined && val !== null && val !== '') ? formatInputDisplay(val) : '';
+                                let displayVal = (val !== undefined && val !== null && val !== '') ? formatInputDisplay(val, false) : '';
                                 return `<td class="col-${scen.id}">
                                     <div class="input-wrapper">
-                                        <input type="text" data-key="${key}" value="${displayVal}" placeholder="∞" oninput="formatInputLive(this, false)">
+                                        <input type="text" data-key="${key}" value="${displayVal}" placeholder="∞" onchange="saveRawInput(this)">
                                     </div>
                                 </td>`;
                             } else {
@@ -659,12 +764,97 @@
                                 return `<td class="${cellClass}">${finalDisplay}</td>`;
                             }
                         }).join('');
-                        return `<tr>${stickyCell1}${stickyCell2}<td class="col-sticky-3 col-${scen.id}" style="width:100px; min-width:100px;">${scen.name}</td>${monthCells}</tr>`;
+                        return `<tr>${stickyCell1}${stickyCell2}<td class="col-sticky-3 col-${scen.id}">${scen.name}</td>${monthCells}</tr>`;
                     }).join('');
                 }).join('');
             }).join('');
             
             return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+        }
+
+        let currentDetCapPage = 1;
+        const DET_CAP_ITEMS_PER_PAGE = 50; // Сколько комбинаций показывать на 1 странице
+
+        function buildDetailedCapTable() {
+            let visibleScens = scenarios.filter(s => s.visible);
+            let thead = `<tr>
+                <th class="col-sticky-1">СОРТ</th>
+                <th class="col-sticky-2">Клиент</th>
+                <th class="col-sticky-3">Упаковка</th>
+                <th class="col-sticky-4">Сценарий</th>
+                ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+            </tr>`;
+            
+            // 1. Собираем все комбинации в плоский список
+            let allRows = [];
+            SORTS.forEach((sort, sIdx) => {
+                NETWORKS.forEach((net, nIdx) => {
+                    PACKAGING.forEach((pack, pIdx) => {
+                        allRows.push({ sort, sIdx, net, nIdx, pack, pIdx });
+                    });
+                });
+            });
+
+            // 2. Рассчитываем пагинацию
+            let totalPages = Math.ceil(allRows.length / DET_CAP_ITEMS_PER_PAGE) || 1;
+            if (currentDetCapPage > totalPages) currentDetCapPage = totalPages;
+            if (currentDetCapPage < 1) currentDetCapPage = 1;
+
+            let startIdx = (currentDetCapPage - 1) * DET_CAP_ITEMS_PER_PAGE;
+            let paginatedRows = allRows.slice(startIdx, startIdx + DET_CAP_ITEMS_PER_PAGE);
+
+            let tbody = '';
+            // 3. Отрисовываем только нужную страницу
+            paginatedRows.forEach(row => {
+                visibleScens.forEach((scen, scenIdx) => {
+                    let isFirstScen = scenIdx === 0;
+
+                    // Теперь названия не объединяются на всю таблицу, а повторяются для каждого блока, чтобы пагинация не ломала верстку
+                    let stickyCell1 = isFirstScen ? `<td rowspan="${visibleScens.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${row.sort}</b></td>` : '';
+                    let stickyCell2 = isFirstScen ? `<td rowspan="${visibleScens.length}" class="col-sticky-2" style="vertical-align: middle;">${row.net}</td>` : '';
+                    let stickyCell3 = isFirstScen ? `<td rowspan="${visibleScens.length}" class="col-sticky-3" style="vertical-align: middle;">${row.pack}</td>` : '';
+                    
+                    let monthCells = MONTHS.map((month, mIdx) => {
+                        let key = `det_cap_${row.sIdx}_${row.nIdx}_${row.pIdx}_${mIdx}_${scen.id}`;
+                        let val = tableData[key];
+                        let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
+                        
+                        if (scen.type === 'input') {
+                            let displayVal = (val !== undefined && val !== null && val !== '') ? formatInputDisplay(val, false) : '';
+                            return `<td class="col-${scen.id}">
+                                <div class="input-wrapper">
+                                    <input type="text" data-key="${key}" value="${displayVal}" placeholder="∞" onchange="saveRawInput(this)">
+                                </div>
+                            </td>`;
+                        } else {
+                            let finalDisplay = (val !== undefined && val !== null && val !== '') ? formatVal(val, false) : '';
+                            return `<td class="${cellClass}">${finalDisplay}</td>`;
+                        }
+                    }).join('');
+                    
+                    tbody += `<tr>${stickyCell1}${stickyCell2}${stickyCell3}<td class="col-sticky-4 col-${scen.id}">${scen.name}</td>${monthCells}</tr>`;
+                });
+            });
+
+            if (tbody === '') tbody = '<tr><td colspan="20" style="text-align: center; padding: 20px;">Нет данных</td></tr>';
+
+            let paginationControls = '';
+            if (totalPages > 1) {
+                paginationControls = `
+                <div class="pagination">
+                    <button class="page-btn" onclick="changeDetCapPage(-1)" ${currentDetCapPage === 1 ? 'disabled' : ''}>← Назад</button>
+                    <span class="page-info">Страница ${currentDetCapPage} из ${totalPages}</span>
+                    <button class="page-btn" onclick="changeDetCapPage(1)" ${currentDetCapPage === totalPages ? 'disabled' : ''}>Вперед →</button>
+                </div>`;
+            }
+
+            return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>` + paginationControls;
+        }
+
+        // Функция для кнопок перелистывания
+        function changeDetCapPage(delta) {
+            currentDetCapPage += delta;
+            document.getElementById('tbl-cap-det').innerHTML = buildDetailedCapTable();
         }
 
         function buildExpDetailedTable() {
@@ -688,7 +878,7 @@
                         let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                         
                         if (scen.type === 'input') {
-                            let displayVal = hasVal ? (typeof val === 'number' ? formatInputDisplay(val) : val) : '';
+                            let displayVal = hasVal ? (typeof val === 'number' ? formatInputDisplay(val, false) : val) : '';
                             return `<td class="col-${scen.id}">
                                 <div class="input-wrapper">
                                     <input type="text" data-key="${key}" value="${displayVal}" onchange="saveRawInput(this)">
@@ -764,8 +954,8 @@
                         let hasOverride = (tableData[key] !== undefined && tableData[key] !== null && tableData[key] !== '');
                         let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                         if (scen.type === 'input') {
-                            let displayVal = hasOverride ? formatInputDisplay(tableData[key]) : '';
-                            let placeholder = formatInputDisplay(calcVal);
+                            let displayVal = hasOverride ? formatInputDisplay(tableData[key], false) : '';
+                            let placeholder = formatInputDisplay(calcVal, false);
                             return `<td class="col-${scen.id}">
                                 <div class="input-wrapper">
                                     <input type="text" data-key="${key}" value="${displayVal}" placeholder="${placeholder}" oninput="formatInputLive(this, false)">
@@ -803,11 +993,11 @@
                         let cellClass = `col-${scen.id} ${scen.id === 's2025' ? 'readonly-2025' : 'readonly-cell'}`;
                         
                         if (scen.type === 'input') {
-                            let displayVal = hasOverride ? formatInputDisplay(val) : '';
+                            let displayVal = hasOverride ? formatInputDisplay(val, false) : '';
                             let sysVal = (window.systemCalculatedGraph[scen.id] && window.systemCalculatedGraph[scen.id][sIdx]) 
                                 ? window.systemCalculatedGraph[scen.id][sIdx][mIdx] 
                                 : 0;
-                            let placeholder = formatInputDisplay(sysVal);
+                            let placeholder = formatInputDisplay(sysVal, false);
                             
                             return `<td class="col-${scen.id}">
                                 <div class="input-wrapper">
@@ -826,21 +1016,21 @@
         }
 
         function recalculateCapacityTable() {
-            document.getElementById('tbl-cap-sort').innerHTML = buildMonthlyTableMatrix('cap', SORTS, () => 300, false);
+            document.getElementById('tbl-cap-sort').innerHTML = buildMonthlyTableMatrix('cap', SORTS, () => '', false);
             document.getElementById('tbl-cap-net').innerHTML = buildMonthlyTableMatrix('net_cap', NETWORKS, () => '', false);
             document.getElementById('tbl-cap-pack').innerHTML = buildPackCapTable();
+            document.getElementById('tbl-cap-det').innerHTML = buildDetailedCapTable();
         }
 
         function recalculateDependentTables() {
             buildMonthlyPriceTable();
-            recalculateCapacityTable();
             if (typeof buildMonthlyGraphTable === 'function') {
                 buildMonthlyGraphTable();
             }
         }
 
         function generateAllTables() {
-            document.getElementById('tbl-volumes').innerHTML = buildTableMatrix('vol', SORTS, ['Валовый сбор (т)', 'Индустриальное (%)', 'На хранение (%)', 'Убыль и потери (%)'], () => 0, [false, true, true, true]);
+            document.getElementById('tbl-volumes').innerHTML = buildTableMatrix('vol', SORTS, ['Валовый сбор (т)', 'Индустриальное (%)', 'На хранение (%)', 'Хранение РГС', 'Убыль и потери (%)'], () => 0, [false, true, true, 'text', true]);
             document.getElementById('tbl-qual-classes').innerHTML = buildTableMatrix('q_cls', SORTS, CLASSES, () => 0, true);
             document.getElementById('tbl-qual-colors').innerHTML = buildTableMatrix('q_col', SORTS, COLORS, () => 0, true);
             document.getElementById('tbl-qual-cal-1').innerHTML = buildTableMatrix('q_call', SORTS, CALIBERS, () => 0, true);
@@ -848,7 +1038,19 @@
 
             buildMonthlyGraphTable();
             
-            document.getElementById('tbl-mix-pack').innerHTML = buildTableMatrix('mix', CALIBERS, PACKAGING, () => 0, true);
+            let mixHtml = '';
+            PACKAGING.forEach((pack, pIdx) => {
+                mixHtml += `
+                <div class="accordion">
+                    <div class="accordion-header" onclick="toggleAcc(this)">
+                        <h3>Упаковка: ${pack}</h3>
+                    </div>
+                    <div class="accordion-body table-container">
+                        ${buildMixTable(pIdx, pack)}
+                    </div>
+                </div>`;
+            });
+            document.getElementById('mix-tables-container').innerHTML = mixHtml;
             document.getElementById('tbl-prc-base').innerHTML = buildTableMatrix('p_base', SORTS, ['Базовая цена (₽)'], () => 100, false);
             document.getElementById('tbl-prc-net').innerHTML = buildTableMatrix('p_net', NETWORKS, ['Премия/Скидка (%)'], () => 0, true);
             document.getElementById('tbl-prc-pack').innerHTML = buildTableMatrix('p_pack', PACKAGING, ['Надбавка (%)'], () => 0, true);
@@ -856,6 +1058,7 @@
             document.getElementById('tbl-prc-cal').innerHTML = buildTableMatrix('p_cal', CALIBERS, ['Скидка (%)'], () => 0, true);
             document.getElementById('tbl-expenses').innerHTML = buildTableMatrix('exp', EXPENSES, ['Бюджет (₽)'], () => 0, false);
 
+            recalculateCapacityTable(); // Вызывается 1 раз для производительности
             buildExpDetailedTable();
             recalculateDependentTables();
         }
@@ -908,18 +1111,19 @@
                     let totalExp = 0;
                     for(let e=0; e<EXPENSES.length; e++) totalExp += getSt(`exp_${e}_0`, scen.id);
                     
-                    // Считываем лимиты сетей (Вкладка 5)
                     let netMonthLimits = {};
                     NETWORKS.forEach((net, nIdx) => {
                         netMonthLimits[net] = {};
                         MONTHS.forEach((month, mIdx) => {
                             let limitVal = tableData[`net_cap_${nIdx}_${mIdx}_${scen.id}`];
-                            let parsed = parseFloat(limitVal);
-                            netMonthLimits[net][mIdx] = (!isNaN(parsed) && parsed !== 0) ? parsed : Infinity;
+                            if (limitVal === undefined || limitVal === null || limitVal === '') {
+                                netMonthLimits[net][mIdx] = Infinity;
+                            } else {
+                                netMonthLimits[net][mIdx] = parseFloat(limitVal) || 0;
+                            }
                         });
                     });
 
-                    // Считываем лимиты упаковок (Вкладка 5)
                     let packMonthLimits = {};
                     SORTS.forEach((sort, sIdx) => {
                         packMonthLimits[sIdx] = {};
@@ -927,8 +1131,30 @@
                             packMonthLimits[sIdx][pIdx] = {};
                             MONTHS.forEach((month, mIdx) => {
                                 let limitVal = tableData[`pack_cap_${sIdx}_${pIdx}_${mIdx}_${scen.id}`];
-                                let parsed = parseFloat(limitVal);
-                                packMonthLimits[sIdx][pIdx][mIdx] = (!isNaN(parsed) && parsed !== 0) ? parsed : Infinity;
+                                if (limitVal === undefined || limitVal === null || limitVal === '') {
+                                    packMonthLimits[sIdx][pIdx][mIdx] = Infinity;
+                                } else {
+                                    packMonthLimits[sIdx][pIdx][mIdx] = parseFloat(limitVal) || 0;
+                                }
+                            });
+                        });
+                    });
+
+                    let detMonthLimits = {};
+                    SORTS.forEach((sort, sIdx) => {
+                        detMonthLimits[sIdx] = {};
+                        NETWORKS.forEach((net, nIdx) => {
+                            detMonthLimits[sIdx][nIdx] = {};
+                            PACKAGING.forEach((pack, pIdx) => {
+                                detMonthLimits[sIdx][nIdx][pIdx] = {};
+                                MONTHS.forEach((month, mIdx) => {
+                                    let limitVal = tableData[`det_cap_${sIdx}_${nIdx}_${pIdx}_${mIdx}_${scen.id}`];
+                                    if (limitVal === undefined || limitVal === null || limitVal === '') {
+                                        detMonthLimits[sIdx][nIdx][pIdx][mIdx] = Infinity;
+                                    } else {
+                                        detMonthLimits[sIdx][nIdx][pIdx][mIdx] = parseFloat(limitVal) || 0;
+                                    }
+                                });
                             });
                         });
                     });
@@ -942,8 +1168,8 @@
                         MONTHS.forEach((month, mIdx) => {
                             let key = `grph_${sIdx}_${mIdx}_${scen.id}`;
                             let val = tableData[key];
-                            if (val !== undefined && val !== null && val !== '') {
-                                let num = parseFloat(val) || 0;
+                            if (val !== undefined && val !== null && val !== '' && parseFloat(val) > 0) {
+                                let num = parseFloat(val);
                                 monthTargets[mIdx] = { active: true, target: num };
                                 graphSum += num;
                             } else {
@@ -957,17 +1183,19 @@
 
                         let pctInd = (getSt(`vol_${sIdx}_1`, scen.id) || 0) / 100;
                         let pctStorage = (getSt(`vol_${sIdx}_2`, scen.id) || 0) / 100;
-                        let pctLoss = (getSt(`vol_${sIdx}_3`, scen.id) || 0) / 100;
+                        let pctLoss = (getSt(`vol_${sIdx}_4`, scen.id) || 0) / 100; // Теперь убыль на 4-м индексе
                         
                         if (pctStorage <= 0 && pctInd < 1) pctStorage = 1 - pctInd;
                         
-                        let volIndustrial = gross * pctInd;
-                        let rawStorage = gross * pctStorage;
-                        let volLosses = rawStorage * pctLoss;
+                        let volIndustrial = gross * pctInd; 
+                        let volCommercial = gross - volIndustrial;
+                        
+                        let rawStorage = volCommercial * pctStorage;
+                        let volLosses = rawStorage * pctLoss; 
+                        
                         let remStorageNet = Math.max(0, rawStorage - volLosses);
-                        let remDirect = Math.max(0, gross - volIndustrial - rawStorage); 
+                        let remDirect = Math.max(0, volCommercial - rawStorage) + volIndustrial;
 
-                        // ИСПРАВЛЕНИЕ 1: Авто-балансировка долей Справочников (чтобы не терялись проценты)
                         let sumCls = 0; CLASSES.forEach((_, c) => sumCls += getSt(`q_cls_${sIdx}_${c}`, scen.id));
                         let sumCal = 0; CALIBERS.forEach((_, c) => sumCal += getSt(`q_call_${sIdx}_${c}`, scen.id));
                         let sumPackArr = [];
@@ -982,11 +1210,13 @@
                         MONTHS.forEach((month, mIdx) => {
                             let isAutumn = ['Авг', 'Сен', 'Окт', 'Ноя'].includes(month);
                             
-                            // ИСПРАВЛЕНИЕ 2: Пустая емкость означает безлимит (Infinity), а не 0
                             let capKey = `cap_${sIdx}_${mIdx}_${scen.id}`;
                             let capVal = tableData[capKey];
-                            let defaultCap = (capVal !== undefined && capVal !== null && capVal !== '') ? parseFloat(capVal) : Infinity;
-                            
+                            let parsedCap = parseFloat(capVal);
+                            let defaultCap = (!isNaN(parsedCap) && parsedCap !== 0) ? parsedCap : Infinity;
+                            if (capVal === undefined || capVal === null || capVal === '') defaultCap = Infinity;
+                            if (capVal == '0') defaultCap = 0;
+
                             let targetVolume = monthTargets[mIdx].active ? monthTargets[mIdx].target : defaultCap;
                             if (targetVolume <= 0) return;
                             
@@ -1028,10 +1258,11 @@
                                             if (hasOverride && calcAvg === 0) finalPrice = overridePrice;
                                             
                                             salesSlots.push({
-                                                month, mIdx, isAutumn, net,
+                                                month, mIdx, isAutumn, net, nIdx,
                                                 fractionId: fractionId,
                                                 price: finalPrice,
-                                                pIdx: packIdx
+                                                pIdx: packIdx,
+                                                isManual: monthTargets[mIdx].active
                                             });
                                         });
                                     });
@@ -1039,22 +1270,26 @@
                             });
                         });
                         
-                        salesSlots.sort((a, b) => b.price - a.price);
+                        salesSlots.sort((a, b) => {
+                            if (a.isManual !== b.isManual) return a.isManual ? -1 : 1; 
+                            return b.price - a.price; 
+                        });
                         
                         salesSlots.forEach(slot => {
                             let needed = fractionDemand[slot.fractionId];
                             let netLimit = netMonthLimits[slot.net][slot.mIdx];
                             let packLimit = packMonthLimits[sIdx][slot.pIdx][slot.mIdx];
+                            let detLimit = detMonthLimits[sIdx][slot.nIdx][slot.pIdx][slot.mIdx];
                             
-                            if (needed <= 0 || netLimit <= 0 || packLimit <= 0) return;
+                            if (needed <= 0 || netLimit <= 0 || packLimit <= 0 || detLimit <= 0) return;
 
                             let sellVol = 0;
                             if (slot.isAutumn && remDirect > 0) {
-                                sellVol = Math.min(remDirect, needed, netLimit, packLimit);
+                                sellVol = Math.min(remDirect, needed, netLimit, packLimit, detLimit);
                                 remDirect -= sellVol;
                             } 
                             else if (remStorageNet > 0) {
-                                sellVol = Math.min(remStorageNet, needed, netLimit, packLimit);
+                                sellVol = Math.min(remStorageNet, needed, netLimit, packLimit, detLimit);
                                 remStorageNet -= sellVol;
                             }
                             
@@ -1063,11 +1298,13 @@
                             fractionDemand[slot.fractionId] -= sellVol;
                             netMonthLimits[slot.net][slot.mIdx] -= sellVol;
                             packMonthLimits[sIdx][slot.pIdx][slot.mIdx] -= sellVol;
+                            detMonthLimits[sIdx][slot.nIdx][slot.pIdx][slot.mIdx] -= sellVol;
                             
                             window.systemCalculatedGraph[scen.id][sIdx][slot.mIdx] += sellVol;
                             
-                            let rowKey = `${sort}_${slot.net}`;
-                            if(!pnlAgg[rowKey]) pnlAgg[rowKey] = { sort, net: slot.net, scenarios: {} };
+                            let packName = PACKAGING[slot.pIdx] || 'Прочее';
+                            let rowKey = `${sort}_${slot.net}_${packName}`;
+                            if(!pnlAgg[rowKey]) pnlAgg[rowKey] = { sort: sort, net: slot.net, pack: packName, scenarios: {} };
                             if(!pnlAgg[rowKey].scenarios[scen.id]) pnlAgg[rowKey].scenarios[scen.id] = {};
                             if(!pnlAgg[rowKey].scenarios[scen.id][slot.month]) pnlAgg[rowKey].scenarios[scen.id][slot.month] = {vol: 0, rev: 0, exp: 0};
                             
@@ -1083,76 +1320,182 @@
                 renderPnlTable();
                 buildMonthlyGraphTable();
                 
-                // Переключаем на 7 вкладку (План выручки)
                 switchTab('tab-pnl', document.querySelectorAll('.nav-item')[6]);
             }, 50);
         }
 
         // --- РЕНДЕРИНГ P&L ---
-        let currentFilters = { sort: '', net: '' };
-        let lastSortFilter = '';
-        let lastNetFilter = '';
-        let currentPage = 1;
-        const ITEMS_PER_PAGE = 50;
+        // --- OLAP КОНТРОЛЛЕР И РЕНДЕРИНГ P&L ---
+        let pnlState = {
+            sorts: [], nets: [], packs: [], months: [...MONTHS, 'ИТОГО'], metrics: ['vol', 'rev', 'ebitda'], page: 1
+        };
+        const ITEMS_PER_PAGE = 100; // Увеличили размер страницы для аналитики
 
-        function changePage(delta) {
-            currentPage += delta;
-            renderPnlTable();
+        function initPnlControls() {
+            // Заполняем фильтры (все включены по умолчанию)
+            pnlState.sorts = [...SORTS];
+            pnlState.nets = [...NETWORKS];
+            pnlState.packs = [...PACKAGING];
+
+            const buildToggles = (items, type) => items.map(item => `<label><input type="checkbox" value="${item}" checked onchange="toggleFilter('${type}', this)"> ${item}</label>`).join('');
+            
+            document.getElementById('toggles-sort').innerHTML = buildToggles(SORTS, 'sorts');
+            document.getElementById('toggles-net').innerHTML = buildToggles(NETWORKS, 'nets');
+            document.getElementById('toggles-pack').innerHTML = buildToggles(PACKAGING, 'packs');
+
+            let mHtml = MONTHS.map(m => `<label><input type="checkbox" value="${m}" checked onchange="toggleFilter('months', this)"> ${m}</label>`).join('');
+            mHtml += `<label><input type="checkbox" value="ИТОГО" checked onchange="toggleFilter('months', this)"> ИТОГО</label>`;
+            document.getElementById('toggles-months').innerHTML = mHtml;
+
+            let metricHtml = METRICS.map(m => `<label><input type="checkbox" value="${m.id}" ${pnlState.metrics.includes(m.id)?'checked':''} onchange="toggleFilter('metrics', this)"> ${m.name}</label>`).join('');
+            document.getElementById('toggles-metrics').innerHTML = metricHtml;
+        }
+
+        function toggleFilter(type, cb) {
+            if(cb.checked) pnlState[type].push(cb.value);
+            else pnlState[type] = pnlState[type].filter(i => i !== cb.value);
+            
+            // Восстанавливаем порядок
+            if(type === 'months') {
+                let order = [...MONTHS, 'ИТОГО'];
+                pnlState.months.sort((a,b) => order.indexOf(a) - order.indexOf(b));
+            } else if (type === 'metrics') {
+                let order = METRICS.map(m => m.id);
+                pnlState.metrics.sort((a,b) => order.indexOf(a) - order.indexOf(b));
+            }
+            pnlState.page = 1;
+            if (Object.keys(finalPnlResults).length > 0) renderPnlTable();
+        }
+
+        function changePage(delta) { pnlState.page += delta; renderPnlTable(); }
+
+        // Рекурсивный агрегатор данных
+        function aggregateScenarios(rows, visibleScens) {
+            let res = {};
+            visibleScens.forEach(scen => {
+                res[scen.id] = {};
+                MONTHS.forEach(m => res[scen.id][m] = {vol:0, rev:0, exp:0});
+            });
+            rows.forEach(r => {
+                visibleScens.forEach(scen => {
+                    let d = r.scenarios[scen.id] || {};
+                    MONTHS.forEach(m => {
+                        if(d[m]) {
+                            res[scen.id][m].vol += d[m].vol || 0;
+                            res[scen.id][m].rev += d[m].rev || 0;
+                            res[scen.id][m].exp += d[m].exp || 0;
+                        }
+                    });
+                });
+            });
+            return res;
+        }
+
+        function getLeaves(node) {
+            if (node._isLeaf) return node.items;
+            let leaves = [];
+            for(let k in node) { if(k !== '_isLeaf') leaves.push(...getLeaves(node[k])); }
+            return leaves;
+        }
+
+        function buildPivotTree(data, groups) {
+            if (groups.length === 0) return { _isLeaf: true, items: data };
+            let gField = groups[0];
+            let dict = {};
+            data.forEach(r => {
+                let val = r[gField] || 'Прочее';
+                if(!dict[val]) dict[val] = [];
+                dict[val].push(r);
+            });
+            let result = {};
+            for(let k in dict) result[k] = buildPivotTree(dict[k], groups.slice(1));
+            return result;
         }
 
         function renderPnlTable() {
-            let newSort = document.getElementById('filt-sort').value;
-            let newNet = document.getElementById('filt-net').value;
-            
-            if (newSort !== lastSortFilter || newNet !== lastNetFilter) {
-                currentPage = 1;
-                lastSortFilter = newSort;
-                lastNetFilter = newNet;
-            }
-            
-            currentFilters.sort = newSort;
-            currentFilters.net = newNet;
-
             let visibleScens = scenarios.filter(s => s.visible);
-            if(activeMonths.length === 0 || activeMetrics.length === 0 || visibleScens.length === 0) {
+            if(pnlState.months.length === 0 || pnlState.metrics.length === 0 || visibleScens.length === 0) {
                 document.getElementById('tbl-results-container').innerHTML = '<table><tbody><tr><td style="text-align:center; padding:50px;">Выделите хотя бы один срез, месяц и метрику</td></tr></tbody></table>';
                 return;
             }
 
-            let filteredData = finalPnlResults.filter(row => {
-                if (currentFilters.sort && row.sort !== currentFilters.sort) return false;
-                if (currentFilters.net && row.net !== currentFilters.net) return false;
-                return true;
-            });
+            // 1. Фильтрация данных
+            let filteredData = finalPnlResults.filter(r => 
+                pnlState.sorts.includes(r.sort) && 
+                pnlState.nets.includes(r.net) && 
+                pnlState.packs.includes(r.pack)
+            );
 
-            let totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
-            if (currentPage > totalPages) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
+            if (filteredData.length === 0) {
+                document.getElementById('tbl-results-container').innerHTML = '<table><tbody><tr><td style="text-align:center; padding:50px;">Нет данных по выбранным фильтрам</td></tr></tbody></table>';
+                return;
+            }
 
-            let startIdx = (currentPage - 1) * ITEMS_PER_PAGE;
-            let paginatedData = filteredData.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+            // 2. Читаем настройки Иерархии
+            let rawGroups = [
+                document.getElementById('pivot-g1').value,
+                document.getElementById('pivot-g2').value,
+                document.getElementById('pivot-g3').value
+            ];
+            // Убираем пустые и дубликаты (оставляем только уникальные уровни)
+            let groups = [...new Set(rawGroups.filter(g => g !== ''))];
+            if (groups.length === 0) groups = ['net']; // Защита от дурака
 
+            // 3. Строим дерево и собираем плоский массив строк для рендера
+            let tree = buildPivotTree(filteredData, groups);
+            let renderRows = [];
+
+            function traverse(node, name, level) {
+                let leaves = getLeaves(node);
+                let agg = aggregateScenarios(leaves, visibleScens);
+                
+                // Добавляем текущий узел в список отрисовки
+                renderRows.push({ name: name, level: level, scenarios: agg });
+                
+                // Идем вглубь
+                if (!node._isLeaf) {
+                    // Сортировка по алфавиту для красоты
+                    let children = Object.keys(node).filter(k => k !== '_isLeaf').sort();
+                    children.forEach(childName => traverse(node[childName], childName, level + 1));
+                }
+            }
+
+            // Корень дерева (ИТОГО ВСЕ)
+            traverse(tree, 'ИТОГО ПО ВЫБОРКЕ', 1);
+
+            // 4. Пагинация
+            let totalPages = Math.ceil(renderRows.length / ITEMS_PER_PAGE) || 1;
+            if (pnlState.page > totalPages) pnlState.page = totalPages;
+            if (pnlState.page < 1) pnlState.page = 1;
+
+            let startIdx = (pnlState.page - 1) * ITEMS_PER_PAGE;
+            let paginatedRows = renderRows.slice(startIdx, startIdx + ITEMS_PER_PAGE);
+
+            // 5. Отрисовка HTML
             let subHeader = visibleScens.map(s => `<th class="col-${s.id}">${s.name}</th>`).join('');
-            let thead = `<tr><th rowspan="2" class="col-sticky-1">СОРТ</th><th rowspan="2" class="col-sticky-2">Торговая Сеть</th><th rowspan="2" class="col-sticky-3">Показатель</th>`;
-            activeMonths.forEach(m => { thead += `<th colspan="${visibleScens.length}" class="group-th">${m}</th>`; });
-            thead += `</tr><tr>${subHeader.repeat(activeMonths.length)}</tr>`;
+            let thead = `<tr><th rowspan="2" class="col-sticky-1">Структура данных</th><th rowspan="2" class="col-sticky-2">Показатель</th>`;
+            pnlState.months.forEach(m => { thead += `<th colspan="${visibleScens.length}" class="group-th">${m}</th>`; });
+            thead += `</tr><tr>${subHeader.repeat(pnlState.months.length)}</tr>`;
 
             let tbody = '';
-            paginatedData.forEach(row => {
-                activeMetrics.forEach((mId, mIndex) => {
+            paginatedRows.forEach(row => {
+                let indentClass = `pivot-level-${row.level}`;
+                
+                pnlState.metrics.forEach((mId, mIndex) => {
                     let metricDef = METRICS.find(m => m.id === mId);
                     let isFirstMetric = mIndex === 0;
                     let tr = '<tr>';
+                    
                     if (isFirstMetric) {
-                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-1" style="vertical-align: middle;"><b>${row.sort}</b></td>`;
-                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-2" style="vertical-align: middle;">${row.net}</td>`;
+                        tr += `<td rowspan="${pnlState.metrics.length}" class="col-sticky-1 ${indentClass}">${row.name}</td>`;
                     }
-                    tr += `<td class="col-sticky-3">${metricDef.name}</td>`;
+                    tr += `<td class="col-sticky-2" style="${row.level === 1 ? 'background:#eef3ec; font-weight:700;' : ''}">${metricDef.name}</td>`;
 
-                    activeMonths.forEach(month => {
+                    pnlState.months.forEach(month => {
                         visibleScens.forEach(scen => {
                             let d = row.scenarios[scen.id] || {};
                             let mData = d[month] || {vol:0, rev:0, exp:0};
+                            
                             if (month === 'ИТОГО') {
                                 mData = {vol:0, rev:0, exp:0};
                                 MONTHS.forEach(mm => {
@@ -1168,9 +1511,8 @@
                             if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
                             if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) * 100 : 0;
 
-                            let rawVal = Math.round(val * 10) / 10;
-                            let styleExt = month === 'ИТОГО' ? 'background:#f4f9f4; font-weight:700;' : '';
-                            tr += `<td class="col-${scen.id}" style="${styleExt}" data-val="${rawVal}">${formatVal(val, metricDef.isPct)}</td>`;
+                            let bg = (row.level === 1 || month === 'ИТОГО') ? 'background:#f4f9f4; font-weight:700;' : '';
+                            tr += `<td class="col-${scen.id}" style="${bg}">${formatVal(val, metricDef.isPct)}</td>`;
                         });
                     });
                     tr += '</tr>';
@@ -1178,74 +1520,13 @@
                 });
             });
 
-            if (filteredData.length > 0) {
-                let overallAgg = {};
-                filteredData.forEach(row => {
-                    visibleScens.forEach(scen => {
-                        if (!overallAgg[scen.id]) overallAgg[scen.id] = {};
-                        let d = row.scenarios[scen.id] || {};
-                        MONTHS.forEach(m => {
-                            if (!overallAgg[scen.id][m]) overallAgg[scen.id][m] = {vol:0, rev:0, exp:0};
-                            if (d[m]) {
-                                overallAgg[scen.id][m].vol += d[m].vol;
-                                overallAgg[scen.id][m].rev += d[m].rev;
-                                overallAgg[scen.id][m].exp += d[m].exp;
-                            }
-                        });
-                    });
-                });
-
-                activeMetrics.forEach((mId, mIndex) => {
-                    let metricDef = METRICS.find(m => m.id === mId);
-                    let isFirstMetric = mIndex === 0;
-                    let tr = '<tr style="background:#eef3ec; font-weight:700;">';
-                    if (isFirstMetric) {
-                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-1" style="vertical-align: middle; background:#eef3ec; color:var(--primary); font-size:0.85rem;"><b>ИТОГО (ВСЕ СОРТА)</b></td>`;
-                        tr += `<td rowspan="${activeMetrics.length}" class="col-sticky-2" style="vertical-align: middle; background:#eef3ec; color:var(--primary);">Все сети</td>`;
-                    }
-                    tr += `<td class="col-sticky-3" style="background:#eef3ec; color:var(--primary);"><b>${metricDef.name}</b></td>`;
-
-                    activeMonths.forEach(month => {
-                        visibleScens.forEach(scen => {
-                            let mData = {vol:0, rev:0, exp:0};
-                            if (month === 'ИТОГО') {
-                                MONTHS.forEach(mm => {
-                                    if(overallAgg[scen.id] && overallAgg[scen.id][mm]) {
-                                        mData.vol += overallAgg[scen.id][mm].vol;
-                                        mData.rev += overallAgg[scen.id][mm].rev;
-                                        mData.exp += overallAgg[scen.id][mm].exp;
-                                    }
-                                });
-                            } else if (overallAgg[scen.id] && overallAgg[scen.id][month]) {
-                                mData = overallAgg[scen.id][month];
-                            }
-
-                            let val = 0;
-                            if (mId === 'vol') val = mData.vol;
-                            if (mId === 'rev') val = mData.rev;
-                            if (mId === 'exp') val = mData.exp;
-                            if (mId === 'ebitda') val = mData.rev - mData.exp;
-                            if (mId === 'price') val = mData.vol > 0 ? mData.rev / (mData.vol * 1000) : 0;
-                            if (mId === 'margin') val = mData.rev > 0 ? ((mData.rev - mData.exp) / mData.rev) * 100 : 0;
-
-                            let styleExt = 'background:#eef3ec; font-weight:800; border-top:2px solid var(--primary);';
-                            tr += `<td class="col-${scen.id}" style="${styleExt}">${formatVal(val, metricDef.isPct)}</td>`;
-                        });
-                    });
-                    tr += '</tr>';
-                    tbody += tr;
-                });
-            }
-
-            if (tbody === '') tbody = '<tr><td colspan="30" style="text-align: center; padding: 40px;">Нет данных по выбранным фильтрам</td></tr>';
-
             let paginationControls = '';
             if (totalPages > 1) {
                 paginationControls = `
                 <div class="pagination">
-                    <button class="page-btn" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>← Назад</button>
-                    <span class="page-info">Страница ${currentPage} из ${totalPages}</span>
-                    <button class="page-btn" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>Вперед →</button>
+                    <button class="page-btn" onclick="changePage(-1)" ${pnlState.page === 1 ? 'disabled' : ''}>← Назад</button>
+                    <span class="page-info">Страница ${pnlState.page} из ${totalPages}</span>
+                    <button class="page-btn" onclick="changePage(1)" ${pnlState.page === totalPages ? 'disabled' : ''}>Вперед →</button>
                 </div>`;
             }
 
@@ -1318,11 +1599,16 @@
                                     }
 
                                     if (currentUploadTarget === 'vol' || currentUploadTarget === 'generic') {
-                                        for(let c=0; c<4; c++) {
-                                            let v = parseCellNum(row[sortColIdx + 1 + c]);
-                                            if(!isNaN(v)) {
-                                                if (c > 0 && Math.abs(v) <= 2 && v !== 0) v *= 100;
-                                                tableData[`vol_${sIdx}_${c}_scur`] = v;
+                                        for(let c=0; c<5; c++) { 
+                                            if (c === 3) {
+                                                let valText = row[sortColIdx + 1 + c];
+                                                if (valText) tableData[`vol_${sIdx}_${c}_scur`] = valText;
+                                            } else {
+                                                let v = parseCellNum(row[sortColIdx + 1 + c]);
+                                                if(!isNaN(v)) {
+                                                    if (c > 0 && Math.abs(v) <= 2 && v !== 0) v *= 100;
+                                                    tableData[`vol_${sIdx}_${c}_scur`] = v;
+                                                }
                                             }
                                         }
                                     }
@@ -1437,7 +1723,6 @@
                             }
                         }
                     
-                    // ПАРСЕР ДЛЯ КВОТ СЕТЕЙ
                     } else if (currentUploadTarget === 'net_cap') {
                         for(let i=1; i < jsonData.length; i++) {
                             const row = jsonData[i];
@@ -1453,7 +1738,6 @@
                             }
                         }
 
-                    // ПАРСЕР ДЛЯ ЛИМИТОВ УПАКОВКИ
                     } else if (currentUploadTarget === 'pack_cap') {
                         for(let i=1; i < jsonData.length; i++) {
                             const row = jsonData[i];
@@ -1466,6 +1750,27 @@
                                 for(let m=0; m<MONTHS.length; m++) {
                                     let v = parseCellNum(row[m + 2]);
                                     if(!isNaN(v)) tableData[`pack_cap_${sIdx}_${pIdx}_${m}_scur`] = v;
+                                }
+                                parsedCount++;
+                            }
+                        }
+
+                    } else if (currentUploadTarget === 'det_cap') {
+                        for(let i=1; i < jsonData.length; i++) {
+                            const row = jsonData[i];
+                            if(!row || row.length < 4) continue;
+                            let sortName = String(row[0] || '').trim();
+                            let netName = String(row[1] || '').trim();
+                            let packName = String(row[2] || '').trim();
+                            
+                            let sIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
+                            let nIdx = NETWORKS.findIndex(n => netName.toLowerCase() === n.toLowerCase() || netName.toLowerCase().includes(n.toLowerCase()));
+                            let pIdx = PACKAGING.findIndex(p => packName.toLowerCase() === p.toLowerCase() || packName.toLowerCase().includes(p.toLowerCase()));
+                            
+                            if (sIdx !== -1 && nIdx !== -1 && pIdx !== -1) {
+                                for(let m=0; m<MONTHS.length; m++) {
+                                    let v = parseCellNum(row[m + 3]);
+                                    if(!isNaN(v)) tableData[`det_cap_${sIdx}_${nIdx}_${pIdx}_${m}_scur`] = v;
                                 }
                                 parsedCount++;
                             }
@@ -1593,9 +1898,38 @@
                 });
             });
 
-            finalPnlResults.forEach(row => {
-                if (filterSort && row.sort !== filterSort) return;
-                if (filterNet && row.net !== filterNet) return;
+            // Данные для выгрузки (включая сабтоталы)
+            let groupedData = [];
+            SORTS.forEach(sort => {
+                let sortRows = finalPnlResults.filter(r => r.sort === sort);
+                if (sortRows.length > 0) {
+                    groupedData.push(...sortRows);
+                    
+                    let subtotalRow = { sort: sort, net: 'ИТОГО ' + sort.toUpperCase(), isSubtotal: true, scenarios: {} };
+                    visibleScens.forEach(scen => {
+                        subtotalRow.scenarios[scen.id] = {};
+                        MONTHS.forEach(m => subtotalRow.scenarios[scen.id][m] = {vol:0, rev:0, exp:0});
+                    });
+                    
+                    sortRows.forEach(row => {
+                        visibleScens.forEach(scen => {
+                            let d = row.scenarios[scen.id] || {};
+                            MONTHS.forEach(m => {
+                                if (d[m]) {
+                                    subtotalRow.scenarios[scen.id][m].vol += d[m].vol;
+                                    subtotalRow.scenarios[scen.id][m].rev += d[m].rev;
+                                    subtotalRow.scenarios[scen.id][m].exp += d[m].exp;
+                                }
+                            });
+                        });
+                    });
+                    groupedData.push(subtotalRow);
+                }
+            });
+
+            groupedData.forEach(row => {
+                if (filterSort && row.sort !== filterSort && row.sort !== filterSort.replace('ИТОГО ', '')) return;
+                if (filterNet && row.net !== filterNet && !row.isSubtotal) return;
 
                 activeMetrics.forEach(mId => {
                     let metricDef = METRICS.find(m => m.id === mId);
@@ -1631,17 +1965,18 @@
                         cell.font = { name: 'Nunito', size: 10, color: { argb: 'FF2A362D' } };
                         cell.border = { top: {style: 'thin', color: {argb: 'FFD0D7D2'}}, bottom: {style: 'thin', color: {argb: 'FFD0D7D2'}} };
                         if (colNum <= 3) {
-                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF5F2E9' } };
+                            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: row.isSubtotal ? 'FFF4F9F4' : 'FFF5F2E9' } };
                             cell.font.bold = true;
+                            if (row.isSubtotal) cell.font.color = { argb: 'FF4F774A' };
                             cell.alignment = { vertical: 'middle', horizontal: 'left' };
-                            if (colNum === 3) cell.font.color = { argb: 'FF4F774A' };
+                            if (colNum === 3 && !row.isSubtotal) cell.font.color = { argb: 'FF4F774A' };
                         } else {
-                            cell.numFmt = metricDef.isPct ? '0.#%' : '#,##0.#';
+                            cell.numFmt = metricDef.isPct ? '0%' : '#,##0.#';
                             cell.alignment = { vertical: 'middle', horizontal: 'right' };
                             
                             let monthGroupIdx = Math.floor((colNum - 4) / visibleScens.length);
                             let isTotalCol = activeMonths[monthGroupIdx] === 'ИТОГО';
-                            if (isTotalCol) {
+                            if (isTotalCol || row.isSubtotal) {
                                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF4F9F4' } };
                                 cell.font.bold = true;
                             }
@@ -1664,15 +1999,13 @@
             link.click();
         }
 
-// --- АДМИН-ПАНЕЛЬ: СКРЫТЫЕ КНОПКИ УПРАВЛЕНИЯ БД ---
+        // --- АДМИН-ПАНЕЛЬ: СКРЫТЫЕ КНОПКИ УПРАВЛЕНИЯ БД ---
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
-            // Секретный параметр. Кнопки появятся только по адресу: ваш_сайт.com/?admin=true
             if (urlParams.get('admin') === 'true') {
                 const controls = document.querySelector('.scenario-controls');
                 if (!controls) return;
 
-                // 1. Кнопка выгрузки на сервер (которая уже была)
                 const adminSyncBtn = document.createElement('button');
                 adminSyncBtn.className = 'primary';
                 adminSyncBtn.style.backgroundColor = '#b45309'; 
@@ -1700,22 +2033,18 @@
                        });
                 };
 
-                // 2. НОВАЯ КНОПКА: Загрузка из файла JSON
                 const adminLoadBtn = document.createElement('button');
                 adminLoadBtn.className = 'primary';
-                adminLoadBtn.style.backgroundColor = '#1d4ed8'; // Синий цвет
+                adminLoadBtn.style.backgroundColor = '#1d4ed8'; 
                 adminLoadBtn.innerHTML = '📥 ЗАГРУЗИТЬ ИЗ ФАЙЛА';
 
-                // Скрытый инпут для выбора файла JSON
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
                 fileInput.accept = '.json';
                 fileInput.style.display = 'none';
 
-                // По клику на синюю кнопку открываем проводник
                 adminLoadBtn.onclick = () => fileInput.click();
 
-                // Обработчик загрузки файла
                 fileInput.onchange = function(e) {
                     const file = e.target.files[0];
                     if (!file) return;
@@ -1734,7 +2063,6 @@
                                 throw new Error("Неверный формат файла. Ожидается JSON от этой системы.");
                             }
 
-                            // 1. Подменяем локальные данные
                             tableData = importedData.tableData;
                             scenarios = importedData.scenarios;
                             if (importedData.sorts && importedData.sorts.length > 0) {
@@ -1744,14 +2072,12 @@
                                 NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
                             }
 
-                            // 2. Отправляем обновленную базу на сервер
                             setSyncStatus('Загрузка на сервер...');
                             API.saveFullState(tableData, scenarios, SORTS)
                                .then(() => {
                                    alert('УСПЕХ!\nБаза данных загружена из файла и успешно отправлена на сервер.');
                                    setSyncStatus('Синхронизировано');
                                    
-                                   // 3. Обновляем интерфейс визуально
                                    renderCheckboxes();
                                    generateAllTables();
                                    initPnlControls();
@@ -1769,18 +2095,16 @@
                         } catch (error) {
                             alert('Ошибка чтения файла: ' + error.message);
                         }
-                        fileInput.value = ''; // Очищаем инпут для возможности повторной загрузки
+                        fileInput.value = ''; 
                     };
                     reader.readAsText(file);
                 };
 
-                // Добавляем все новые элементы в шапку сайта (слева направо)
                 controls.prepend(fileInput);
                 controls.prepend(adminLoadBtn);
                 controls.prepend(adminSyncBtn);
             }
         });
-        
     </script>
 </body>
 </html>
