@@ -34,7 +34,56 @@ def init_db():
     except Exception as e:
         print("Ошибка при подключении к БД:", e)
 
-# Инициализируем таблицу при старте
+init_db()
+
+class StateUpdate(BaseModel):
+    tableData: dict
+    scenarios: list
+    sorts: list = []
+
+@app.get("/")
+def serve_frontend():
+    if os.path.exists("index.html"):
+        with open("index.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return {"error": "Файл index.html не найден"}
+
+@app.get("/app.js")
+def serve_js():
+    if os.path.exists("app.js"):
+        return FileResponse("app.js")
+    return {"error": "Файл app.js не найден"}
+
+@app.get("/api/v1/scenarios")
+def get_state():
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute("SELECT state_json FROM platform_state ORDER BY id DESC LIMIT 1")
+        row = c.fetchone()
+        c.close()
+        conn.close()
+        
+        if row:
+            return json.loads(row[0])
+    except Exception as e:
+        print("Ошибка при чтении из БД:", e)
+        
+    return {"tableData": {}, "scenarios": []}
+
+@app.post("/api/v1/scenarios/update")
+def update_state(update: StateUpdate):
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute("INSERT INTO platform_state (state_json) VALUES (%s)", (json.dumps(update.model_dump()),))
+        conn.commit()
+        c.close()
+        conn.close()
+        return {"status": "ok"}
+    except Exception as e:
+        print("Ошибка при записи в БД:", e)
+        return {"status": "error", "message": str(e)}# Инициализируем таблицу при старте
 init_db()
 
 class StateUpdate(BaseModel):
