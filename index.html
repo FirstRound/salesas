@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta name="robots" content="noindex, nofollow">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>АС | Платформа моделирования продаж</title>
@@ -181,6 +180,46 @@
     </style>
 </head>
 <body>
+<!-- ЭКРАН БЛОКИРОВКИ -->
+<div id="auth-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #FDFBF7; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    <h2 style="color: #2a362d; margin-bottom: 15px;">Вход в платформу</h2>
+    <div style="display: flex; gap: 10px;">
+        <input type="password" id="auth-input" placeholder="Введите пароль" style="padding: 10px; border: 1px solid #D0D7D2; border-radius: 4px; font-size: 1rem; width: 250px;" onkeypress="if(event.key === 'Enter') checkPassword()">
+        <button onclick="checkPassword()" style="background: #4F774A; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 1rem;">Войти</button>
+    </div>
+    <p id="auth-error" style="color: #d9534f; display: none; margin-top: 15px; font-weight: bold;">Неверный пароль</p>
+</div>
+
+<script>
+    // Задайте ваш пароль здесь:
+    const APP_PASSWORD = "agro2026"; 
+
+    // Проверяем: введен ли пароль ранее ИЛИ есть ли в кэше старые сохранения БД
+    let hasPassword = localStorage.getItem('app_access_key') === APP_PASSWORD;
+    let isOldUser = localStorage.getItem('agronom_db_state') !== null;
+
+    if (hasPassword || isOldUser) {
+        // Если это старый пользователь, неявно сохраняем ему пароль-пропуск на будущее
+        if (!hasPassword) {
+            localStorage.setItem('app_access_key', APP_PASSWORD);
+        }
+        document.getElementById('auth-overlay').style.display = 'none';
+    } else {
+        document.body.style.overflow = 'hidden'; // Блокируем прокрутку под экраном
+    }
+
+    function checkPassword() {
+        let input = document.getElementById('auth-input').value;
+        if (input === APP_PASSWORD) {
+            localStorage.setItem('app_access_key', APP_PASSWORD);
+            document.getElementById('auth-overlay').style.display = 'none';
+            document.body.style.overflow = ''; 
+        } else {
+            document.getElementById('auth-error').style.display = 'block';
+            document.getElementById('auth-input').value = '';
+        }
+    }
+</script>
     <div class="mobile-overlay"><h2>Зайдите с ПК</h2></div>
 
     <header>
