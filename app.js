@@ -217,7 +217,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         tableData = cloudData.tableData || {};
         scenarios = cloudData.scenarios || scenarios;
         if (cloudData.sorts && Array.isArray(cloudData.sorts) && cloudData.sorts.length > 0) {
-            SORTS.length = 0; SORTS.push(...cloudData.sorts);
+            // Вычищаем БД от мусорных сортов, которые случайно попали туда ранее
+            let cleanSorts = cloudData.sorts.filter(s => {
+                let sl = s.toLowerCase();
+                return !(sl.includes('параметр') || sl.includes('текущее') || sl.includes('сбор') || sl.includes('сценарий') || sl.includes('2025') || sl.includes('итого') || sl.includes('наименование') || sl.includes('категория'));
+            });
+            SORTS.length = 0; SORTS.push(...cleanSorts);
         }
         if (tableData['_meta_networks'] && Array.isArray(tableData['_meta_networks'])) {
             NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
@@ -1359,7 +1364,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-            const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', '1', 'факт', 'прогноз', 'бюджет', 'категория', 'параметр', 'наименование', 'клиент', 'упаковка', 'сеть'];
+            const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', '1', 'факт', 'прогноз', 'бюджет', 'категория', 'параметр', 'текущее', 'ввод', 'сценарий'];
 
             function parseCellNum(val) {
                 if (val === undefined || val === null) return NaN;
@@ -1375,20 +1380,16 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                     const row = jsonData[i];
                     if(!row || row.length === 0) continue;
 
-                    let sortColIdx = -1;
-                    for (let j=0; j < row.length; j++) {
-                        if (row[j] && typeof row[j] === 'string') {
-                            let text = String(row[j]).trim().toLowerCase();
-                            let shouldSkip = skipWords.some(w => text.includes(w));
-                            if (text && !shouldSkip && text.length < 30) {
-                                sortColIdx = j;
-                                break;
-                            }
-                        }
+                    // Смотрим СТРОГО в первую ячейку. Если пусто или это шапка — пропускаем всю строку
+                    let sortColIdx = 0;
+                    let text = String(row[0] || '').trim().toLowerCase();
+                    let shouldSkip = skipWords.some(w => text.includes(w));
+                    
+                    if (!text || shouldSkip || text.length > 30) {
+                        continue;
                     }
 
-                    if (sortColIdx !== -1) {
-                        let sortName = String(row[sortColIdx]).trim();
+                    let sortName = String(row[0]).trim();
                         if (sortName.length > 0) {
                             newSorts.push(sortName);
                             let sIdx = newSorts.length - 1;
@@ -1461,7 +1462,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                     const row = jsonData[i];
                     if(!row || row.length === 0) continue;
                     let firstText = String(row[0] || '').trim();
-                    const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 'параметр', 'наименование', 'клиент', 'сорт'];
+                    const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 'параметр', 'текущее', 'ввод', 'сценарий'];
                     let shouldSkip = skipWordsNets.some(w => firstText.toLowerCase().includes(w));
                     if (firstText && !shouldSkip && firstText.length < 50) {
                         newNets.push(firstText);
