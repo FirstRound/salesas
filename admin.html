@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления БД</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #FDFBF7; color: #2a362d; padding: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #D0D7D2; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
+        .item-row:last-child { border-bottom: none; }
+        .btn-del { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-weight: bold; }
+        .btn-del:hover { background: #cc0000; }
+        .status-badge { display: none; padding: 10px 15px; border-radius: 4px; margin-bottom: 20px; font-weight: bold; text-align: center; }
+        .status-loading { background: #fff3cd; color: #8a6d3b; display: block; }
+        .status-success { background: #dff0d8; color: #3c763d; display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="margin-top: 0;">Управление базой данных</h1>
+        <p style="color: #d9534f; margin-bottom: 30px;"><b>Внимание!</b> Удаление элемента здесь безвозвратно сотрет все его объемы, цены и лимиты во всех сценариях, а также сдвинет индексы в базе.</p>
+        
+        <div id="status" class="status-badge status-loading">Подключение к БД...</div>
+        
+        <div class="card" id="content-area" style="display: none;">
+            <div style="display: flex; gap: 40px;">
+                <div style="flex: 1;">
+                    <h3 style="margin-top: 0; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">🍏 Сорта яблок</h3>
+                    <div id="sorts-list"></div>
+                </div>
+                
+                <div style="flex: 1;">
+                    <h3 style="margin-top: 0; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">🛒 Торговые сети</h3>
+                    <div id="nets-list"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="margin-top: 30px;">
+            <a href="/" style="color: #4F774A; text-decoration: none; font-weight: bold;">&larr; Вернуться в платформу</a>
+        </div>
+    </div>
+
+    <script>
+        let tableData = {};
+        let scenarios = [];
+        let SORTS = [];
+        let NETWORKS = [];
+
+        async function loadData() {
+            try {
+                let res = await fetch('/api/v1/scenarios');
+                let data = await res.json();
+                tableData = data.tableData || {};
+                scenarios = data.scenarios || [];
+                SORTS = data.sorts || [];
+                NETWORKS = tableData['_meta_networks'] || ['Перекресток', 'Вкусвилл', 'Магнит', 'Лента'];
+                
+                document.getElementById('status').style.display = 'none';
+                document.getElementById('content-area').style.display = 'block';
+                renderLists();
+            } catch (e) {
+                let st = document.getElementById('status');
+                st.className = 'status-badge';
+                st.style.display = 'block';
+                st.style.background = '#f2dede'; st.style.color = '#a94442';
+                st.innerText = 'Ошибка подключения к базе данных.';
+            }
+        }
+
+        async function saveData() {
+            let st = document.getElementById('status');
+            st.className = 'status-badge status-loading';
+            st.innerText = 'Синхронизация с БД...';
+            try {
+                await fetch('/api/v1/scenarios/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tableData, scenarios, sorts: SORTS })
+                });
+                st.className = 'status-badge status-success';
+                st.innerText = 'База данных успешно обновлена!';
+                setTimeout(() => { st.style.display = 'none'; }, 2000);
+            } catch (e) {
+                st.className = 'status-badge';
+                st.style.background = '#f2dede'; st.style.color = '#a94442';
+                st.innerText = 'Ошибка при сохранении.';
+            }
+        }
+
+        function renderLists() {
+            let sortsHtml = SORTS.map((s, idx) => `
+                <div class="item-row">
+                    <span>${s}</span>
+                    <button class="btn-del" onclick="deleteSort(${idx})">Удалить</button>
+                </div>
+            `).join('');
+            document.getElementById('sorts-list').innerHTML = sortsHtml || '<p style="color:#999;">Нет данных</p>';
+
+            let netsHtml = NETWORKS.map((n, idx) => `
+                <div class="item-row">
+                    <span>${n}</span>
+                    <button class="btn-del" onclick="deleteNet(${idx})">Удалить</button>
+                </div>
+            `).join('');
+            document.getElementById('nets-list').innerHTML = netsHtml || '<p style="color:#999;">Нет данных</p>';
+        }
+
+        async function deleteSort(sIdx) {
+            if(!confirm(`Вы БЕЗВОЗВРАТНО удаляете сорт "${SORTS[sIdx]}". Продолжить?`)) return;
+            
+            let prefixes = ['vol_', 'q_cls_', 'q_col_', 'q_call_', 'q_calX_', 'grph_', 'cap_', 'pack_cap_', 'det_cap_', 'expdet_', 'p_fin_', 'p_base_'];
+            let newData = {};
+            
+            for (let key in tableData) {
+                if (key.startsWith('fact_')) {
+                    if (key.startsWith('fact_' + SORTS[sIdx] + '_')) continue;
+                    newData[key] = tableData[key];
+                    continue;
+                }
+
+                let matched = prefixes.find(p => key.startsWith(p));
+                if (matched) {
+                    let rest = key.slice(matched.length);
+                    let parts = rest.split('_');
+                    let currentIdx = parseInt(parts[0]);
+                    
+                    if (currentIdx === sIdx) continue;
+                    if (currentIdx > sIdx) {
+                        parts[0] = (currentIdx - 1).toString();
+                        newData[matched + parts.join('_')] = tableData[key];
+                    } else {
+                        newData[key] = tableData[key];
+                    }
+                } else {
+                    newData[key] = tableData[key];
+                }
+            }
+            
+            tableData = newData;
+            SORTS.splice(sIdx, 1);
+            renderLists();
+            await saveData();
+        }
+
+        async function deleteNet(nIdx) {
+            if(!confirm(`Вы БЕЗВОЗВРАТНО удаляете сеть "${NETWORKS[nIdx]}". Продолжить?`)) return;
+            
+            let newData = {};
+            for (let key in tableData) {
+                if (key.startsWith('fact_')) {
+                    let parts = key.split('_');
+                    if (parts.length > 2 && parts[2] === NETWORKS[nIdx]) continue; 
+                    newData[key] = tableData[key];
+                    continue;
+                }
+
+                if (key.startsWith('p_net_') || key.startsWith('net_cap_')) {
+                    let prefix = key.startsWith('p_net_') ? 'p_net_' : 'net_cap_';
+                    let rest = key.slice(prefix.length);
+                    let parts = rest.split('_');
+                    let currentIdx = parseInt(parts[0]);
+                    
+                    if (currentIdx === nIdx) continue;
+                    if (currentIdx > nIdx) {
+                        parts[0] = (currentIdx - 1).toString();
+                        newData[prefix + parts.join('_')] = tableData[key];
+                    } else {
+                        newData[key] = tableData[key];
+                    }
+                } else if (key.startsWith('det_cap_')) {
+                    let rest = key.slice('det_cap_'.length);
+                    let parts = rest.split('_');
+                    let currentNIdx = parseInt(parts[1]); 
+                    
+                    if (currentNIdx === nIdx) continue;
+                    if (currentNIdx > nIdx) {
+                        parts[1] = (currentNIdx - 1).toString();
+                        newData['det_cap_' + parts.join('_')] = tableData[key];
+                    } else {
+                        newData[key] = tableData[key];
+                    }
+                } else {
+                    newData[key] = tableData[key];
+                }
+            }
+            
+            tableData = newData;
+            NETWORKS.splice(nIdx, 1);
+            tableData['_meta_networks'] = NETWORKS;
+            renderLists();
+            await saveData();
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
