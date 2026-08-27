@@ -91,6 +91,7 @@ function autoSaveToBackend() {
     }, 600);
 }
 
+// Потерянная функция-помощник, из-за которой зависала страница
 function isPercentKey(k) {
     if (!k) return false;
     let pcts = ['q_cls', 'q_col', 'q_call', 'q_calX', 'mix', 'p_net', 'p_pack', 'p_cls', 'p_cal'];
@@ -106,12 +107,10 @@ function formatVal(val, isPercent = false) {
     if (isNaN(num) || num === 0) return isPercent ? '0%' : '0';
     
     if (isPercent) {
-        // Округляем до 1 знака. JS автоматически уберет нули на конце (10.0 -> "10")
         let rounded = Math.round(num * 10) / 10;
         return rounded.toString().replace('.', ',') + '%';
     }
     
-    // ЖЕСТКОЕ ОКРУГЛЕНИЕ АБСОЛЮТНЫХ ЗНАЧЕНИЙ ДО ЦЕЛОГО + НЕРАЗРЫВНЫЙ ПРОБЕЛ
     let rounded = Math.round(num);
     return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\u00A0");
 }
@@ -141,8 +140,6 @@ window.formatInputLive = function(el, isPercent) {
     let parts = raw.split(',');
     
     if (parts.length > 2) parts = [parts[0], parts.slice(1).join('')];
-    
-    // БЛОКИРОВКА: Если это абсолютное значение, запрещаем вводить дроби
     if (!isPercent && parts.length > 1) parts = [parts[0]];
     
     if (parts[0]){
@@ -161,7 +158,6 @@ window.formatInputLive = function(el, isPercent) {
     let cleanStr = el.value.replace(/\s/g,'').replace(/\u00A0/g,'').replace(',', '.');
     let num = parseFloat(cleanStr);
     
-    // Сохраняем в БД уже жестко округленное значение
     if (!isNaN(num)) {
         tableData[key] = isPercent ? (Math.round(num * 10) / 10) : Math.round(num);
     } else {
@@ -209,45 +205,46 @@ window.switchTab = function(tabId, el) {
 window.toggleAcc = function(el) { el.parentElement.classList.toggle('collapsed'); }
 window.toggleSidebar = function() { document.getElementById('main-sidebar').classList.toggle('collapsed'); }
 
-// --- ИНИЦИАЛИЗАЦИЯ И АВТО-ДОКТОР ---
+// --- ИНИЦИАЛИЗАЦИЯ И БЕЗОПАСНЫЙ АВТО-ДОКТОР ---
 document.addEventListener('DOMContentLoaded', async () => {
     setSyncStatus('Подключение к БД...');
-    let cloudData = await API.loadState();
-    if (cloudData) {
-        tableData = cloudData.tableData || {};
-        scenarios = cloudData.scenarios || scenarios;
-        if (cloudData.sorts && Array.isArray(cloudData.sorts) && cloudData.sorts.length > 0) {
-            // Вычищаем БД от мусорных сортов, которые случайно попали туда ранее
-            let cleanSorts = cloudData.sorts.filter(s => {
-                let sl = s.toLowerCase();
-                return !(sl.includes('параметр') || sl.includes('текущее') || sl.includes('сбор') || sl.includes('сценарий') || sl.includes('2025') || sl.includes('итого') || sl.includes('наименование') || sl.includes('категория'));
-            });
-            SORTS.length = 0; SORTS.push(...cleanSorts);
-        }
-        if (tableData['_meta_networks'] && Array.isArray(tableData['_meta_networks'])) {
-            NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
-        }
-
-        // АВТО-ДОКТОР: Лечим старые грязные данные в БД при загрузке
-        let needSave = false;
-        for (let k in tableData) {
-            if (typeof tableData[k] === 'number') {
-                let oldVal = tableData[k];
-                if (isPercentKey(k)) {
-                    tableData[k] = Math.round(tableData[k] * 10) / 10;
-                } else {
-                    tableData[k] = Math.round(tableData[k]);
-                }
-                if (oldVal !== tableData[k]) needSave = true;
+    try {
+        let cloudData = await API.loadState();
+        if (cloudData) {
+            tableData = cloudData.tableData || {};
+            scenarios = cloudData.scenarios || scenarios;
+            
+            if (cloudData.sorts && Array.isArray(cloudData.sorts) && cloudData.sorts.length > 0) {
+                SORTS.length = 0; SORTS.push(...cloudData.sorts);
             }
+            if (tableData['_meta_networks'] && Array.isArray(tableData['_meta_networks'])) {
+                NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
+            }
+
+            let needSave = false;
+            for (let k in tableData) {
+                if (typeof tableData[k] === 'number') {
+                    let oldVal = tableData[k];
+                    if (isPercentKey(k)) {
+                        tableData[k] = Math.round(tableData[k] * 10) / 10;
+                    } else {
+                        tableData[k] = Math.round(tableData[k]);
+                    }
+                    if (oldVal !== tableData[k]) needSave = true;
+                }
+            }
+            
+            if (needSave) autoSaveToBackend();
         }
-        if (needSave) autoSaveToBackend();
+        
+        renderCheckboxes();
+        generateAllTables();
+        initPnlControls();
+        setSyncStatus(cloudData ? 'Синхронизировано' : 'Готово к работе');
+    } catch (err) {
+        console.error(err);
+        setSyncStatus('Ошибка загрузки', true);
     }
-    
-    renderCheckboxes();
-    generateAllTables();
-    initPnlControls();
-    setSyncStatus(cloudData ? 'Синхронизировано' : 'Готово к работе');
 });
 
 // --- УПРАВЛЕНИЕ СЦЕНАРИЯМИ ---
@@ -371,6 +368,7 @@ function buildInputs(tableId, rIdx, cIdx, baseVal, typeFlag) {
                 html += `<td class="col-${scen.id}">
                     <div class="input-wrapper">
                         <input type="text" data-key="${key}" value="${formatInputDisplay(val, isPct)}" oninput="formatInputLive(this, ${isPct})">
+                        ${isPct ? '<span class="pct-sign">%</span>' : ''}
                     </div>
                 </td>`;
             }
@@ -435,6 +433,7 @@ function buildMonthlyTableMatrix(tableId, rowHeaders, dataGenerator, isPercent) 
                     return `<td class="col-${scen.id}">
                         <div class="input-wrapper">
                             <input type="text" data-key="${key}" value="${formatInputDisplay(val, isPercent)}" oninput="formatInputLive(this, ${isPercent})">
+                            ${isPercent ? '<span class="pct-sign">%</span>' : ''}
                         </div>
                     </td>`;
                 } else {
@@ -462,6 +461,7 @@ function buildMixTable(pIdx, packName) {
                 return `<td class="col-${scen.id}">
                     <div class="input-wrapper">
                         <input type="text" data-key="${key}" value="${formatInputDisplay(val, true)}" oninput="formatInputLive(this, true)">
+                        <span class="pct-sign">%</span>
                     </div>
                 </td>`;
             } else {
@@ -471,73 +471,6 @@ function buildMixTable(pIdx, packName) {
         return `<tr><td class="sticky-col" style="left:0;">${cal}</td>${rowData}</tr>`;
     }).join('');
     return `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
-}
-
-function buildMonthlyGraphTable() {
-    window.systemCalculatedGraph = window.systemCalculatedGraph || {};
-    let visibleScens = scenarios.filter(s => s.visible);
-    let thead = `<tr>
-        <th class="col-sticky-1">СОРТ</th>
-        <th class="col-sticky-2">Сценарий</th>
-        <th>Категория сорта</th>
-        <th>Категория сада</th>
-        ${MONTHS.map(m => `<th>${m}</th>`).join('')}
-    </tr>`;
-
-    let totalsHtml = visibleScens.map((scen, scenIdx) => {
-        let stickyCell1 = (scenIdx === 0) 
-            ? `<td rowspan="${visibleScens.length}" class="col-sticky-1">Итого (Валовый график)</td>` : '';
-        
-        let monthCells = MONTHS.map((month, mIdx) => {
-            let mTotal = 0;
-            SORTS.forEach((_, sIdx) => {
-                let val = tableData[`grph_${sIdx}_${mIdx}_${scen.id}`];
-                let hasOverride = (val !== undefined && val !== null && val !== '');
-                let sysVal = (window.systemCalculatedGraph[scen.id] && window.systemCalculatedGraph[scen.id][sIdx]) 
-                    ? window.systemCalculatedGraph[scen.id][sIdx][mIdx] : 0;
-                
-                mTotal += hasOverride ? Math.round(parseFloat(val)) : Math.round(sysVal);
-            });
-            return `<td>${formatVal(Math.round(mTotal), false)}</td>`;
-        }).join('');
-        return `<tr class="is-total">${stickyCell1}<td class="col-sticky-2">${scen.name}</td><td>-</td><td>-</td>${monthCells}</tr>`;
-    }).join('');
-
-    let tbody = totalsHtml + SORTS.map((sort, sIdx) => {
-        return visibleScens.map((scen, scenIdx) => {
-            let stickyCell1 = (scenIdx === 0) 
-                ? `<td rowspan="${visibleScens.length}" class="col-sticky-1">${sort}</td>` : '';
-            
-            let catSort = tableData[`vol_${sIdx}_0_${scen.id}`] || 'inv';
-            let catOrch = tableData[`vol_${sIdx}_1_${scen.id}`] || 'инт';
-            let catCells = `<td class="readonly-cell" style="text-align:left;">${catSort}</td><td class="readonly-cell" style="text-align:left;">${catOrch}</td>`;
-
-            let monthCells = MONTHS.map((month, mIdx) => {
-                let key = `grph_${sIdx}_${mIdx}_${scen.id}`;
-                let val = tableData[key];
-                let hasOverride = (val !== undefined && val !== null && val !== '');
-                
-                let sysVal = (window.systemCalculatedGraph[scen.id] && window.systemCalculatedGraph[scen.id][sIdx]) 
-                    ? window.systemCalculatedGraph[scen.id][sIdx][mIdx] : 0;
-                
-                sysVal = Math.round(sysVal);
-                let finalVal = hasOverride ? Math.round(parseFloat(val)) : sysVal;
-                
-                if (scen.type === 'input') {
-                    let displayVal = hasOverride ? formatInputDisplay(finalVal, false) : '';
-                    return `<td>
-                        <div class="input-wrapper">
-                            <input type="text" data-key="${key}" value="${displayVal}" placeholder="${formatInputDisplay(sysVal, false)}" oninput="formatInputLive(this, false)">
-                        </div>
-                    </td>`;
-                } else {
-                    return `<td class="readonly-cell">${formatVal(finalVal, false)}</td>`;
-                }
-            }).join('');
-            return `<tr>${stickyCell1}<td class="col-sticky-2">${scen.name}</td>${catCells}${monthCells}</tr>`;
-        }).join('');
-    }).join('');
-    document.getElementById('tbl-graph').innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
 }
 
 function buildPackCapTable() {
@@ -774,6 +707,73 @@ function buildMonthlyPriceTable() {
         }).join('');
     }).join('');
     document.getElementById('tbl-prc-monthly').innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
+}
+
+function buildMonthlyGraphTable() {
+    window.systemCalculatedGraph = window.systemCalculatedGraph || {};
+    let visibleScens = scenarios.filter(s => s.visible);
+    let thead = `<tr>
+        <th class="col-sticky-1">СОРТ</th>
+        <th class="col-sticky-2">Сценарий</th>
+        <th>Категория сорта</th>
+        <th>Категория сада</th>
+        ${MONTHS.map(m => `<th>${m}</th>`).join('')}
+    </tr>`;
+
+    let totalsHtml = visibleScens.map((scen, scenIdx) => {
+        let stickyCell1 = (scenIdx === 0) 
+            ? `<td rowspan="${visibleScens.length}" class="col-sticky-1">Итого (Валовый график)</td>` : '';
+        
+        let monthCells = MONTHS.map((month, mIdx) => {
+            let mTotal = 0;
+            SORTS.forEach((_, sIdx) => {
+                let val = tableData[`grph_${sIdx}_${mIdx}_${scen.id}`];
+                let hasOverride = (val !== undefined && val !== null && val !== '');
+                let sysVal = (window.systemCalculatedGraph[scen.id] && window.systemCalculatedGraph[scen.id][sIdx]) 
+                    ? window.systemCalculatedGraph[scen.id][sIdx][mIdx] : 0;
+                
+                mTotal += hasOverride ? Math.round(parseFloat(val)) : Math.round(sysVal);
+            });
+            return `<td>${formatVal(Math.round(mTotal), false)}</td>`;
+        }).join('');
+        return `<tr class="is-total">${stickyCell1}<td class="col-sticky-2">${scen.name}</td><td>-</td><td>-</td>${monthCells}</tr>`;
+    }).join('');
+
+    let tbody = totalsHtml + SORTS.map((sort, sIdx) => {
+        return visibleScens.map((scen, scenIdx) => {
+            let stickyCell1 = (scenIdx === 0) 
+                ? `<td rowspan="${visibleScens.length}" class="col-sticky-1">${sort}</td>` : '';
+            
+            let catSort = tableData[`vol_${sIdx}_0_${scen.id}`] || 'inv';
+            let catOrch = tableData[`vol_${sIdx}_1_${scen.id}`] || 'инт';
+            let catCells = `<td class="readonly-cell" style="text-align:left;">${catSort}</td><td class="readonly-cell" style="text-align:left;">${catOrch}</td>`;
+
+            let monthCells = MONTHS.map((month, mIdx) => {
+                let key = `grph_${sIdx}_${mIdx}_${scen.id}`;
+                let val = tableData[key];
+                let hasOverride = (val !== undefined && val !== null && val !== '');
+                
+                let sysVal = (window.systemCalculatedGraph[scen.id] && window.systemCalculatedGraph[scen.id][sIdx]) 
+                    ? window.systemCalculatedGraph[scen.id][sIdx][mIdx] : 0;
+                
+                sysVal = Math.round(sysVal);
+                let finalVal = hasOverride ? Math.round(parseFloat(val)) : sysVal;
+                
+                if (scen.type === 'input') {
+                    let displayVal = hasOverride ? formatInputDisplay(finalVal, false) : '';
+                    return `<td>
+                        <div class="input-wrapper">
+                            <input type="text" data-key="${key}" value="${displayVal}" placeholder="${formatInputDisplay(sysVal, false)}" oninput="formatInputLive(this, false)">
+                        </div>
+                    </td>`;
+                } else {
+                    return `<td class="readonly-cell">${formatVal(finalVal, false)}</td>`;
+                }
+            }).join('');
+            return `<tr>${stickyCell1}<td class="col-sticky-2">${scen.name}</td>${catCells}${monthCells}</tr>`;
+        }).join('');
+    }).join('');
+    document.getElementById('tbl-graph').innerHTML = `<table><thead>${thead}</thead><tbody>${tbody}</tbody></table>`;
 }
 
 function recalculateCapacityTable() {
@@ -1294,7 +1294,6 @@ window.runCalculationEngine = function() {
             });
         });
         
-        // Применяем залитые факты в P&L
         for (let key in tableData) {
             if (key.startsWith('fact_')) {
                 let match = key.match(/^fact_(.+)_(.+)_(.+)_(.+)_(.+)_(.+)_(vol|rev|exp)$/);
@@ -1312,7 +1311,6 @@ window.runCalculationEngine = function() {
             }
         }
 
-        // --- САНИТАЙЗЕР: Жесткое округление всех системных расчетов перед выдачей в таблицы ---
         for(let sc in window.systemCalculatedGraph) {
             for(let s in window.systemCalculatedGraph[sc]) {
                 for(let m in window.systemCalculatedGraph[sc][s]) {
@@ -1329,7 +1327,6 @@ window.runCalculationEngine = function() {
                 }
             }
         }
-        // --- КОНЕЦ САНИТАЙЗЕРА ---
 
         finalPnlResults = Object.values(pnlAgg);
         pnlState.page = 1;
@@ -1364,7 +1361,9 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
+            // Расширенные черные списки для защиты от заголовков
             const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', '1', 'факт', 'прогноз', 'бюджет', 'категория', 'параметр', 'текущее', 'ввод', 'сценарий'];
+            const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 'параметр', 'текущее', 'ввод', 'сценарий'];
 
             function parseCellNum(val) {
                 if (val === undefined || val === null) return NaN;
@@ -1380,56 +1379,53 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                     const row = jsonData[i];
                     if(!row || row.length === 0) continue;
 
-                    // Смотрим СТРОГО в первую ячейку. Если пусто или это шапка — пропускаем всю строку
-                    let sortColIdx = 0;
-                    let text = String(row[0] || '').trim().toLowerCase();
-                    let shouldSkip = skipWords.some(w => text.includes(w));
+                    // ЖЕСТКИЙ ПАРСЕР: Смотрим только в первую колонку (row[0])
+                    let val0 = row[0];
+                    if (val0 === undefined || val0 === null) continue;
+                    let text = String(val0).trim();
+                    let textLower = text.toLowerCase();
                     
-                    if (!text || shouldSkip || text.length > 30) {
-                        continue;
+                    let shouldSkip = skipWords.some(w => textLower.includes(w));
+                    if (!text || shouldSkip || text.length > 50) continue;
+
+                    let sortName = text;
+                    newSorts.push(sortName);
+                    let sIdx = newSorts.length - 1;
+
+                    if (currentUploadTarget === 'p_base' || currentUploadTarget === 'generic') {
+                        let val1 = parseCellNum(row[1]);
+                        let val2 = parseCellNum(row[2]);
+                        if (!isNaN(val1)) tableData[`p_base_${sIdx}_0_s2025`] = Math.round(val1);
+                        if (!isNaN(val2)) tableData[`p_base_${sIdx}_0_scur`] = Math.round(val2);
                     }
 
-                    let sortName = String(row[0]).trim();
-                        if (sortName.length > 0) {
-                            newSorts.push(sortName);
-                            let sIdx = newSorts.length - 1;
-
-                            if (currentUploadTarget === 'p_base' || currentUploadTarget === 'generic') {
-                                let val1 = parseCellNum(row[sortColIdx + 1]);
-                                let val2 = parseCellNum(row[sortColIdx + 2]);
-                                if (!isNaN(val1)) tableData[`p_base_${sIdx}_0_s2025`] = Math.round(val1);
-                                if (!isNaN(val2)) tableData[`p_base_${sIdx}_0_scur`] = Math.round(val2);
-                            }
-
-                            if (currentUploadTarget === 'vol' || currentUploadTarget === 'generic') {
-                                for(let c=0; c<7; c++) { 
-                                    if (c === 0 || c === 1 || c === 5) {
-                                        let valText = row[sortColIdx + 1 + c];
-                                        if (valText) tableData[`vol_${sIdx}_${c}_scur`] = valText;
-                                    } else {
-                                        let v = parseCellNum(row[sortColIdx + 1 + c]);
-                                        if(!isNaN(v)) {
-                                            if ((c === 3 || c === 6)) {
-                                                if (Math.abs(v) <= 2 && v !== 0) v *= 100;
-                                                tableData[`vol_${sIdx}_${c}_scur`] = Math.round(v * 10) / 10;
-                                            } else {
-                                                tableData[`vol_${sIdx}_${c}_scur`] = Math.round(v);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (['q_cls', 'q_col', 'q_call', 'q_calX'].includes(currentUploadTarget)) {
-                                let colCount = currentUploadTarget === 'q_cls' ? CLASSES.length :
-                                               currentUploadTarget === 'q_col' ? COLORS.length : CALIBERS.length;
-                                for(let c=0; c<colCount; c++) {
-                                    let v = parseCellNum(row[sortColIdx + 1 + c]);
-                                    if(!isNaN(v)) {
+                    if (currentUploadTarget === 'vol' || currentUploadTarget === 'generic') {
+                        for(let c=0; c<7; c++) { 
+                            if (c === 0 || c === 1 || c === 5) {
+                                let valText = row[1 + c];
+                                if (valText !== undefined && valText !== null) tableData[`vol_${sIdx}_${c}_scur`] = String(valText).trim();
+                            } else {
+                                let v = parseCellNum(row[1 + c]);
+                                if(!isNaN(v)) {
+                                    if ((c === 3 || c === 6)) {
                                         if (Math.abs(v) <= 2 && v !== 0) v *= 100;
-                                        tableData[`${currentUploadTarget}_${sIdx}_${c}_scur`] = Math.round(v * 10) / 10;
+                                        tableData[`vol_${sIdx}_${c}_scur`] = Math.round(v * 10) / 10;
+                                    } else {
+                                        tableData[`vol_${sIdx}_${c}_scur`] = Math.round(v);
                                     }
                                 }
+                            }
+                        }
+                    }
+
+                    if (['q_cls', 'q_col', 'q_call', 'q_calX'].includes(currentUploadTarget)) {
+                        let colCount = currentUploadTarget === 'q_cls' ? CLASSES.length :
+                                       currentUploadTarget === 'q_col' ? COLORS.length : CALIBERS.length;
+                        for(let c=0; c<colCount; c++) {
+                            let v = parseCellNum(row[1 + c]);
+                            if(!isNaN(v)) {
+                                if (Math.abs(v) <= 2 && v !== 0) v *= 100;
+                                tableData[`${currentUploadTarget}_${sIdx}_${c}_scur`] = Math.round(v * 10) / 10;
                             }
                         }
                     }
@@ -1461,9 +1457,11 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                 for(let i=0; i < jsonData.length; i++) {
                     const row = jsonData[i];
                     if(!row || row.length === 0) continue;
-                    let firstText = String(row[0] || '').trim();
-                    const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 'параметр', 'текущее', 'ввод', 'сценарий'];
+                    let val0 = row[0];
+                    if (val0 === undefined || val0 === null) continue;
+                    let firstText = String(val0).trim();
                     let shouldSkip = skipWordsNets.some(w => firstText.toLowerCase().includes(w));
+                    
                     if (firstText && !shouldSkip && firstText.length < 50) {
                         newNets.push(firstText);
                         let nIdx = newNets.length - 1;
@@ -1505,7 +1503,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                 for(let i=1; i < jsonData.length; i++) {
                     const row = jsonData[i];
                     if(!row || row.length < 13) continue;
-                    let sortName = String(row[0] || row[1] || row[2] || '').trim();
+                    let sortName = String(row[0] || '').trim();
                     if (sortName.toLowerCase().includes('итого') || sortName.toLowerCase().includes('общий')) continue;
                     let matchedSortIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
                     if (matchedSortIdx !== -1) {
@@ -1606,7 +1604,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                     if(!row || row.length < 3) continue;
                     
                     let sortName = String(row[1] || '').trim(); 
-                    if(!sortName || sortName.toLowerCase() === 'сорт' || sortName.toLowerCase() === 'категория сорта' || sortName.toLowerCase() === 'параметр') continue;
+                    if(!sortName || sortName.toLowerCase() === 'сорт' || sortName.toLowerCase() === 'параметр' || sortName.toLowerCase() === 'категория сорта') continue;
                     
                     let matchedSortIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
                     if (matchedSortIdx !== -1) {
@@ -1637,8 +1635,11 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                 for(let i=0; i < jsonData.length; i++) {
                     const row = jsonData[i];
                     if(!row || row.length === 0) continue;
-                    let firstText = String(row[0] || '').trim();
-                    if(!firstText) continue;
+                    let val0 = row[0];
+                    if (val0 === undefined || val0 === null) continue;
+                    let firstText = String(val0).trim();
+                    let shouldSkip = skipWords.some(w => firstText.toLowerCase().includes(w));
+                    if(!firstText || shouldSkip) continue;
 
                     let itemIdx = itemsArr.findIndex(it => {
                         let t1 = firstText.toLowerCase().trim();
@@ -1667,7 +1668,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
             if (finalPnlResults.length > 0) runCalculationEngine();
             autoSaveToBackend();
             setSyncStatus("Синхронизировано");
-            alert(`Файл успешно обработан!\nЗагружено записей/строк: ${parsedCount || SORTS.length}`);
+            alert(`Файл успешно обработан!\nЗагружено записей: ${parsedCount}`);
 
         } catch (error) {
             console.error(error);
