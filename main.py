@@ -68,6 +68,13 @@ def get_state():
         print("Ошибка чтения:", e)
     return {"tableData": {}, "scenarios": []}
 
+@app.get("/admin")
+def serve_admin():
+    if os.path.exists("admin.html"):
+        with open("admin.html", "r", encoding="utf-8") as f:
+            return HTMLResponse(content=f.read())
+    return {"error": "Файл admin.html не найден"}
+
 @app.post("/api/v1/scenarios/update")
 def update_state(update: StateUpdate):
     try:
