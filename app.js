@@ -223,44 +223,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             NETWORKS.length = 0; NETWORKS.push(...tableData['_meta_networks']);
         }
 
+        // АВТО-ДОКТОР: Лечим старые грязные данные в БД при загрузке
         let needSave = false;
-
-        // 1. МИГРАЦИЯ ТАБЛИЦЫ ОБЪЕМОВ (Сдвиг столбцов и конвертация % в абсолютные тонны)
-        if (!tableData['_migrated_vol_v2']) {
-            let sampleCell = tableData['vol_0_0_scur'];
-            // Если в первой ячейке лежит число (старый "Валовый сбор"), а не текст категории ('inv'), значит данные старые
-            if (typeof sampleCell === 'number' || (typeof sampleCell === 'string' && !isNaN(parseFloat(sampleCell)))) {
-                scenarios.forEach(scen => {
-                    SORTS.forEach((_, sIdx) => {
-                        let oldGross = tableData[`vol_${sIdx}_0_${scen.id}`]; // Старый Валовый сбор
-                        let oldInd = tableData[`vol_${sIdx}_1_${scen.id}`];
-                        let oldStoragePct = tableData[`vol_${sIdx}_2_${scen.id}`]; // Старое На хранение (%)
-                        let oldLoss = tableData[`vol_${sIdx}_3_${scen.id}`];
-
-                        // Присваиваем новые категории по умолчанию (индексы 0 и 1)
-                        tableData[`vol_${sIdx}_0_${scen.id}`] = 'inv';
-                        tableData[`vol_${sIdx}_1_${scen.id}`] = 'инт';
-                        
-                        // Сдвигаем старые числа на их новые места
-                        tableData[`vol_${sIdx}_2_${scen.id}`] = oldGross !== undefined ? oldGross : 0;
-                        tableData[`vol_${sIdx}_3_${scen.id}`] = oldInd !== undefined ? oldInd : 0;
-
-                        // Переводим старые проценты "На хранение" в абсолютные тонны!
-                        let grossNum = parseFloat(oldGross) || 0;
-                        let storagePctNum = parseFloat(oldStoragePct) || 0;
-                        tableData[`vol_${sIdx}_4_${scen.id}`] = Math.round(grossNum * (storagePctNum / 100));
-                        
-                        tableData[`vol_${sIdx}_5_${scen.id}`] = ''; // РГС
-                        tableData[`vol_${sIdx}_6_${scen.id}`] = oldLoss !== undefined ? oldLoss : 0;
-                    });
-                });
-            }
-            // Ставим метку, чтобы миграция больше никогда не запускалась
-            tableData['_migrated_vol_v2'] = true;
-            needSave = true;
-        }
-
-        // 2. АВТО-ДОКТОР: Лечим старые грязные дроби в БД при загрузке
         for (let k in tableData) {
             if (typeof tableData[k] === 'number') {
                 let oldVal = tableData[k];
@@ -272,7 +236,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (oldVal !== tableData[k]) needSave = true;
             }
         }
-        
         if (needSave) autoSaveToBackend();
     }
     
@@ -1396,7 +1359,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
 
-            const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', '1', 'факт', 'прогноз', 'бюджет', 'категория'];
+            const skipWords = ['2025', '2026', '2027', 'сорт', 'итого', 'scur', 's2025', '1', 'факт', 'прогноз', 'бюджет', 'категория', 'параметр', 'наименование', 'клиент', 'упаковка', 'сеть'];
 
             function parseCellNum(val) {
                 if (val === undefined || val === null) return NaN;
@@ -1498,7 +1461,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                     const row = jsonData[i];
                     if(!row || row.length === 0) continue;
                     let firstText = String(row[0] || '').trim();
-                    const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur'];
+                    const skipWordsNets = ['2025', '2026', '2027', 'торговая', 'сеть', 'итого', 'scur', 'параметр', 'наименование', 'клиент', 'сорт'];
                     let shouldSkip = skipWordsNets.some(w => firstText.toLowerCase().includes(w));
                     if (firstText && !shouldSkip && firstText.length < 50) {
                         newNets.push(firstText);
@@ -1642,7 +1605,7 @@ document.getElementById('file-upload').addEventListener('change', function(e) {
                     if(!row || row.length < 3) continue;
                     
                     let sortName = String(row[1] || '').trim(); 
-                    if(!sortName) continue;
+                    if(!sortName || sortName.toLowerCase() === 'сорт' || sortName.toLowerCase() === 'категория сорта' || sortName.toLowerCase() === 'параметр') continue;
                     
                     let matchedSortIdx = SORTS.findIndex(s => sortName.toLowerCase() === s.toLowerCase() || sortName.toLowerCase().includes(s.toLowerCase()));
                     if (matchedSortIdx !== -1) {
