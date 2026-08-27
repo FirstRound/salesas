@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from fastapi.responses import FileResponse
 
 app = FastAPI()
 
@@ -74,6 +75,10 @@ def serve_admin():
         with open("admin.html", "r", encoding="utf-8") as f:
             return HTMLResponse(content=f.read())
     return {"error": "Файл admin.html не найден"}
+
+@app.get("/robots.txt")
+def robots():
+    return FileResponse("robots.txt")
 
 @app.post("/api/v1/scenarios/update")
 def update_state(update: StateUpdate):
