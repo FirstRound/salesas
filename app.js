@@ -373,7 +373,9 @@ function buildInputs(tableId, rIdx, cIdx, baseVal, typeFlag) {
                 </td>`;
             }
         } else {
-            let finalDisplay = (typeFlag === 'text' || typeFlag.startsWith('select')) ? (val || '') : formatVal(val, isPct);
+            // ИСПРАВЛЕННАЯ СТРОКА 1
+            let isSelect = typeof typeFlag === 'string' && typeFlag.startsWith('select');
+            let finalDisplay = (typeFlag === 'text' || isSelect) ? (val || '') : formatVal(val, isPct);
             html += `<td class="${cellClass}">${finalDisplay}</td>`;
         }
     });
@@ -395,7 +397,9 @@ function buildTableMatrix(tableId, rowHeaders, colHeaders, dataGenerator, isPerc
             if (typeFlag === 'select_orchard') val = 'инт';
 
             if (isReadonlyRow) {
-                return visibleScens.map(scen => `<td class="col-${scen.id} readonly-cell">${(typeFlag==='text' || typeFlag.startsWith('select')) ? getOrInitData(tableId, rIdx, cIdx, scen.id, val) : formatVal(getOrInitData(tableId, rIdx, cIdx, scen.id, val), typeFlag===true)}</td>`).join('');
+                // ИСПРАВЛЕННАЯ СТРОКА 2
+                let isSelect = typeof typeFlag === 'string' && typeFlag.startsWith('select');
+                return visibleScens.map(scen => `<td class="col-${scen.id} readonly-cell">${(typeFlag==='text' || isSelect) ? getOrInitData(tableId, rIdx, cIdx, scen.id, val) : formatVal(getOrInitData(tableId, rIdx, cIdx, scen.id, val), typeFlag===true)}</td>`).join('');
             }
             return buildInputs(tableId, rIdx, cIdx, val, typeFlag);
         }).join('');
